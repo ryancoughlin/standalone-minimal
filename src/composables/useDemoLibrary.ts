@@ -1,10 +1,10 @@
 import { ref, computed } from "vue";
 import {
-  maestroDemos as mockMaestroDemos,
-  legacyDemos as mockLegacyDemos,
-  liveDemos as mockLiveDemos,
-  mockApiResponses
-} from "../data/mockData";
+  maestroDemos as demoDataMaestro,
+  legacyDemos as demoDataLegacy,
+  liveDemos as demoDataLive,
+  apiResponses
+} from "../data/demoData";
 
 export function useDemoLibrary() {
   // State
@@ -25,21 +25,22 @@ export function useDemoLibrary() {
       // Simulate API delay for realistic loading experience
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      // Use static mock data instead of API calls
-      const maestroResponse = mockApiResponses.getMaestroReplays();
+      // Use organized demo data primitives
+      const maestroResponse = apiResponses.getMaestroReplays();
       if (maestroResponse.success) {
         maestroDemos.value = maestroResponse.replays;
       }
 
-      // Fetch Legacy and Live demos from merged endpoint
-      const mergedResponse = mockApiResponses.getMergedReplayList();
+      // Fetch Legacy and Live demos from organized data
+      const mergedResponse = apiResponses.getMergedReplayList();
       legacyDemos.value = mergedResponse.replays || [];
       liveDemos.value = mergedResponse.live_replays || [];
 
-      // Add default URLs for legacy demos (from mock data)
+      // Ensure default URLs for legacy demos
       for (const demo of legacyDemos.value) {
-        const urlResponse = mockApiResponses.getDefaultUrl(demo.id);
-        demo.default_url = urlResponse.default_url;
+        if (!demo.default_url) {
+          demo.default_url = `https://demo.example.com/${demo.id}`;
+        }
       }
 
     } catch (error) {
