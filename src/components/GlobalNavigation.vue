@@ -13,33 +13,20 @@
       <div class="flex items-center gap-2">
         <button
           class="w-7 h-7 flex items-center justify-center border-none bg-transparent text-gray-500 cursor-pointer rounded transition-all duration-200 hover:bg-gray-100 hover:text-gray-700"
-          @click="$emit('back')"
-          title="Back"
+          @click="$emit('reposition')"
+          :title="isOnRight ? 'Move to Left' : 'Move to Right'"
         >
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-            <path
-              d="M10 12L6 8L10 4"
-              stroke="currentColor"
-              stroke-width="2"
-              fill="none"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
+          <i
+            class="fas fa-chevron-right text-sm"
+            :class="{ 'rotate-180': isOnRight }"
+          ></i>
         </button>
         <button
           class="w-7 h-7 flex items-center justify-center border-none bg-transparent text-gray-500 cursor-pointer rounded transition-all duration-200 hover:bg-gray-100 hover:text-gray-700"
           @click="$emit('close')"
           title="Close"
         >
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-            <path
-              d="M12 4L4 12M4 4L12 12"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-          </svg>
+          <i class="fas fa-times text-sm"></i>
         </button>
       </div>
     </div>
@@ -47,11 +34,17 @@
 </template>
 
 <script setup lang="ts">
+interface Props {
+  isOnRight: boolean;
+}
+
 interface Emits {
+  (e: "reposition"): void;
   (e: "back"): void;
   (e: "close"): void;
 }
 
+defineProps<Props>();
 defineEmits<Emits>();
 </script>
 

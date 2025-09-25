@@ -4,7 +4,7 @@
  */
 
 import { ref, computed } from 'vue';
-import { folders, maestroDemos, legacyDemos, liveDemos } from '../data/demoData';
+import { folders, maestroDemos, legacyDemos, liveDemos } from '../data/mockData';
 
 export interface Folder {
     id: string;

@@ -3,163 +3,177 @@
  * Extracted from Python mock services to use as static data
  */
 
-// Maestro demos - exact structure from real backend
-export const maestroDemos = [
-    {
-        id: "maestro1",
-        title: "Product Overview Demo",
-        created_at: "2024-01-15T10:00:00Z",
-        last_modified_at: "2024-01-20T14:30:00Z",
-        replay_folder_id: "folder1",
+// Clean demo data from mockData-clean.ts
+import { cleanDemos } from './mockData-clean';
+
+// Helper functions for demo assignment
+function assignDemoToFolder(demo: any): string {
+    const name = demo.name.toLowerCase();
+    const tags = (demo.tags || []).map((tag: string) => tag.toLowerCase());
+
+    // Sales demos (SKO, sales-focused)
+    if (name.includes('sko') || tags.includes('sko') || tags.includes('sales enablement') || tags.includes('sales')) {
+        return 'folder2'; // Sales Demos
+    }
+
+    // Marketing demos (showcases, customer success)
+    if (name.includes('showcase') || name.includes('marketing') ||
+        tags.includes('marketing') || tags.includes('customer success') || tags.includes('product launch')) {
+        return 'folder1'; // Marketing Demos
+    }
+
+    // Training demos (educational content)
+    if (name.includes('training') || name.includes('onboarding') || name.includes('workshop') ||
+        tags.includes('training') || tags.includes('education') || tags.includes('onboarding')) {
+        return 'folder3'; // Training
+    }
+
+    // Product demos (technical, developer-focused)
+    return 'folder4'; // Product Demos
+}
+
+function getFolderTitle(folderId: string): string {
+    const folderTitles: Record<string, string> = {
+        'folder1': 'Marketing Demos',
+        'folder2': 'Sales Demos',
+        'folder3': 'Training',
+        'folder4': 'Product Demos',
+        'folder5': 'Q1 Campaigns',
+        'folder6': 'Q2 Campaigns',
+        'folder7': 'Enterprise Sales',
+        'folder8': 'SMB Sales',
+        'folder9': 'Onboarding',
+        'folder10': 'Advanced Features'
+    };
+    return folderTitles[folderId] || 'Product Demos';
+}
+
+// Transform clean demos to maestro format (reveal product type)
+export const maestroDemos = cleanDemos
+    .filter(demo => demo.productType === 'reveal')
+    .map(demo => ({
+        id: demo.id,
+        title: demo.name,
+        created_at: new Date(demo.lastModified).toISOString(),
+        last_modified_at: new Date(demo.lastModified).toISOString(),
+        replay_folder_id: assignDemoToFolder(demo),
         properties: JSON.stringify({
-            replay_id: "maestro1",
-            replay_title: "Product Overview Demo",
-            tags: ["marketing", "product"],
+            replay_id: demo.id,
+            replay_title: demo.name,
+            tags: demo.tags,
             share_with_all: false,
-            share_as_play_only: true
+            share_as_play_only: true,
+            description: demo.description,
+            created_by: demo.createdBy,
+            views: demo.views,
+            starred: demo.starred
         }),
-        created_by_id: "user1",
-        created_by_username: "john.doe",
+        created_by_id: demo.createdBy,
+        created_by_username: demo.createdBy.toLowerCase().replace(' ', '.'),
         poster_image: "",
         is_playing: false,
         is_editing: false,
-        play_count: 45,
+        play_count: demo.views,
         transformations: [],
         resources: [],
         interception_rules: [],
         data_sets: []
-    },
-    {
-        id: "maestro2",
-        title: "Sales Process Demo",
-        created_at: "2024-01-16T09:00:00Z",
-        last_modified_at: "2024-01-21T11:15:00Z",
-        replay_folder_id: "folder2",
+    }));
+
+// Transform clean demos to legacy format (replay product type)
+export const legacyDemos = cleanDemos
+    .filter(demo => demo.productType === 'replay')
+    .map(demo => ({
+        id: demo.id,
+        api_version: 3,
+        title: demo.name,
+        last_modified_at: new Date(demo.lastModified).toISOString(),
+        created_at: new Date(demo.lastModified).toISOString(),
         properties: JSON.stringify({
-            replay_id: "maestro2",
-            replay_title: "Sales Process Demo",
-            tags: ["sales", "process"],
-            share_with_all: true,
-            share_as_play_only: false
+            legacy: true,
+            description: demo.description,
+            created_by: demo.createdBy,
+            views: demo.views,
+            starred: demo.starred,
+            tags: demo.tags
         }),
-        created_by_id: "user2",
-        created_by_username: "jane.smith",
-        poster_image: "",
-        is_playing: false,
-        is_editing: false,
-        play_count: 23,
-        transformations: [],
-        resources: [],
-        interception_rules: [],
-        data_sets: []
-    }
-];
-
-// Legacy demos - exact structure from merged_replay_list endpoint
-export const legacyDemos = [
-    {
-        id: "legacy1",
-        api_version: 3,
-        title: "Legacy Product Demo",
-        last_modified_at: "2024-01-18T16:45:00Z",
-        created_at: "2024-01-10T08:00:00Z",
-        properties: JSON.stringify({ legacy: true }),
         replay_type: "LEGACY",
         acl: null,
-        created_by: "user1",
+        created_by: demo.createdBy,
         replay_folder_index: 1,
-        starting_snapshot_id: "snapshot1",
-        replay_folder_id: "folder1",
-        folder_id: "folder1",
-        folder_title: "Marketing Demos",
-        owner_display_name: "john.doe",
-        owner_first_name: "John",
-        owner_last_name: "Doe",
-        snapshot_count: 12,
+        starting_snapshot_id: `snapshot_${demo.id}`,
+        replay_folder_id: assignDemoToFolder(demo),
+        folder_id: assignDemoToFolder(demo),
+        folder_title: getFolderTitle(assignDemoToFolder(demo)),
+        owner_display_name: demo.createdBy,
+        owner_first_name: demo.createdBy.split(' ')[0],
+        owner_last_name: demo.createdBy.split(' ')[1] || '',
+        snapshot_count: Math.floor(Math.random() * 20) + 5,
         only_edit4: false,
         screenshot_small: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
         custom_links: {
             link1: {
-                title: "Product Overview",
-                url: "https://demo.example.com/legacy1/overview",
-                description: "Main product overview page",
-                is_active: true
-            },
-            link2: {
-                title: "Pricing",
-                url: "https://demo.example.com/legacy1/pricing",
-                description: "Pricing information",
+                title: "Demo Overview",
+                url: `https://demo.example.com/${demo.id}/overview`,
+                description: "Main demo overview page",
                 is_active: true
             }
         }
-    },
-    {
-        id: "legacy2",
-        api_version: 3,
-        title: "Legacy Sales Demo",
-        last_modified_at: "2024-01-19T10:20:00Z",
-        created_at: "2024-01-12T14:00:00Z",
-        properties: JSON.stringify({ legacy: true }),
-        replay_type: "LEGACY",
+    }));
+
+// Transform clean demos to live format (replicate product type)
+export const liveDemos = cleanDemos
+    .filter(demo => demo.productType === 'replicate')
+    .map(demo => ({
+        id: demo.id,
+        title: demo.name,
+        created_at: new Date(demo.lastModified).toISOString(),
+        last_modified_at: new Date(demo.lastModified).toISOString(),
         acl: null,
-        created_by: "user2",
-        replay_folder_index: 2,
-        starting_snapshot_id: "snapshot2",
-        replay_folder_id: "folder2",
-        folder_id: "folder2",
-        folder_title: "Sales Demos",
-        owner_display_name: "jane.smith",
-        owner_first_name: "Jane",
-        owner_last_name: "Smith",
-        snapshot_count: 8,
-        only_edit4: false,
-        screenshot_small: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-        custom_links: {
-            link1: {
-                title: "Sales Process",
-                url: "https://demo.example.com/legacy2/sales",
-                description: "Sales process walkthrough",
-                is_active: true
-            }
+        folder_id: assignDemoToFolder(demo),
+        folder_title: getFolderTitle(assignDemoToFolder(demo)),
+        owner_first_name: demo.createdBy.split(' ')[0],
+        owner_last_name: demo.createdBy.split(' ')[1] || '',
+        default_url: `https://demo.example.com/${demo.id}`,
+        active_link_count: Math.floor(Math.random() * 10) + 1,
+        last_session_at: new Date(demo.lastModified).toISOString(),
+        screenshot_small: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+    }));
+
+// Calculate dynamic demo counts for folders
+function calculateFolderCounts() {
+    const counts: Record<string, { maestro: number; legacy: number; live: number }> = {};
+
+    // Initialize counts
+    ['folder1', 'folder2', 'folder3', 'folder4', 'folder5', 'folder6', 'folder7', 'folder8', 'folder9', 'folder10'].forEach(id => {
+        counts[id] = { maestro: 0, legacy: 0, live: 0 };
+    });
+
+    // Count maestro demos
+    maestroDemos.forEach(demo => {
+        if (counts[demo.replay_folder_id]) {
+            counts[demo.replay_folder_id].maestro++;
         }
-    }
-];
+    });
 
-// Live demos - exact structure from merged_replay_list live_replays
-export const liveDemos = [
-    {
-        id: "live1",
-        title: "Live Interactive Demo",
-        created_at: "2024-01-17T11:00:00Z",
-        last_modified_at: "2024-01-22T09:30:00Z",
-        acl: null,
-        folder_id: "folder1",
-        folder_title: "Marketing Demos",
-        owner_first_name: "John",
-        owner_last_name: "Doe",
-        default_url: "https://demo.example.com/live1",
-        active_link_count: 3,
-        last_session_at: "2024-01-22T08:45:00Z",
-        screenshot_small: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
-    },
-    {
-        id: "live2",
-        title: "Live Sales Demo",
-        created_at: "2024-01-18T15:00:00Z",
-        last_modified_at: "2024-01-23T12:15:00Z",
-        acl: null,
-        folder_id: "folder2",
-        folder_title: "Sales Demos",
-        owner_first_name: "Jane",
-        owner_last_name: "Smith",
-        default_url: "https://demo.example.com/live2",
-        active_link_count: 5,
-        last_session_at: "2024-01-23T11:30:00Z",
-        screenshot_small: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
-    }
-];
+    // Count legacy demos
+    legacyDemos.forEach(demo => {
+        if (counts[demo.folder_id]) {
+            counts[demo.folder_id].legacy++;
+        }
+    });
 
-// Folders - exact structure from real backend folders_helper.py
+    // Count live demos
+    liveDemos.forEach(demo => {
+        if (counts[demo.folder_id]) {
+            counts[demo.folder_id].live++;
+        }
+    });
+
+    return counts;
+}
+
+// Folders with dynamic counts based on actual demo assignments
 export const folders = [
     {
         id: "folder1",
@@ -168,8 +182,8 @@ export const folders = [
         sort_index: 1,
         archived: false,
         acl: null,
-        ac_replay_count: 5, // Maestro demos count
-        sc_replay_count: 3, // Legacy demos count
+        ac_replay_count: 0, // Will be calculated dynamically
+        sc_replay_count: 0, // Will be calculated dynamically
         created_by: "user1"
     },
     {
@@ -179,8 +193,8 @@ export const folders = [
         sort_index: 2,
         archived: false,
         acl: null,
-        ac_replay_count: 8,
-        sc_replay_count: 2,
+        ac_replay_count: 0,
+        sc_replay_count: 0,
         created_by: "user1"
     },
     {
@@ -190,8 +204,8 @@ export const folders = [
         sort_index: 3,
         archived: false,
         acl: null,
-        ac_replay_count: 12,
-        sc_replay_count: 6,
+        ac_replay_count: 0,
+        sc_replay_count: 0,
         created_by: "user2"
     },
     {
@@ -201,8 +215,8 @@ export const folders = [
         sort_index: 4,
         archived: false,
         acl: null,
-        ac_replay_count: 7,
-        sc_replay_count: 4,
+        ac_replay_count: 0,
+        sc_replay_count: 0,
         created_by: "user1"
     },
     {

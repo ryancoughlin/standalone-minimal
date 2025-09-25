@@ -1,10 +1,10 @@
 import { ref, computed } from "vue";
 import {
-  maestroDemos as demoDataMaestro,
-  legacyDemos as demoDataLegacy,
-  liveDemos as demoDataLive,
-  apiResponses
-} from "../data/demoData";
+  maestroDemos,
+  legacyDemos,
+  liveDemos,
+  mockApiResponses
+} from "../data/mockData";
 
 export function useDemoLibrary() {
   // State
@@ -25,14 +25,14 @@ export function useDemoLibrary() {
       // Simulate API delay for realistic loading experience
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      // Use organized demo data primitives
-      const maestroResponse = apiResponses.getMaestroReplays();
+      // Use consolidated mock data
+      const maestroResponse = mockApiResponses.getMaestroReplays();
       if (maestroResponse.success) {
         maestroDemos.value = maestroResponse.replays;
       }
 
-      // Fetch Legacy and Live demos from organized data
-      const mergedResponse = apiResponses.getMergedReplayList();
+      // Fetch Legacy and Live demos from consolidated data
+      const mergedResponse = mockApiResponses.getMergedReplayList();
       legacyDemos.value = mergedResponse.replays || [];
       liveDemos.value = mergedResponse.live_replays || [];
 
