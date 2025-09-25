@@ -27,10 +27,8 @@
     <FolderSidebar
       :show-folder-sidebar="showFolderSidebar"
       :current-folder="currentFolder"
-      :root-folders="rootFolders"
-      :expanded-folders="expandedFolders"
+      :all-folders="foldersWithCounts"
       :total-demo-count="totalDemoCount"
-      :get-subfolders="getSubfolders"
       @select-folder="handleSelectFolder"
     />
 
@@ -44,56 +42,91 @@
         @close="handleClose"
       />
 
-      <!-- Search Bar -->
-      <SearchBar v-model:search-query="searchQuery" @new-demo="handleNewDemo" />
-
-      <!-- Content Area -->
-      <div class="flex-1 overflow-y-auto">
-        <!-- Welcome Message -->
-        <div class="px-4 py-8">
-          <h2 class="text-2xl font-serif text-gray-900 text-center">
-            Welcome, Will.
-          </h2>
-        </div>
-
-        <!-- Breadcrumb Navigation -->
-        <BreadcrumbNavigation
-          :show-folder-sidebar="showFolderSidebar"
-          :current-folder="currentFolder"
-          :breadcrumbs="breadcrumbs"
-          @toggle-sidebar="showFolderSidebar = !showFolderSidebar"
-          @select-folder="handleSelectFolder"
-          @navigate-breadcrumb="navigateToBreadcrumb"
+      <!-- Main View -->
+      <div v-if="currentView === 'main'" class="flex flex-col flex-1">
+        <!-- Search Bar -->
+        <SearchBar
+          v-model:search-query="searchQuery"
+          @new-demo="handleNewDemo"
         />
 
-        <!-- Loading State -->
-        <div v-if="loading" class="space-y-4">
-          <div class="animate-pulse" v-for="i in 5" :key="i">
-            <div class="flex items-center space-x-4">
-              <div class="w-20 h-16 bg-gray-200 rounded" />
-              <div class="flex-1 space-y-2">
-                <div class="h-4 bg-gray-200 rounded w-3/4" />
-                <div class="h-3 bg-gray-200 rounded w-1/2" />
+        <!-- Content Area -->
+        <div
+          class="flex-1 overflow-y-auto"
+          ref="scrollContainer"
+          @scroll="handleScroll"
+        >
+          <!-- Welcome Message -->
+          <div class="px-4 py-8 hero-section" :style="heroTransform">
+            <h2 class="text-2xl font-serif text-gray-900 text-center">
+              Welcome, Will.
+            </h2>
+          </div>
+
+          <!-- Breadcrumb Navigation -->
+          <BreadcrumbNavigation
+            :show-folder-sidebar="showFolderSidebar"
+            :current-folder="currentFolder"
+            :breadcrumbs="breadcrumbs"
+            @toggle-sidebar="showFolderSidebar = !showFolderSidebar"
+            @select-folder="handleSelectFolder"
+            @navigate-breadcrumb="navigateToBreadcrumb"
+          />
+
+          <!-- Loading State -->
+          <div v-if="loading" class="space-y-4">
+            <div class="animate-pulse" v-for="i in 5" :key="i">
+              <div class="flex items-center space-x-4">
+                <div class="w-20 h-16 bg-gray-200 rounded" />
+                <div class="flex-1 space-y-2">
+                  <div class="h-4 bg-gray-200 rounded w-3/4" />
+                  <div class="h-3 bg-gray-200 rounded w-1/2" />
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Demo List -->
-        <DemoList
-          v-else
-          :current-folder="currentFolder"
-          :recent-demos="recentDemos"
-          :all-demos="allDemos"
-          :folder-demos="folderDemos"
-          :total-demo-count="totalDemoCount"
-          :filtered-total-count="filteredTotalCount"
-          :search-query="searchQuery"
-          :root-folders="rootFolders"
-          :folders-with-counts="foldersWithCounts"
-          @play-demo="handlePlayDemo"
-        />
+          <!-- Demo List -->
+          <DemoList
+            v-else
+            :current-folder="currentFolder"
+            :recent-demos="recentDemos"
+            :all-demos="allDemos"
+            :folder-demos="folderDemos"
+            :total-demo-count="totalDemoCount"
+            :filtered-total-count="filteredTotalCount"
+            :search-query="searchQuery"
+            :root-folders="
+              foldersWithCounts.filter((f) => f.parent_id === null)
+            "
+            :folders-with-counts="foldersWithCounts"
+            @play-demo="handlePlayDemo"
+            @customize-demo="handleCustomizeDemo"
+            @manage-links="handleManageLinks"
+            @view-analytics="handleViewAnalytics"
+          />
+        </div>
       </div>
+
+      <!-- Demo Customizer -->
+      <DemoCustomizer
+        v-else-if="currentView === 'customizer'"
+        :demo="selectedDemo"
+        @back="handleBackToMain"
+        @preview="handlePreviewDemo"
+        @generate-link="handleGenerateLink"
+      />
+
+      <!-- Link Manager View -->
+      <LinkManagerView
+        v-else-if="currentView === 'link-manager'"
+        :demo="selectedDemo"
+        @back="handleBackToMain"
+        @create-link="handleCreateLink"
+        @duplicate-link="handleDuplicateLink"
+        @delete-link="handleDeleteLink"
+        @toggle-link-status="handleToggleLinkStatus"
+      />
     </div>
   </div>
 </template>
@@ -107,21 +140,20 @@ import FolderSidebar from "./FolderSidebar.vue";
 import SearchBar from "./SearchBar.vue";
 import BreadcrumbNavigation from "./BreadcrumbNavigation.vue";
 import DemoList from "./DemoList.vue";
+import DemoCustomizer from "./DemoCustomizer.vue";
+import LinkManagerView from "./LinkManagerView.vue";
 
 const { maestroDemos, legacyDemos, liveDemos, loading, fetchAllDemos } =
   useDemoLibrary();
 
 const {
   currentFolder,
-  expandedFolders,
-  rootFolders,
   totalDemoCount,
-  getSubfolders,
   selectFolder,
   getFolderPath,
   getDemosInFolder,
   foldersWithCounts,
-} = useFolderService();
+} = useFolderService(maestroDemos, legacyDemos, liveDemos);
 
 // Search functionality
 const searchQuery = ref("");
@@ -132,6 +164,41 @@ const breadcrumbs = ref<any[]>([]);
 
 // Extension positioning
 const isOnRight = ref(true); // Start on right side
+
+// Navigation state
+type ViewType = "main" | "customizer" | "link-manager";
+const currentView = ref<ViewType>("main");
+const selectedDemo = ref<any>(null);
+
+// Scroll handling for hero parallax
+const scrollContainer = ref<HTMLElement | null>(null);
+const scrollY = ref(0);
+
+const handleScroll = () => {
+  if (scrollContainer.value) {
+    scrollY.value = scrollContainer.value.scrollTop;
+  }
+};
+
+// Hero parallax transform
+const heroTransform = computed(() => {
+  const scroll = scrollY.value;
+  const maxScroll = 200; // Distance to complete transition
+  const progress = Math.min(scroll / maxScroll, 1);
+
+  // Scale from 1 to 0.8
+  const scale = 1 - progress * 0.2;
+
+  // Translate up and fade out
+  const translateY = -scroll * 0.5; // Parallax effect
+  const opacity = 1 - progress;
+
+  return {
+    transform: `translateY(${translateY}px) scale(${scale})`,
+    opacity: opacity,
+    transition: "transform 0.1s ease-out, opacity 0.1s ease-out",
+  };
+});
 
 // Filtered demos based on search and folder
 const filteredMaestroDemos = computed(() => {
@@ -225,14 +292,79 @@ const handlePlayDemo = (demo: any) => {
   alert(`Playing demo: ${demo.title}`);
 };
 
+const handleCustomizeDemo = (demo: any) => {
+  selectedDemo.value = demo;
+  currentView.value = "customizer";
+};
+
+const handleManageLinks = (demo: any) => {
+  selectedDemo.value = demo;
+  currentView.value = "link-manager";
+};
+
+const handleBackToMain = () => {
+  currentView.value = "main";
+  selectedDemo.value = null;
+};
+
+const handleViewAnalytics = (demo: any) => {
+  console.log("Viewing analytics for:", demo);
+  // In real app, this would open analytics
+  alert(`Analytics for: ${demo.title}`);
+};
+
+const handlePreviewDemo = (demo: any, customization: any) => {
+  console.log("Previewing demo with customization:", demo, customization);
+  // In real app, this would open preview
+  alert(`Previewing ${demo.title} with customization`);
+};
+
+const handleGenerateLink = (demo: any, customization: any) => {
+  console.log("Generating link for:", demo, customization);
+  // In real app, this would generate and return a link
+  const link = `https://demo.reprise.com/custom/${Math.random()
+    .toString(36)
+    .substr(2, 9)}`;
+  alert(`Generated link: ${link}`);
+  handleBackToMain();
+};
+
+const handleCreateLink = (demo: any) => {
+  selectedDemo.value = demo;
+  currentView.value = "customizer";
+};
+
+const handleDuplicateLink = (link: any) => {
+  console.log("Duplicating link:", link);
+  // In real app, this would duplicate the link
+  alert(`Duplicating link: ${link.url}`);
+};
+
+const handleDeleteLink = (link: any) => {
+  console.log("Deleting link:", link);
+  // In real app, this would delete the link
+  alert(`Deleting link: ${link.url}`);
+};
+
+const handleToggleLinkStatus = (link: any) => {
+  console.log("Toggling link status:", link);
+  // In real app, this would toggle the link status
+  link.isActive = !link.isActive;
+  alert(`Link ${link.isActive ? "activated" : "archived"}: ${link.url}`);
+};
+
 const handleNewDemo = () => {
   console.log("New demo button clicked");
   // In real app, this would open new demo creation
 };
 
 const handleBack = () => {
-  console.log("Back button clicked");
-  // In real app, this would navigate back
+  if (currentView.value !== "main") {
+    handleBackToMain();
+  } else {
+    console.log("Back button clicked - already at main view");
+    // In real app, this would navigate back to parent app
+  }
 };
 
 const handleClose = () => {
@@ -264,9 +396,7 @@ const updateBreadcrumbs = (folder: any) => {
 };
 
 const navigateToBreadcrumb = (crumb: any) => {
-  const folder =
-    rootFolders.value.find((f) => f.id === crumb.id) ||
-    foldersWithCounts.value.find((f) => f.id === crumb.id);
+  const folder = foldersWithCounts.value.find((f) => f.id === crumb.id);
   handleSelectFolder(folder || null);
 };
 
@@ -298,6 +428,13 @@ onMounted(async () => {
 /* Demo Content */
 .demo-content {
   @apply flex flex-col flex-1 min-w-0;
+}
+
+/* Hero section parallax styling */
+.hero-section {
+  position: relative;
+  z-index: 10;
+  will-change: transform, opacity;
 }
 
 /* Custom scrollbar for webkit browsers */

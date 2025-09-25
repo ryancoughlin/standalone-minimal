@@ -8,14 +8,14 @@ import {
 
 export function useDemoLibrary() {
   // State
-  const maestroDemos = ref<any[]>([]);
-  const legacyDemos = ref<any[]>([]);
-  const liveDemos = ref<any[]>([]);
+  const maestroDemosRef = ref<any[]>([]);
+  const legacyDemosRef = ref<any[]>([]);
+  const liveDemosRef = ref<any[]>([]);
   const loading = ref(false);
 
   // Computed
   const totalDemoCount = computed(
-    () => maestroDemos.value.length + legacyDemos.value.length + liveDemos.value.length
+    () => maestroDemosRef.value.length + legacyDemosRef.value.length + liveDemosRef.value.length
   );
 
   // Actions
@@ -25,30 +25,30 @@ export function useDemoLibrary() {
       // Simulate API delay for realistic loading experience
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      // Use consolidated mock data
-      const maestroResponse = mockApiResponses.getMaestroReplays();
-      if (maestroResponse.success) {
-        maestroDemos.value = maestroResponse.replays;
-      }
-
-      // Fetch Legacy and Live demos from consolidated data
-      const mergedResponse = mockApiResponses.getMergedReplayList();
-      legacyDemos.value = mergedResponse.replays || [];
-      liveDemos.value = mergedResponse.live_replays || [];
+      // Use direct exports instead of mock API responses
+      maestroDemosRef.value = maestroDemos;
+      legacyDemosRef.value = legacyDemos;
+      liveDemosRef.value = liveDemos;
 
       // Ensure default URLs for legacy demos
-      for (const demo of legacyDemos.value) {
+      for (const demo of legacyDemosRef.value) {
         if (!demo.default_url) {
           demo.default_url = `https://demo.example.com/${demo.id}`;
         }
       }
 
+      console.log('Demos loaded:', {
+        maestro: maestroDemosRef.value.length,
+        legacy: legacyDemosRef.value.length,
+        live: liveDemosRef.value.length
+      });
+
     } catch (error) {
       console.error("Error fetching demos:", error);
       // Fallback to empty arrays
-      maestroDemos.value = [];
-      legacyDemos.value = [];
-      liveDemos.value = [];
+      maestroDemosRef.value = [];
+      legacyDemosRef.value = [];
+      liveDemosRef.value = [];
     } finally {
       loading.value = false;
     }
@@ -56,9 +56,9 @@ export function useDemoLibrary() {
 
   return {
     // Data
-    maestroDemos,
-    legacyDemos,
-    liveDemos,
+    maestroDemos: maestroDemosRef,
+    legacyDemos: legacyDemosRef,
+    liveDemos: liveDemosRef,
     totalDemoCount,
     loading,
 

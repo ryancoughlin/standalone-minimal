@@ -1,0 +1,41 @@
+---
+alwaysApply: true
+description: Component architecture and organization guidelines
+---
+
+# Component Architecture Guidelines
+
+## Component Organization
+
+- Keep components focused on single responsibilities
+- Break down large components (>300 lines) into smaller, focused components
+- Use semantic component names that clearly indicate their purpose
+- Store components in [src/components/](mdc:src/components/) directory
+
+## Component Structure
+
+- Use `<script setup>` syntax for all Vue components
+- Define clear Props and Emits interfaces with TypeScript
+- Use double quotes for string literals consistently
+- Keep template logic minimal - move complex logic to computed properties or methods
+
+## Component Communication
+
+- Use props for data flow down to child components
+- Use events for communication up to parent components
+- Prefer explicit event names over generic ones (e.g., `select-folder` not `select`)
+- Use v-model for two-way data binding when appropriate
+
+## File Organization
+
+- Each component should be in its own file
+- Use PascalCase for component file names (e.g., `DemoList.vue`)
+- Keep related components grouped logically
+- Remove unused components to avoid confusion
+
+## Examples from this codebase:
+
+- [DemoLibrary.vue](mdc:src/components/DemoLibrary.vue) - Main orchestrator component
+- [FolderSidebar.vue](mdc:src/components/FolderSidebar.vue) - Focused sidebar component
+- [SearchBar.vue](mdc:src/components/SearchBar.vue) - Simple search functionality
+- [DemoList.vue](mdc:src/components/DemoList.vue) - Unified demo display logic

@@ -1,0 +1,55 @@
+---
+globs: *.vue,*.ts,*.js
+description: Vue.js and TypeScript coding standards
+---
+
+# Vue.js & TypeScript Coding Standards
+
+## Vue Component Standards
+
+- Always use `<script setup>` syntax for new components
+- Define Props and Emits interfaces with explicit TypeScript types
+- Use `ref()` and `computed()` from Vue composition API
+- Prefer composition API over options API
+
+## TypeScript Standards
+
+- Use double quotes for all string literals
+- Define explicit interfaces for component props and emits
+- Use `any` type sparingly - prefer specific types when possible
+- Import statements should use double quotes
+
+## Event Handling
+
+- Use kebab-case for event names in templates
+- Use camelCase for event names in TypeScript interfaces
+- Prefer explicit event handlers over inline expressions for complex logic
+
+## Template Formatting
+
+- Break long attribute lines for better readability
+- Use consistent indentation (2 spaces)
+- Group related attributes together
+- Use v-model for two-way data binding when appropriate
+
+## Example from [SearchBar.vue](mdc:src/components/SearchBar.vue):
+
+```vue
+<input
+  :value="searchQuery"
+  @input="
+    $emit(
+      'update:searchQuery',
+      ($event.target as HTMLInputElement).value
+    )
+  "
+/>
+```
+
+## Example from [DemoList.vue](mdc:src/components/DemoList.vue):
+
+```vue
+<span class="demo-folder">{{
+  getFolderName(demo.folder_id || demo.replay_folder_id)
+}}</span>
+```

@@ -19,54 +19,30 @@
           <div class="folder-badge">{{ totalDemoCount }}</div>
         </button>
 
-        <!-- Root Folders -->
+        <!-- All Folders (Flat List) -->
         <div class="folder-section">
           <div
-            v-for="folder in rootFolders"
+            v-for="folder in allFolders"
             :key="folder.id"
             class="folder-group"
           >
-            <div class="folder-parent-container">
-              <button
-                @click="$emit('select-folder', folder)"
-                class="folder-item folder-parent"
-                :class="{
-                  'folder-selected': currentFolder?.id === folder.id,
-                }"
-              >
-                <div class="folder-icon">
-                  <i class="fas fa-folder text-gray-500"></i>
-                </div>
-                <span class="folder-name">{{ folder.title }}</span>
-                <div class="folder-badge">
-                  {{ folder.total_demo_count }}
-                </div>
-              </button>
-            </div>
-
-            <!-- Subfolders -->
-            <div
-              v-if="expandedFolders.includes(folder.id)"
-              class="subfolder-container"
+            <button
+              @click="$emit('select-folder', folder)"
+              class="folder-item"
+              :class="{
+                'folder-selected': currentFolder?.id === folder.id,
+                'folder-parent': folder.parent_id === null,
+                'folder-child': folder.parent_id !== null,
+              }"
             >
-              <button
-                v-for="subfolder in getSubfolders(folder.id)"
-                :key="subfolder.id"
-                @click="$emit('select-folder', subfolder)"
-                class="folder-item folder-child"
-                :class="{
-                  'folder-selected': currentFolder?.id === subfolder.id,
-                }"
-              >
-                <div class="folder-icon">
-                  <i class="fas fa-folder text-gray-400"></i>
-                </div>
-                <span class="folder-name">{{ subfolder.title }}</span>
-                <div class="folder-badge">
-                  {{ subfolder.total_demo_count }}
-                </div>
-              </button>
-            </div>
+              <div class="folder-icon">
+                <i class="fas fa-folder text-gray-500"></i>
+              </div>
+              <span class="folder-name">{{ folder.title }}</span>
+              <div class="folder-badge">
+                {{ folder.total_demo_count }}
+              </div>
+            </button>
           </div>
         </div>
       </div>
@@ -78,14 +54,13 @@
 interface Props {
   showFolderSidebar: boolean;
   currentFolder: any;
-  rootFolders: any[];
-  expandedFolders: string[];
+  allFolders: any[];
   totalDemoCount: number;
-  getSubfolders: (folderId: string) => any[];
 }
 
 interface Emits {
   (e: "select-folder", folder: any): void;
+  (e: "toggle-folder", folderId: string): void;
 }
 
 defineProps<Props>();

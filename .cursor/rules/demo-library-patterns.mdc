@@ -1,0 +1,53 @@
+---
+globs: src/components/Demo*.vue,src/components/Folder*.vue,src/components/Search*.vue
+description: Specific patterns for demo library components
+---
+
+# Demo Library Component Patterns
+
+## Component Hierarchy
+
+- [DemoLibrary.vue](mdc:src/components/DemoLibrary.vue) - Main orchestrator
+- [FolderSidebar.vue](mdc:src/components/FolderSidebar.vue) - Folder navigation
+- [SearchBar.vue](mdc:src/components/SearchBar.vue) - Search functionality
+- [DemoList.vue](mdc:src/components/DemoList.vue) - Demo display logic
+- [BreadcrumbNavigation.vue](mdc:src/components/BreadcrumbNavigation.vue) - Breadcrumb nav
+
+## Data Flow Patterns
+
+- Use [useDemoLibrary.ts](mdc:src/composables/useDemoLibrary.ts) for demo data management
+- Use [useFolderService.ts](mdc:src/services/folderService.ts) for folder operations
+- Pass filtered data down to child components via props
+- Emit events up for user interactions (select, play, search)
+
+## Demo Display Strategy
+
+- **Unified Display**: Single demo list component handles all demo types
+- **No Product Differentiation**: Don't separate by Maestro/Legacy/Live types
+- **Recent + All Sections**: Show recent demos first, then all demos
+- **Folder Context**: Show folder-specific demos when folder is selected
+
+## Event Patterns
+
+- `select-folder`: Folder selection events
+- `play-demo`: Demo playback events
+- `update:searchQuery`: Search input updates
+- `toggle-sidebar`: Sidebar visibility toggle
+- `navigate-breadcrumb`: Breadcrumb navigation
+
+## Styling Patterns
+
+- Use Tailwind CSS classes consistently
+- Keep component-specific styles scoped
+- Use CSS custom properties for theme colors (reprise-\*)
+- Maintain consistent spacing and typography
+
+## Example Event Handling:
+
+```vue
+<!-- In parent component -->
+<FolderSidebar @select-folder="handleSelectFolder" />
+
+<!-- In child component -->
+<button @click="$emit('select-folder', folder)">
+```

@@ -4,7 +4,7 @@
  */
 
 import { ref, computed } from 'vue';
-import { folders, maestroDemos, legacyDemos, liveDemos } from '../data/mockData';
+import { folders } from '../data/mockData';
 
 export interface Folder {
     id: string;
@@ -25,25 +25,40 @@ export interface FolderWithCounts extends Folder {
     live_count: number;
 }
 
-export function useFolderService() {
+export function useFolderService(maestroDemos: any, legacyDemos: any, liveDemos: any) {
     // State
     const currentFolder = ref<Folder | null>(null);
     const expandedFolders = ref<string[]>([]);
 
-    // Computed - Dynamic folder counts
+    // Computed - Dynamic folder counts with enterprise hierarchy
     const foldersWithCounts = computed((): FolderWithCounts[] => {
         return folders.map(folder => {
-            // Count demos in this folder
-            const maestroCount = maestroDemos.filter(demo => demo.replay_folder_id === folder.id).length;
-            const legacyCount = legacyDemos.filter(demo => demo.folder_id === folder.id).length;
-            const liveCount = liveDemos.filter(demo => demo.folder_id === folder.id).length;
+            // Count demos directly in this folder
+            const directMaestroCount = maestroDemos.value.filter(demo => demo.replay_folder_id === folder.id).length;
+            const directLegacyCount = legacyDemos.value.filter(demo => demo.folder_id === folder.id).length;
+            const directLiveCount = liveDemos.value.filter(demo => demo.folder_id === folder.id).length;
+
+            // For root folders, also count demos in all subfolders (enterprise hierarchy)
+            let totalMaestroCount = directMaestroCount;
+            let totalLegacyCount = directLegacyCount;
+            let totalLiveCount = directLiveCount;
+
+            if (folder.parent_id === null) {
+                // This is a root folder - count all demos in subfolders
+                const subfolders = folders.filter(f => f.parent_id === folder.id);
+                for (const subfolder of subfolders) {
+                    totalMaestroCount += maestroDemos.value.filter(demo => demo.replay_folder_id === subfolder.id).length;
+                    totalLegacyCount += legacyDemos.value.filter(demo => demo.folder_id === subfolder.id).length;
+                    totalLiveCount += liveDemos.value.filter(demo => demo.folder_id === subfolder.id).length;
+                }
+            }
 
             return {
                 ...folder,
-                total_demo_count: maestroCount + legacyCount + liveCount,
-                maestro_count: maestroCount,
-                legacy_count: legacyCount,
-                live_count: liveCount
+                total_demo_count: totalMaestroCount + totalLegacyCount + totalLiveCount,
+                maestro_count: totalMaestroCount,
+                legacy_count: totalLegacyCount,
+                live_count: totalLiveCount
             };
         });
     });
@@ -55,7 +70,7 @@ export function useFolderService() {
     });
 
     const totalDemoCount = computed(() => {
-        return maestroDemos.length + legacyDemos.length + liveDemos.length;
+        return maestroDemos.value.length + legacyDemos.value.length + liveDemos.value.length;
     });
 
     // Actions
@@ -101,16 +116,42 @@ export function useFolderService() {
     const getDemosInFolder = (folderId: string | null) => {
         if (!folderId) {
             return {
-                maestro: maestroDemos,
-                legacy: legacyDemos,
-                live: liveDemos,
-                total: maestroDemos.length + legacyDemos.length + liveDemos.length
+                maestro: maestroDemos.value,
+                legacy: legacyDemos.value,
+                live: liveDemos.value,
+                total: maestroDemos.value.length + legacyDemos.value.length + liveDemos.value.length
             };
         }
 
-        const maestro = maestroDemos.filter(demo => demo.replay_folder_id === folderId);
-        const legacy = legacyDemos.filter(demo => demo.folder_id === folderId);
-        const live = liveDemos.filter(demo => demo.folder_id === folderId);
+        // Get all subfolder IDs for this folder (including the folder itself)
+        const getAllSubfolderIds = (parentId: string): string[] => {
+            const subfolderIds = [parentId]; // Include the parent folder itself
+            const subfolders = folders.filter(f => f.parent_id === parentId);
+            for (const subfolder of subfolders) {
+                subfolderIds.push(...getAllSubfolderIds(subfolder.id));
+            }
+            return subfolderIds;
+        };
+
+        const folderIdsToSearch = getAllSubfolderIds(folderId);
+
+        const maestro = maestroDemos.value.filter(demo =>
+            folderIdsToSearch.includes(demo.replay_folder_id)
+        );
+        const legacy = legacyDemos.value.filter(demo =>
+            folderIdsToSearch.includes(demo.folder_id)
+        );
+        const live = liveDemos.value.filter(demo =>
+            folderIdsToSearch.includes(demo.folder_id)
+        );
+
+        console.log(`Demos in folder ${folderId} (including subfolders):`, {
+            folderIdsToSearch,
+            maestro: maestro.length,
+            legacy: legacy.length,
+            live: live.length,
+            total: maestro.length + legacy.length + live.length
+        });
 
         return {
             maestro,

@@ -1,0 +1,49 @@
+---
+alwaysApply: true
+description: Guidelines for identifying and removing unused code
+---
+
+# Unused Code Cleanup Guidelines
+
+## Identifying Unused Components
+
+- Search for component imports across the codebase
+- Look for components that are never referenced in templates
+- Check for duplicate functionality between components
+- Use grep/search to find component usage patterns
+
+## Cleanup Process
+
+1. **Search for Usage**: Use `grep` to find all references to a component
+2. **Verify Unused**: Confirm component is not imported or used anywhere
+3. **Check Dependencies**: Ensure no other components depend on it
+4. **Remove Safely**: Delete unused component files
+5. **Update Documentation**: Remove references from docs/README
+
+## Example from this project:
+
+- Found [FolderNavigation.vue](mdc:src/components/FolderNavigation.vue) was unused (751 lines)
+- [DemoLibrary.vue](mdc:src/components/DemoLibrary.vue) had its own folder sidebar implementation
+- Safely removed the unused component after verification
+
+## Search Commands Used:
+
+```bash
+grep -r "FolderNavigation" src/
+grep -r "folder-sidebar" src/
+```
+
+## Benefits of Cleanup
+
+- Reduces codebase complexity
+- Eliminates confusion about which component to use
+- Improves maintainability
+- Reduces bundle size
+- Makes the codebase easier to navigate
+
+## Prevention
+
+- Regular code reviews to catch unused components early
+- Use TypeScript strict mode to catch unused imports
+- Implement linting rules to flag unused code
+- Document component relationships clearly

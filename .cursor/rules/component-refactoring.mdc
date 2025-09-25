@@ -1,0 +1,41 @@
+---
+description: Guidelines for breaking down large components
+---
+
+# Component Refactoring Guidelines
+
+## When to Break Down Components
+
+- Components over 300 lines should be considered for refactoring
+- Look for distinct UI sections that could be separate components
+- Identify repeated patterns that could be extracted
+- Separate concerns: navigation, data display, user input, etc.
+
+## Refactoring Strategy
+
+1. **Identify Boundaries**: Look for clear visual/logical sections
+2. **Extract Components**: Create focused components with single responsibilities
+3. **Define Interfaces**: Establish clear props and events between components
+4. **Update Parent**: Refactor main component to orchestrate smaller pieces
+5. **Clean Up**: Remove unused code and consolidate styles
+
+## Component Extraction Patterns
+
+- **Sidebar Components**: Extract navigation/filtering sidebars
+- **List Components**: Extract data display logic
+- **Form Components**: Extract input/search functionality
+- **Navigation Components**: Extract breadcrumb/tab navigation
+
+## Example Refactoring from [DemoLibrary.vue](mdc:src/components/DemoLibrary.vue):
+
+- Extracted [FolderSidebar.vue](mdc:src/components/FolderSidebar.vue) for folder navigation
+- Extracted [SearchBar.vue](mdc:src/components/SearchBar.vue) for search functionality
+- Extracted [DemoList.vue](mdc:src/components/DemoList.vue) for demo display
+- Extracted [BreadcrumbNavigation.vue](mdc:src/components/BreadcrumbNavigation.vue) for breadcrumbs
+
+## Benefits Achieved
+
+- Reduced main component from 899 lines to 309 lines (65% reduction)
+- Each component has clear, single responsibility
+- Easier to test and maintain individual components
+- Better code reusability and modularity

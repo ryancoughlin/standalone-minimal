@@ -8,7 +8,7 @@
         <div
           v-for="(demo, index) in recentDemos"
           :key="`recent-${index}`"
-          class="demo-row"
+          class="demo-row group"
           @click="$emit('play-demo', demo)"
         >
           <div class="demo-thumbnail">
@@ -36,7 +36,32 @@
             </div>
           </div>
           <div class="demo-actions">
-            <i class="fas fa-play text-gray-400"></i>
+            <div class="demo-actions-overlay group-hover:opacity-100">
+              <button
+                @click.stop="$emit('customize-demo', demo)"
+                class="action-btn"
+                title="Customize Demo"
+              >
+                <i class="fas fa-edit"></i>
+              </button>
+              <button
+                @click.stop="$emit('manage-links', demo)"
+                class="action-btn"
+                title="Manage Links"
+              >
+                <i class="fas fa-link"></i>
+              </button>
+              <button
+                @click.stop="$emit('view-analytics', demo)"
+                class="action-btn"
+                title="View Analytics"
+              >
+                <i class="fas fa-chart-bar"></i>
+              </button>
+            </div>
+            <div class="demo-play-btn group-hover:opacity-0">
+              <i class="fas fa-play text-gray-400"></i>
+            </div>
           </div>
         </div>
       </div>
@@ -50,7 +75,7 @@
         <div
           v-for="(demo, index) in allDemos"
           :key="`all-${index}`"
-          class="demo-row"
+          class="demo-row group"
           @click="$emit('play-demo', demo)"
         >
           <div class="demo-thumbnail">
@@ -78,7 +103,32 @@
             </div>
           </div>
           <div class="demo-actions">
-            <i class="fas fa-play text-gray-400"></i>
+            <div class="demo-actions-overlay group-hover:opacity-100">
+              <button
+                @click.stop="$emit('customize-demo', demo)"
+                class="action-btn"
+                title="Customize Demo"
+              >
+                <i class="fas fa-edit"></i>
+              </button>
+              <button
+                @click.stop="$emit('manage-links', demo)"
+                class="action-btn"
+                title="Manage Links"
+              >
+                <i class="fas fa-link"></i>
+              </button>
+              <button
+                @click.stop="$emit('view-analytics', demo)"
+                class="action-btn"
+                title="View Analytics"
+              >
+                <i class="fas fa-chart-bar"></i>
+              </button>
+            </div>
+            <div class="demo-play-btn group-hover:opacity-0">
+              <i class="fas fa-play text-gray-400"></i>
+            </div>
           </div>
         </div>
       </div>
@@ -91,7 +141,7 @@
         <div
           v-for="(demo, index) in folderDemos"
           :key="`folder-${index}`"
-          class="demo-row"
+          class="demo-row group"
           @click="$emit('play-demo', demo)"
         >
           <div class="demo-thumbnail">
@@ -115,7 +165,32 @@
             </div>
           </div>
           <div class="demo-actions">
-            <i class="fas fa-play text-gray-400"></i>
+            <div class="demo-actions-overlay group-hover:opacity-100">
+              <button
+                @click.stop="$emit('customize-demo', demo)"
+                class="action-btn"
+                title="Customize Demo"
+              >
+                <i class="fas fa-edit"></i>
+              </button>
+              <button
+                @click.stop="$emit('manage-links', demo)"
+                class="action-btn"
+                title="Manage Links"
+              >
+                <i class="fas fa-link"></i>
+              </button>
+              <button
+                @click.stop="$emit('view-analytics', demo)"
+                class="action-btn"
+                title="View Analytics"
+              >
+                <i class="fas fa-chart-bar"></i>
+              </button>
+            </div>
+            <div class="demo-play-btn group-hover:opacity-0">
+              <i class="fas fa-play text-gray-400"></i>
+            </div>
           </div>
         </div>
       </div>
@@ -167,6 +242,9 @@ interface Props {
 
 interface Emits {
   (e: "play-demo", demo: any): void;
+  (e: "customize-demo", demo: any): void;
+  (e: "manage-links", demo: any): void;
+  (e: "view-analytics", demo: any): void;
 }
 
 const props = defineProps<Props>();
@@ -240,6 +318,28 @@ const getScreenshotUrl = (screenshotSmall: string) => {
 }
 
 .demo-actions {
-  @apply flex-shrink-0;
+  @apply flex-shrink-0 relative;
+}
+
+.demo-actions-overlay {
+  @apply absolute inset-0 flex items-center justify-end gap-1 pr-2 opacity-0 transition-opacity duration-200 pointer-events-none;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.8) 60%,
+    rgba(255, 255, 255, 0.95) 100%
+  );
+}
+
+.demo-actions-overlay .action-btn {
+  @apply pointer-events-auto;
+}
+
+.demo-play-btn {
+  @apply flex items-center justify-center w-6 h-6 transition-opacity duration-200;
+}
+
+.action-btn {
+  @apply w-6 h-6 flex items-center justify-center rounded text-gray-600 hover:text-gray-800 hover:bg-gray-100 transition-all duration-150 text-xs;
 }
 </style>
