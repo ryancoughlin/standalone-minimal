@@ -19,6 +19,7 @@
       boxShadow:
         '0 0 0 5px #11182729, 0 4px 24px #0000001a, 0 20px 40px -5px #00000080',
       zIndex: '10000',
+      overflow: 'hidden',
       transition: 'all 0.3s ease-in-out',
     }"
   >
@@ -106,6 +107,7 @@
             "
             :folders-with-counts="foldersWithCounts"
             @play-demo="handlePlayDemo"
+            @view-detail="handleViewDemoDetail"
             @customize-demo="handleCustomizeDemo"
             @manage-links="handleManageLinks"
             @view-analytics="handleViewAnalytics"
@@ -122,6 +124,20 @@
           @submit="handleAISubmit"
         />
       </div>
+
+      <!-- Demo Detail View -->
+      <DemoDetailView
+        v-else-if="currentView === 'detail'"
+        :demo="selectedDemo"
+        :folders-with-counts="foldersWithCounts"
+        @back="handleBackToMain"
+        @launch-demo="handlePlayDemo"
+        @preview-demo="handlePreviewDemo"
+        @copy-link="handleCopyLink"
+        @customize-demo="handleCustomizeDemo"
+        @manage-links="handleManageLinks"
+        @view-analytics="handleViewAnalytics"
+      />
 
       <!-- Demo Customizer -->
       <DemoCustomizer
@@ -158,6 +174,7 @@ import BreadcrumbNavigation from "./BreadcrumbNavigation.vue";
 import DemoList from "./DemoList.vue";
 import DemoCustomizer from "./DemoCustomizer.vue";
 import LinkManagerView from "./LinkManagerView.vue";
+import DemoDetailView from "./DemoDetailView.vue";
 
 const { maestroDemos, legacyDemos, liveDemos, loading, fetchAllDemos } =
   useDemoLibrary();
@@ -182,7 +199,7 @@ const breadcrumbs = ref<any[]>([]);
 const isOnRight = ref(true); // Start on right side
 
 // Navigation state
-type ViewType = "main" | "customizer" | "link-manager";
+type ViewType = "main" | "customizer" | "link-manager" | "detail";
 const currentView = ref<ViewType>("main");
 const selectedDemo = ref<any>(null);
 
@@ -306,6 +323,22 @@ const handlePlayDemo = (demo: any) => {
   console.log("Playing demo:", demo);
   // In real app, this would open the demo
   alert(`Playing demo: ${demo.title}`);
+};
+
+const handleViewDemoDetail = (demo: any) => {
+  selectedDemo.value = demo;
+  currentView.value = "detail";
+};
+
+const handleCopyLink = (demo: any) => {
+  console.log("Copying link for:", demo);
+  // In real app, this would copy the share link to clipboard
+  const link = `https://demo.reprise.com/share/${Math.random()
+    .toString(36)
+    .substr(2, 9)}`;
+  navigator.clipboard.writeText(link).then(() => {
+    alert(`Link copied to clipboard: ${link}`);
+  });
 };
 
 const handleCustomizeDemo = (demo: any) => {
