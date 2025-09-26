@@ -8,26 +8,17 @@
       <h2>Customize Demo</h2>
     </div>
 
-    <!-- Customization Form -->
-    <div class="customization-form">
-      <!-- General Section -->
-      <div class="form-section">
-        <div class="section-header" @click="toggleSection('general')">
-          <div class="section-title">
+    <!-- Widget Container -->
+    <div class="widget-container">
+      <!-- General Widget (Always Present) -->
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title">
             <i class="fas fa-globe"></i>
             <span>General</span>
           </div>
-          <button class="toggle-btn">
-            <i
-              :class="
-                expandedSections.general
-                  ? 'fas fa-chevron-up'
-                  : 'fas fa-chevron-down'
-              "
-            ></i>
-          </button>
         </div>
-        <div v-if="expandedSections.general" class="section-content">
+        <div class="widget-content">
           <div class="form-group">
             <label class="form-label">Name</label>
             <input
@@ -69,50 +60,221 @@
         </div>
       </div>
 
-      <!-- Welcome Page Section -->
-      <div class="form-section">
-        <div class="section-header" @click="toggleSection('welcome')">
-          <div class="section-title">
-            <i class="fas fa-hand-wave"></i>
-            <span>Welcome Page</span>
+      <!-- Dynamic Widgets -->
+      <div v-for="widget in activeWidgets" :key="widget.id" class="widget">
+        <div class="widget-header">
+          <div class="widget-title">
+            <i :class="widget.icon"></i>
+            <span>{{ widget.title }}</span>
           </div>
-          <button class="toggle-btn">
-            <i
-              :class="
-                expandedSections.welcome
-                  ? 'fas fa-chevron-up'
-                  : 'fas fa-chevron-down'
-              "
-            ></i>
+          <button @click="removeWidget(widget.id)" class="remove-widget-btn">
+            <i class="fas fa-times"></i>
           </button>
         </div>
-        <div v-if="expandedSections.welcome" class="section-content">
-          <div class="form-group">
-            <label class="form-label">Show Welcome Page</label>
-            <label class="toggle-switch">
-              <input
-                v-model="formData.showWelcomePage"
-                type="checkbox"
-                class="peer"
-              />
-              <span class="slider"></span>
-            </label>
-          </div>
-          <div v-if="formData.showWelcomePage" class="welcome-content">
+        <div class="widget-content">
+          <!-- Welcome Page Widget -->
+          <div v-if="widget.type === 'welcome'" class="welcome-widget">
             <div class="form-group">
-              <label class="form-label">Welcome Title</label>
+              <label class="form-label">Show Welcome Page</label>
+              <label class="toggle-switch">
+                <input
+                  v-model="formData.showWelcomePage"
+                  type="checkbox"
+                  class="peer"
+                />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div v-if="formData.showWelcomePage" class="welcome-content">
+              <div class="form-group">
+                <label class="form-label">Welcome Title</label>
+                <input
+                  v-model="formData.welcomeTitle"
+                  placeholder="e.g., Introduction to MFA Securities"
+                  class="form-input"
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Welcome Message</label>
+                <textarea
+                  v-model="formData.welcomeMessage"
+                  placeholder="Enter your welcome message..."
+                  rows="4"
+                  class="form-textarea"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Variables Widget -->
+          <div v-else-if="widget.type === 'variables'" class="variables-widget">
+            <div class="variables-grid">
+              <div
+                v-for="(variable, index) in formData.variables"
+                :key="index"
+                class="variable-card"
+              >
+                <div class="variable-header">
+                  <div class="variable-type-icon">
+                    <i :class="getVariableIcon(variable.type)"></i>
+                  </div>
+                  <span class="variable-name">{{ variable.name }}</span>
+                </div>
+                <div class="variable-content">
+                  <div class="variable-default">
+                    <span class="default-value">{{
+                      variable.defaultValue
+                    }}</span>
+                  </div>
+                  <input
+                    v-if="variable.type === 'text'"
+                    v-model="variable.newValue"
+                    :placeholder="`Override ${variable.name.toLowerCase()}`"
+                    class="variable-input"
+                  />
+                  <input
+                    v-else-if="variable.type === 'date'"
+                    v-model="variable.newValue"
+                    type="date"
+                    class="variable-input"
+                  />
+                  <div
+                    v-else-if="variable.type === 'image'"
+                    class="variable-image-input"
+                  >
+                    <input
+                      v-model="variable.newValue"
+                      placeholder="Image URL or upload"
+                      class="variable-input"
+                    />
+                    <button class="upload-btn">
+                      <i class="fas fa-upload"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <button @click="addVariable" class="add-variable-btn">
+                <i class="fas fa-plus"></i>
+                Add Variable
+              </button>
+            </div>
+          </div>
+
+          <!-- Access Control Widget -->
+          <div
+            v-else-if="widget.type === 'access-control'"
+            class="access-control-widget"
+          >
+            <div class="form-group">
+              <label class="form-label">Access Control</label>
+              <select v-model="formData.accessControl" class="form-select">
+                <option value="public">Public - Anyone with link</option>
+                <option value="email">Email Required</option>
+                <option value="password">Password Protected</option>
+                <option value="domain">Domain Restricted</option>
+              </select>
+            </div>
+            <div
+              v-if="formData.accessControl === 'password'"
+              class="form-group"
+            >
+              <label class="form-label">Password</label>
               <input
-                v-model="formData.welcomeTitle"
-                placeholder="e.g., Introduction to MFA Securities"
+                v-model="formData.password"
+                type="password"
+                placeholder="Enter password"
+                class="form-input"
+              />
+            </div>
+            <div v-if="formData.accessControl === 'domain'" class="form-group">
+              <label class="form-label">Allowed Domains</label>
+              <input
+                v-model="formData.allowedDomains"
+                placeholder="e.g., company.com, partner.com"
+                class="form-input"
+              />
+            </div>
+          </div>
+
+          <!-- CRM Integration Widget -->
+          <div v-else-if="widget.type === 'crm-integration'" class="crm-widget">
+            <div class="form-group">
+              <label class="form-label">CRM Integration</label>
+              <select v-model="formData.crmProvider" class="form-select">
+                <option value="">No Integration</option>
+                <option value="hubspot">HubSpot</option>
+                <option value="salesforce">Salesforce</option>
+                <option value="pipedrive">Pipedrive</option>
+                <option value="email">Email Only</option>
+              </select>
+            </div>
+            <div v-if="formData.crmProvider" class="crm-config">
+              <div class="form-group">
+                <label class="form-label">Lead Source</label>
+                <input
+                  v-model="formData.leadSource"
+                  placeholder="e.g., Demo Customization"
+                  class="form-input"
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Campaign Name</label>
+                <input
+                  v-model="formData.campaignName"
+                  placeholder="e.g., Q4 Demo Campaign"
+                  class="form-input"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Conversion Form Widget -->
+          <div
+            v-else-if="widget.type === 'conversion-form'"
+            class="conversion-form-widget"
+          >
+            <div class="form-group">
+              <label class="form-label">Form Fields</label>
+              <div class="form-fields">
+                <label class="checkbox-label">
+                  <input v-model="formData.formFields.name" type="checkbox" />
+                  <span>Name</span>
+                </label>
+                <label class="checkbox-label">
+                  <input v-model="formData.formFields.email" type="checkbox" />
+                  <span>Email</span>
+                </label>
+                <label class="checkbox-label">
+                  <input
+                    v-model="formData.formFields.company"
+                    type="checkbox"
+                  />
+                  <span>Company</span>
+                </label>
+                <label class="checkbox-label">
+                  <input v-model="formData.formFields.phone" type="checkbox" />
+                  <span>Phone</span>
+                </label>
+                <label class="checkbox-label">
+                  <input v-model="formData.formFields.title" type="checkbox" />
+                  <span>Job Title</span>
+                </label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Form Title</label>
+              <input
+                v-model="formData.formTitle"
+                placeholder="e.g., Get Started Today"
                 class="form-input"
               />
             </div>
             <div class="form-group">
-              <label class="form-label">Welcome Message</label>
+              <label class="form-label">Form Description</label>
               <textarea
-                v-model="formData.welcomeMessage"
-                placeholder="Enter your welcome message..."
-                rows="4"
+                v-model="formData.formDescription"
+                placeholder="Brief description of what happens next..."
+                rows="2"
                 class="form-textarea"
               ></textarea>
             </div>
@@ -120,72 +282,75 @@
         </div>
       </div>
 
-      <!-- Variables Section -->
-      <div class="form-section">
-        <div class="section-header" @click="toggleSection('variables')">
-          <div class="section-title">
-            <i class="fas fa-code"></i>
-            <span>Variables</span>
-          </div>
-          <button class="toggle-btn">
+      <!-- Add Widget Dropdown -->
+      <div class="add-widget-section">
+        <div class="dropdown-container">
+          <button
+            @click="showAddWidgetDropdown = !showAddWidgetDropdown"
+            class="add-widget-btn"
+          >
+            <i class="fas fa-plus"></i>
+            Add Customization
             <i
               :class="
-                expandedSections.variables
+                showAddWidgetDropdown
                   ? 'fas fa-chevron-up'
                   : 'fas fa-chevron-down'
               "
+              class="dropdown-arrow"
             ></i>
           </button>
-        </div>
-        <div v-if="expandedSections.variables" class="section-content">
-          <div class="variables-grid">
-            <div
-              v-for="(variable, index) in formData.variables"
-              :key="index"
-              class="variable-card"
-            >
-              <div class="variable-header">
-                <div class="variable-type-icon">
-                  <i :class="getVariableIcon(variable.type)"></i>
+
+          <div v-if="showAddWidgetDropdown" class="widget-dropdown">
+            <div class="dropdown-options">
+              <button
+                v-for="option in availableWidgets"
+                :key="option.type"
+                @click="addWidget(option.type)"
+                :disabled="isWidgetActive(option.type)"
+                class="dropdown-option"
+              >
+                <div class="option-icon">
+                  <i :class="option.icon"></i>
                 </div>
-                <span class="variable-name">{{ variable.name }}</span>
-              </div>
-              <div class="variable-content">
-                <div class="variable-default">
-                  <span class="default-value">{{ variable.defaultValue }}</span>
+                <div class="option-content">
+                  <h4>{{ option.title }}</h4>
+                  <p>{{ option.description }}</p>
                 </div>
-                <input
-                  v-if="variable.type === 'text'"
-                  v-model="variable.newValue"
-                  :placeholder="`Override ${variable.name.toLowerCase()}`"
-                  class="variable-input"
-                />
-                <input
-                  v-else-if="variable.type === 'date'"
-                  v-model="variable.newValue"
-                  type="date"
-                  class="variable-input"
-                />
-                <div
-                  v-else-if="variable.type === 'image'"
-                  class="variable-image-input"
-                >
-                  <input
-                    v-model="variable.newValue"
-                    placeholder="Image URL or upload"
-                    class="variable-input"
-                  />
-                  <button class="upload-btn">
-                    <i class="fas fa-upload"></i>
-                  </button>
+                <div v-if="isWidgetActive(option.type)" class="option-status">
+                  <i class="fas fa-check"></i>
                 </div>
-              </div>
+              </button>
             </div>
-            <button @click="addVariable" class="add-variable-btn">
-              <i class="fas fa-plus"></i>
-              Add Variable
-            </button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirmation Dialog -->
+    <div v-if="showConfirmation" class="confirmation-dialog">
+      <div class="dialog-overlay" @click="showConfirmation = false"></div>
+      <div class="dialog-content">
+        <div class="dialog-header">
+          <div class="dialog-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <h3>Remove Customization</h3>
+        </div>
+        <div class="dialog-body">
+          <p>
+            Are you sure you want to remove the
+            <strong>{{ confirmationWidget?.title }}</strong> customization?
+          </p>
+          <p class="dialog-warning">This action cannot be undone.</p>
+        </div>
+        <div class="dialog-actions">
+          <button @click="showConfirmation = false" class="cancel-btn">
+            Cancel
+          </button>
+          <button @click="confirmRemoveWidget" class="confirm-btn">
+            Remove
+          </button>
         </div>
       </div>
     </div>
@@ -299,7 +464,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 
 interface Props {
   demo: any;
@@ -311,19 +476,62 @@ interface Emits {
   (e: "generate-link", demo: any, customization: any): void;
 }
 
+interface Widget {
+  id: string;
+  type: string;
+  title: string;
+  icon: string;
+}
+
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const showPreview = ref(false);
 const showSuccess = ref(false);
+const showAddWidgetDropdown = ref(false);
+const showConfirmation = ref(false);
 const generatedLink = ref("");
+const confirmationWidget = ref<Widget | null>(null);
 
-// Section state
-const expandedSections = ref({
-  general: true,
-  welcome: false,
-  variables: false,
-});
+// Widget system
+const activeWidgets = ref<Widget[]>([]);
+let widgetIdCounter = 0;
+
+// Available widget types
+const availableWidgets = [
+  {
+    type: "welcome",
+    title: "Welcome Page",
+    icon: "fas fa-hand-wave",
+    description: "Add a custom welcome page with title and message",
+  },
+  {
+    type: "variables",
+    title: "Variables",
+    icon: "fas fa-code",
+    description: "Customize demo variables like company names and data",
+  },
+  {
+    type: "access-control",
+    title: "Access Control",
+    icon: "fas fa-shield-alt",
+    description:
+      "Control who can access your demo with passwords or domain restrictions",
+  },
+  {
+    type: "crm-integration",
+    title: "CRM Integration",
+    icon: "fas fa-plug",
+    description:
+      "Connect to HubSpot, Salesforce, or other CRMs for lead capture",
+  },
+  {
+    type: "conversion-form",
+    title: "Conversion Form",
+    icon: "fas fa-clipboard-list",
+    description: "Add a lead capture form before or after the demo",
+  },
+];
 
 // Form data
 const formData = ref({
@@ -366,6 +574,22 @@ const formData = ref({
       newValue: "",
     },
   ],
+  // New fields for additional widgets
+  accessControl: "public",
+  password: "",
+  allowedDomains: "",
+  crmProvider: "",
+  leadSource: "",
+  campaignName: "",
+  formFields: {
+    name: true,
+    email: true,
+    company: false,
+    phone: false,
+    title: false,
+  },
+  formTitle: "",
+  formDescription: "",
 });
 
 // Computed
@@ -402,9 +626,49 @@ const getVariableIcon = (type: string) => {
   }
 };
 
-// Methods
-const toggleSection = (section: string) => {
-  expandedSections.value[section] = !expandedSections.value[section];
+// Widget management methods
+const addWidget = (type: string) => {
+  const widgetConfig = availableWidgets.find((w) => w.type === type);
+  if (widgetConfig && !isWidgetActive(type)) {
+    const newWidget: Widget = {
+      id: `widget-${++widgetIdCounter}`,
+      type: widgetConfig.type,
+      title: widgetConfig.title,
+      icon: widgetConfig.icon,
+    };
+    activeWidgets.value.push(newWidget);
+    showAddWidgetDropdown.value = false;
+  }
+};
+
+const removeWidget = (widgetId: string) => {
+  const widget = activeWidgets.value.find((w) => w.id === widgetId);
+  if (widget) {
+    confirmationWidget.value = widget;
+    showConfirmation.value = true;
+  }
+};
+
+const confirmRemoveWidget = () => {
+  if (confirmationWidget.value) {
+    activeWidgets.value = activeWidgets.value.filter(
+      (w) => w.id !== confirmationWidget.value!.id
+    );
+    showConfirmation.value = false;
+    confirmationWidget.value = null;
+  }
+};
+
+const isWidgetActive = (type: string) => {
+  return activeWidgets.value.some((w) => w.type === type);
+};
+
+// Close dropdown when clicking outside
+const handleClickOutside = (event: Event) => {
+  const target = event.target as HTMLElement;
+  if (!target.closest(".dropdown-container")) {
+    showAddWidgetDropdown.value = false;
+  }
 };
 
 const addVariable = () => {
@@ -502,11 +766,36 @@ watch(
             newValue: "",
           },
         ],
+        // Initialize new fields
+        accessControl: "public",
+        password: "",
+        allowedDomains: "",
+        crmProvider: "",
+        leadSource: "",
+        campaignName: "",
+        formFields: {
+          name: true,
+          email: true,
+          company: false,
+          phone: false,
+          title: false,
+        },
+        formTitle: "",
+        formDescription: "",
       };
     }
   },
   { immediate: true }
 );
+
+// Lifecycle hooks
+onMounted(() => {
+  document.addEventListener("click", handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener("click", handleClickOutside);
+});
 </script>
 
 <style scoped>
@@ -542,32 +831,143 @@ watch(
   @apply flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors;
 }
 
-.customization-form {
+/* Widget System Styles */
+.widget-container {
   @apply flex-1 overflow-y-auto p-3 space-y-3;
 }
 
-.form-section {
-  @apply bg-white rounded-lg border border-gray-200;
+.widget {
+  @apply bg-white rounded-lg border border-gray-200 shadow-sm;
 }
 
-.section-header {
-  @apply flex items-center justify-between p-3 border-b border-gray-100 text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors;
+.widget-header {
+  @apply flex items-center justify-between p-3 border-b border-gray-100;
 }
 
-.section-title {
-  @apply flex items-center gap-2;
+.widget-title {
+  @apply flex items-center gap-2 text-sm font-medium text-gray-700;
 }
 
-.section-title i {
+.widget-title i {
   @apply text-gray-500;
 }
 
-.toggle-btn {
-  @apply p-1 text-gray-400 hover:text-gray-600 transition-colors;
+.remove-widget-btn {
+  @apply p-1 text-gray-400 hover:text-red-600 transition-colors rounded;
 }
 
-.section-content {
+.widget-content {
   @apply p-3 space-y-3;
+}
+
+.add-widget-section {
+  @apply flex justify-center py-4;
+}
+
+.dropdown-container {
+  @apply relative;
+}
+
+.add-widget-btn {
+  @apply px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-2;
+}
+
+.dropdown-arrow {
+  @apply text-xs transition-transform;
+}
+
+/* Widget Dropdown */
+.widget-dropdown {
+  @apply absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10;
+}
+
+.dropdown-options {
+  @apply p-2 space-y-1;
+}
+
+.dropdown-option {
+  @apply w-full p-3 text-left border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200 disabled:hover:bg-white flex items-center gap-3;
+}
+
+.dropdown-option:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.option-icon {
+  @apply w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0;
+}
+
+.option-icon i {
+  @apply text-blue-600 text-sm;
+}
+
+.option-content {
+  @apply flex-1 min-w-0;
+}
+
+.option-content h4 {
+  @apply text-sm font-medium text-gray-900 mb-1;
+}
+
+.option-content p {
+  @apply text-xs text-gray-600;
+}
+
+.option-status {
+  @apply text-green-600 flex-shrink-0;
+}
+
+/* Confirmation Dialog */
+.confirmation-dialog {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+}
+
+.dialog-overlay {
+  @apply absolute inset-0;
+}
+
+.dialog-content {
+  @apply bg-white rounded-lg p-6 max-w-sm w-full mx-4;
+}
+
+.dialog-header {
+  @apply text-center mb-4;
+}
+
+.dialog-icon {
+  @apply w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3;
+}
+
+.dialog-icon i {
+  @apply text-yellow-600 text-xl;
+}
+
+.dialog-header h3 {
+  @apply text-lg font-semibold text-gray-900;
+}
+
+.dialog-body {
+  @apply mb-6;
+}
+
+.dialog-body p {
+  @apply text-sm text-gray-600 mb-2;
+}
+
+.dialog-warning {
+  @apply text-xs text-red-600 font-medium;
+}
+
+.dialog-actions {
+  @apply flex gap-3;
+}
+
+.cancel-btn {
+  @apply flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors;
+}
+
+.confirm-btn {
+  @apply flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded hover:bg-red-700 transition-colors;
 }
 
 .form-group {
@@ -588,6 +988,10 @@ watch(
 
 .form-textarea {
   @apply w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none;
+}
+
+.form-select {
+  @apply w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
 }
 
 .toggle-switch {
@@ -628,6 +1032,7 @@ watch(
   transform: translateX(1rem);
 }
 
+/* Widget-specific styles */
 .welcome-content {
   @apply space-y-3;
 }
@@ -684,6 +1089,110 @@ watch(
   @apply w-full p-3 border-2 border-dashed border-gray-300 rounded text-sm text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors;
 }
 
+/* CRM Integration styles */
+.crm-config {
+  @apply space-y-3 mt-3 p-3 bg-gray-50 rounded;
+}
+
+/* Conversion Form styles */
+.form-fields {
+  @apply space-y-2;
+}
+
+.checkbox-label {
+  @apply flex items-center gap-2 text-sm text-gray-700 cursor-pointer;
+}
+
+.checkbox-label input {
+  @apply rounded border-gray-300 text-blue-600 focus:ring-blue-500;
+}
+
+/* Success Modal */
+.success-modal {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+}
+
+.success-content {
+  @apply bg-white rounded-lg p-6 max-w-md w-full mx-4;
+}
+
+.success-header {
+  @apply text-center mb-6;
+}
+
+.success-icon {
+  @apply w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4;
+}
+
+.success-icon i {
+  @apply text-green-600 text-2xl;
+}
+
+.success-header h3 {
+  @apply text-xl font-semibold text-gray-900 mb-2;
+}
+
+.success-header p {
+  @apply text-sm text-gray-600;
+}
+
+.link-section {
+  @apply mb-6;
+}
+
+.link-label {
+  @apply text-sm font-medium text-gray-700 mb-2;
+}
+
+.link-container {
+  @apply flex gap-2;
+}
+
+.link-input {
+  @apply flex-1 px-3 py-2 text-sm bg-gray-50 border border-gray-300 rounded font-mono;
+}
+
+.copy-btn {
+  @apply px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors;
+}
+
+.demo-info {
+  @apply mb-6;
+}
+
+.demo-preview {
+  @apply flex items-center gap-3 p-3 bg-gray-50 rounded;
+}
+
+.demo-thumbnail {
+  @apply w-12 h-9 bg-gray-200 rounded overflow-hidden;
+}
+
+.demo-placeholder {
+  @apply w-full h-full flex items-center justify-center text-gray-400;
+}
+
+.demo-details h4 {
+  @apply text-sm font-medium text-gray-900;
+}
+
+.demo-details p {
+  @apply text-xs text-gray-600;
+}
+
+.success-actions {
+  @apply flex gap-3;
+}
+
+.open-btn {
+  @apply flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition-colors;
+}
+
+.close-btn {
+  @apply flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors;
+}
+
+/* Quick Preview Panel */
 .preview-panel {
   @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
 }

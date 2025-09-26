@@ -19,7 +19,6 @@
       boxShadow:
         '0 0 0 5px #11182729, 0 4px 24px #0000001a, 0 20px 40px -5px #00000080',
       zIndex: '10000',
-      overflow: 'hidden',
       transition: 'all 0.3s ease-in-out',
     }"
   >
@@ -40,10 +39,16 @@
         @reposition="handleReposition"
         @back="handleBack"
         @close="handleClose"
+        @undo="handleUndo"
+        @redo="handleRedo"
+        @assist-click="handleAssistClick"
       />
 
       <!-- Main View -->
-      <div v-if="currentView === 'main'" class="flex flex-col flex-1">
+      <div
+        v-if="currentView === 'main' && !showAIExperience"
+        class="flex flex-col flex-1 h-full"
+      >
         <!-- Search Bar -->
         <SearchBar
           v-model:search-query="searchQuery"
@@ -52,7 +57,7 @@
 
         <!-- Content Area -->
         <div
-          class="flex-1 overflow-y-auto"
+          class="flex-1 overflow-y-auto min-h-0"
           ref="scrollContainer"
           @scroll="handleScroll"
         >
@@ -108,6 +113,16 @@
         </div>
       </div>
 
+      <!-- AI Experience View -->
+      <div v-if="showAIExperience" class="flex flex-col flex-1">
+        <AIExperienceOverlay
+          :is-visible="showAIExperience"
+          @close="handleCloseAIExperience"
+          @action="handleAIAction"
+          @submit="handleAISubmit"
+        />
+      </div>
+
       <!-- Demo Customizer -->
       <DemoCustomizer
         v-else-if="currentView === 'customizer'"
@@ -135,6 +150,7 @@
 import { computed, onMounted, ref } from "vue";
 import { useDemoLibrary } from "../composables/useDemoLibrary";
 import { useFolderService } from "../services/folderService";
+import AIExperienceOverlay from "./AIExperienceOverlay.vue";
 import GlobalNavigation from "./GlobalNavigation.vue";
 import FolderSidebar from "./FolderSidebar.vue";
 import SearchBar from "./SearchBar.vue";
@@ -400,6 +416,40 @@ const navigateToBreadcrumb = (crumb: any) => {
   handleSelectFolder(folder || null);
 };
 
+// AI Experience state
+const showAIExperience = ref(false);
+
+// AI Assistant handlers
+const handleUndo = () => {
+  console.log("Undo action triggered");
+  // TODO: Implement undo functionality
+};
+
+const handleRedo = () => {
+  console.log("Redo action triggered");
+  // TODO: Implement redo functionality
+};
+
+const handleAssistClick = () => {
+  showAIExperience.value = true;
+};
+
+const handleCloseAIExperience = () => {
+  showAIExperience.value = false;
+};
+
+const handleAIAction = (action: string) => {
+  console.log(`AI Action triggered: ${action}`);
+  showAIExperience.value = false;
+  // TODO: Implement specific AI actions
+};
+
+const handleAISubmit = (prompt: string) => {
+  console.log(`AI Prompt submitted: ${prompt}`);
+  showAIExperience.value = false;
+  // TODO: Process AI prompt
+};
+
 onMounted(async () => {
   await fetchAllDemos();
 });
@@ -427,7 +477,7 @@ onMounted(async () => {
 
 /* Demo Content */
 .demo-content {
-  @apply flex flex-col flex-1 min-w-0;
+  @apply flex flex-col flex-1 min-w-0 h-full;
 }
 
 /* Hero section parallax styling */

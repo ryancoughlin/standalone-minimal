@@ -75,7 +75,7 @@ defineEmits<Emits>();
 }
 
 .folder-sidebar.sidebar-open {
-  width: 160px;
+  width: 190px;
 }
 
 /* Folder List */
