@@ -23,15 +23,6 @@
       transition: 'all 0.3s ease-in-out',
     }"
   >
-    <!-- Folder Sidebar -->
-    <FolderSidebar
-      :show-folder-sidebar="showFolderSidebar"
-      :current-folder="currentFolder"
-      :all-folders="foldersWithCounts"
-      :total-demo-count="totalDemoCount"
-      @select-folder="handleSelectFolder"
-    />
-
     <!-- Main Demo Content -->
     <div class="demo-content">
       <!-- Global Navigation -->
@@ -56,108 +47,121 @@
           @new-demo="handleNewDemo"
         />
 
-        <!-- Content Area -->
-        <div
-          class="flex-1 overflow-y-auto min-h-0"
-          ref="scrollContainer"
-          @scroll="handleScroll"
-        >
-          <!-- Welcome Message -->
-          <div class="px-4 py-8 hero-section" :style="heroTransform">
-            <h2 class="text-2xl font-serif text-gray-900 text-center">
-              Welcome, Will.
-            </h2>
-          </div>
-
-          <!-- Breadcrumb Navigation -->
-          <BreadcrumbNavigation
+        <!-- Content Area with Sidebar -->
+        <div class="content-area-with-sidebar">
+          <!-- Folder Sidebar - Slides out from content area -->
+          <FolderSidebar
             :show-folder-sidebar="showFolderSidebar"
             :current-folder="currentFolder"
-            :breadcrumbs="breadcrumbs"
-            @toggle-sidebar="showFolderSidebar = !showFolderSidebar"
+            :all-folders="foldersWithCounts"
+            :total-demo-count="totalDemoCount"
             @select-folder="handleSelectFolder"
-            @navigate-breadcrumb="navigateToBreadcrumb"
           />
 
-          <!-- Loading State -->
-          <div v-if="loading" class="space-y-4">
-            <div class="animate-pulse" v-for="i in 5" :key="i">
-              <div class="flex items-center space-x-4">
-                <div class="w-20 h-16 bg-gray-200 rounded" />
-                <div class="flex-1 space-y-2">
-                  <div class="h-4 bg-gray-200 rounded w-3/4" />
-                  <div class="h-3 bg-gray-200 rounded w-1/2" />
+          <!-- Main Content -->
+          <div
+            class="main-content"
+            :class="{ 'with-sidebar': showFolderSidebar }"
+            ref="scrollContainer"
+            @scroll="handleScroll"
+          >
+            <!-- Welcome Message -->
+            <div class="px-4 py-8 hero-section" :style="heroTransform">
+              <h2 class="text-2xl font-serif text-gray-900 text-center">
+                Welcome, Will.
+              </h2>
+            </div>
+
+            <!-- Breadcrumb Navigation -->
+            <BreadcrumbNavigation
+              :show-folder-sidebar="showFolderSidebar"
+              :current-folder="currentFolder"
+              :breadcrumbs="breadcrumbs"
+              @toggle-sidebar="showFolderSidebar = !showFolderSidebar"
+              @select-folder="handleSelectFolder"
+              @navigate-breadcrumb="navigateToBreadcrumb"
+            />
+
+            <!-- Loading State -->
+            <div v-if="loading" class="space-y-4">
+              <div class="animate-pulse" v-for="i in 5" :key="i">
+                <div class="flex items-center space-x-4">
+                  <div class="w-20 h-16 bg-gray-200 rounded" />
+                  <div class="flex-1 space-y-2">
+                    <div class="h-4 bg-gray-200 rounded w-3/4" />
+                    <div class="h-3 bg-gray-200 rounded w-1/2" />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Demo List -->
-          <DemoList
-            v-else
-            :current-folder="currentFolder"
-            :recent-demos="recentDemos"
-            :all-demos="allDemos"
-            :folder-demos="folderDemos"
-            :total-demo-count="totalDemoCount"
-            :filtered-total-count="filteredTotalCount"
-            :search-query="searchQuery"
-            :root-folders="
-              foldersWithCounts.filter((f) => f.parent_id === null)
-            "
-            :folders-with-counts="foldersWithCounts"
-            @play-demo="handlePlayDemo"
-            @view-detail="handleViewDemoDetail"
-            @customize-demo="handleCustomizeDemo"
-            @manage-links="handleManageLinks"
-            @view-analytics="handleViewAnalytics"
+            <!-- Demo List -->
+            <DemoList
+              v-else
+              :current-folder="currentFolder"
+              :recent-demos="recentDemos"
+              :all-demos="allDemos"
+              :folder-demos="folderDemos"
+              :total-demo-count="totalDemoCount"
+              :filtered-total-count="filteredTotalCount"
+              :search-query="searchQuery"
+              :root-folders="
+                foldersWithCounts.filter((f) => f.parent_id === null)
+              "
+              :folders-with-counts="foldersWithCounts"
+              @play-demo="handlePlayDemo"
+              @view-detail="handleViewDemoDetail"
+              @customize-demo="handleCustomizeDemo"
+              @manage-links="handleManageLinks"
+              @view-analytics="handleViewAnalytics"
+            />
+          </div>
+        </div>
+
+        <!-- AI Experience View -->
+        <div v-if="showAIExperience" class="flex flex-col flex-1">
+          <AIExperienceOverlay
+            :is-visible="showAIExperience"
+            @close="handleCloseAIExperience"
+            @action="handleAIAction"
+            @submit="handleAISubmit"
           />
         </div>
-      </div>
 
-      <!-- AI Experience View -->
-      <div v-if="showAIExperience" class="flex flex-col flex-1">
-        <AIExperienceOverlay
-          :is-visible="showAIExperience"
-          @close="handleCloseAIExperience"
-          @action="handleAIAction"
-          @submit="handleAISubmit"
+        <!-- Demo Detail View -->
+        <DemoDetailView
+          v-else-if="currentView === 'detail'"
+          :demo="selectedDemo"
+          :folders-with-counts="foldersWithCounts"
+          @back="handleBackToMain"
+          @launch-demo="handlePlayDemo"
+          @preview-demo="handlePreviewDemo"
+          @copy-link="handleCopyLink"
+          @customize-demo="handleCustomizeDemo"
+          @manage-links="handleManageLinks"
+          @view-analytics="handleViewAnalytics"
+        />
+
+        <!-- Demo Customizer Modal -->
+        <DemoCustomizer
+          v-if="showCustomizer"
+          :demo="selectedDemo"
+          @close="handleCloseCustomizer"
+          @preview="handlePreviewDemo"
+          @generate-link="handleGenerateLink"
+        />
+
+        <!-- Link Manager View -->
+        <LinkManagerView
+          v-else-if="currentView === 'link-manager'"
+          :demo="selectedDemo"
+          @back="handleBackToMain"
+          @create-link="handleCreateLink"
+          @duplicate-link="handleDuplicateLink"
+          @delete-link="handleDeleteLink"
+          @toggle-link-status="handleToggleLinkStatus"
         />
       </div>
-
-      <!-- Demo Detail View -->
-      <DemoDetailView
-        v-else-if="currentView === 'detail'"
-        :demo="selectedDemo"
-        :folders-with-counts="foldersWithCounts"
-        @back="handleBackToMain"
-        @launch-demo="handlePlayDemo"
-        @preview-demo="handlePreviewDemo"
-        @copy-link="handleCopyLink"
-        @customize-demo="handleCustomizeDemo"
-        @manage-links="handleManageLinks"
-        @view-analytics="handleViewAnalytics"
-      />
-
-      <!-- Demo Customizer -->
-      <DemoCustomizer
-        v-else-if="currentView === 'customizer'"
-        :demo="selectedDemo"
-        @back="handleBackToMain"
-        @preview="handlePreviewDemo"
-        @generate-link="handleGenerateLink"
-      />
-
-      <!-- Link Manager View -->
-      <LinkManagerView
-        v-else-if="currentView === 'link-manager'"
-        :demo="selectedDemo"
-        @back="handleBackToMain"
-        @create-link="handleCreateLink"
-        @duplicate-link="handleDuplicateLink"
-        @delete-link="handleDeleteLink"
-        @toggle-link-status="handleToggleLinkStatus"
-      />
     </div>
   </div>
 </template>
@@ -199,9 +203,10 @@ const breadcrumbs = ref<any[]>([]);
 const isOnRight = ref(true); // Start on right side
 
 // Navigation state
-type ViewType = "main" | "customizer" | "link-manager" | "detail";
+type ViewType = "main" | "link-manager" | "detail";
 const currentView = ref<ViewType>("main");
 const selectedDemo = ref<any>(null);
+const showCustomizer = ref(false);
 
 // Scroll handling for hero parallax
 const scrollContainer = ref<HTMLElement | null>(null);
@@ -343,7 +348,12 @@ const handleCopyLink = (demo: any) => {
 
 const handleCustomizeDemo = (demo: any) => {
   selectedDemo.value = demo;
-  currentView.value = "customizer";
+  showCustomizer.value = true;
+};
+
+const handleCloseCustomizer = () => {
+  showCustomizer.value = false;
+  selectedDemo.value = null;
 };
 
 const handleManageLinks = (demo: any) => {
@@ -354,6 +364,7 @@ const handleManageLinks = (demo: any) => {
 const handleBackToMain = () => {
   currentView.value = "main";
   selectedDemo.value = null;
+  showCustomizer.value = false;
 };
 
 const handleViewAnalytics = (demo: any) => {
@@ -375,12 +386,13 @@ const handleGenerateLink = (demo: any, customization: any) => {
     .toString(36)
     .substr(2, 9)}`;
   alert(`Generated link: ${link}`);
-  handleBackToMain();
+  showCustomizer.value = false;
+  selectedDemo.value = null;
 };
 
 const handleCreateLink = (demo: any) => {
   selectedDemo.value = demo;
-  currentView.value = "customizer";
+  showCustomizer.value = true;
 };
 
 const handleDuplicateLink = (link: any) => {
@@ -511,6 +523,20 @@ onMounted(async () => {
 /* Demo Content */
 .demo-content {
   @apply flex flex-col flex-1 min-w-0 h-full;
+}
+
+/* Content Area with Sidebar */
+.content-area-with-sidebar {
+  @apply flex flex-1 relative;
+}
+
+/* Main Content */
+.main-content {
+  @apply flex-1 overflow-y-auto min-h-0 transition-all duration-300 ease-in-out;
+}
+
+.main-content.with-sidebar {
+  margin-left: 190px;
 }
 
 /* Hero section parallax styling */

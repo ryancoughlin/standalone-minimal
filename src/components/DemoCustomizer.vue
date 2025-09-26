@@ -1,410 +1,324 @@
 <template>
-  <div class="demo-customizer">
-    <!-- Simple Header -->
-    <div class="customizer-header">
-      <button @click="$emit('back')" class="back-btn">
-        <i class="fas fa-arrow-left"></i>
-      </button>
-      <h2>Customize Demo</h2>
-    </div>
-
-    <!-- Widget Container -->
-    <div class="widget-container">
-      <!-- General Widget (Always Present) -->
-      <div class="widget">
-        <div class="widget-header">
-          <div class="widget-title">
-            <i class="fas fa-globe"></i>
-            <span>General</span>
-          </div>
-        </div>
-        <div class="widget-content">
-          <div class="form-group">
-            <label class="form-label">Name</label>
-            <input
-              v-model="formData.name"
-              placeholder="e.g., Goldman Sachs - Custom MFA Flow"
-              class="form-input"
-            />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Description</label>
-            <textarea
-              v-model="formData.description"
-              placeholder="Brief description of the demo"
-              rows="2"
-              class="form-textarea"
-            ></textarea>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Expiration Date</label>
-              <input
-                v-model="formData.expirationDate"
-                type="date"
-                class="form-input"
+  <!-- Modal Overlay -->
+  <div class="modal-overlay" @click="$emit('close')">
+    <div class="modal-container" @click.stop>
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <div class="header-content">
+          <div class="demo-preview">
+            <div class="demo-thumbnail">
+              <img
+                v-if="demo?.screenshot_small"
+                :src="getScreenshotUrl(demo.screenshot_small)"
+                :alt="demo.title"
               />
+              <div v-else class="demo-placeholder">
+                <i class="fas fa-play"></i>
+              </div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Enable Guides</label>
-              <label class="toggle-switch">
-                <input
-                  v-model="formData.enableGuides"
-                  type="checkbox"
-                  class="peer"
-                />
-                <span class="slider"></span>
-              </label>
+            <div class="demo-info">
+              <h2>{{ demo?.title || "Demo" }}</h2>
+              <div class="demo-meta">
+                <span class="demo-type">{{ getDemoType(demo) }}</span>
+                <span class="demo-status">Ready to customize</span>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Dynamic Widgets -->
-      <div v-for="widget in activeWidgets" :key="widget.id" class="widget">
-        <div class="widget-header">
-          <div class="widget-title">
-            <i :class="widget.icon"></i>
-            <span>{{ widget.title }}</span>
-          </div>
-          <button @click="removeWidget(widget.id)" class="remove-widget-btn">
+          <button @click="$emit('close')" class="close-btn">
             <i class="fas fa-times"></i>
           </button>
         </div>
-        <div class="widget-content">
-          <!-- Welcome Page Widget -->
-          <div v-if="widget.type === 'welcome'" class="welcome-widget">
-            <div class="form-group">
-              <label class="form-label">Show Welcome Page</label>
-              <label class="toggle-switch">
+      </div>
+
+      <!-- Quick Actions Bar -->
+      <div class="quick-actions">
+        <button @click="previewDemo" class="action-btn preview-btn">
+          <i class="fas fa-eye"></i>
+          Preview
+        </button>
+        <button
+          @click="generateLink"
+          :disabled="!isValid"
+          class="action-btn primary-btn"
+        >
+          <i class="fas fa-link"></i>
+          Create Share Link
+        </button>
+      </div>
+
+      <!-- Customization Content -->
+      <div class="customization-content">
+        <!-- Essential Settings -->
+        <div class="essential-settings">
+          <div class="setting-group">
+            <label class="setting-label">Demo Name</label>
+            <input
+              v-model="formData.name"
+              placeholder="e.g., Goldman Sachs - Custom MFA Flow"
+              class="setting-input"
+            />
+          </div>
+          <div class="setting-group">
+            <label class="setting-label">Description</label>
+            <input
+              v-model="formData.description"
+              placeholder="Brief description for the customer"
+              class="setting-input"
+            />
+          </div>
+        </div>
+
+        <!-- Advanced Options (Collapsible) -->
+        <div class="advanced-section">
+          <button @click="showAdvanced = !showAdvanced" class="advanced-toggle">
+            <i
+              :class="
+                showAdvanced ? 'fas fa-chevron-up' : 'fas fa-chevron-down'
+              "
+            ></i>
+            <span>Advanced Options</span>
+          </button>
+
+          <div v-if="showAdvanced" class="advanced-content">
+            <div class="setting-row">
+              <div class="setting-group">
+                <label class="setting-label">Expiration Date</label>
                 <input
-                  v-model="formData.showWelcomePage"
-                  type="checkbox"
-                  class="peer"
+                  v-model="formData.expirationDate"
+                  type="date"
+                  class="setting-input"
                 />
-                <span class="slider"></span>
-              </label>
+              </div>
+              <div class="setting-group">
+                <label class="setting-label">Enable Guides</label>
+                <label class="toggle-switch">
+                  <input
+                    v-model="formData.enableGuides"
+                    type="checkbox"
+                    class="peer"
+                  />
+                  <span class="slider"></span>
+                </label>
+              </div>
             </div>
-            <div v-if="formData.showWelcomePage" class="welcome-content">
-              <div class="form-group">
-                <label class="form-label">Welcome Title</label>
+          </div>
+        </div>
+
+        <!-- Quick Customizations -->
+        <div class="quick-customizations">
+          <h3>Quick Customizations</h3>
+          <div class="customization-grid">
+            <button
+              @click="toggleCustomization('welcome')"
+              :class="[
+                'customization-btn',
+                { active: isCustomizationActive('welcome') },
+              ]"
+            >
+              <i class="fas fa-hand-wave"></i>
+              <span>Welcome Page</span>
+            </button>
+            <button
+              @click="toggleCustomization('variables')"
+              :class="[
+                'customization-btn',
+                { active: isCustomizationActive('variables') },
+              ]"
+            >
+              <i class="fas fa-code"></i>
+              <span>Variables</span>
+            </button>
+            <button
+              @click="toggleCustomization('access')"
+              :class="[
+                'customization-btn',
+                { active: isCustomizationActive('access') },
+              ]"
+            >
+              <i class="fas fa-shield-alt"></i>
+              <span>Access Control</span>
+            </button>
+            <button
+              @click="toggleCustomization('crm')"
+              :class="[
+                'customization-btn',
+                { active: isCustomizationActive('crm') },
+              ]"
+            >
+              <i class="fas fa-plug"></i>
+              <span>CRM Integration</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Active Customizations -->
+        <div
+          v-if="activeCustomizations.length > 0"
+          class="active-customizations"
+        >
+          <h3>Active Customizations</h3>
+
+          <!-- Welcome Page -->
+          <div
+            v-if="isCustomizationActive('welcome')"
+            class="customization-panel"
+          >
+            <div class="panel-header">
+              <i class="fas fa-hand-wave"></i>
+              <span>Welcome Page</span>
+              <button
+                @click="toggleCustomization('welcome')"
+                class="remove-btn"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="panel-content">
+              <div class="setting-group">
+                <label class="setting-label">Welcome Title</label>
                 <input
                   v-model="formData.welcomeTitle"
                   placeholder="e.g., Introduction to MFA Securities"
-                  class="form-input"
+                  class="setting-input"
                 />
               </div>
-              <div class="form-group">
-                <label class="form-label">Welcome Message</label>
+              <div class="setting-group">
+                <label class="setting-label">Welcome Message</label>
                 <textarea
                   v-model="formData.welcomeMessage"
                   placeholder="Enter your welcome message..."
-                  rows="4"
-                  class="form-textarea"
+                  rows="3"
+                  class="setting-textarea"
                 ></textarea>
               </div>
             </div>
           </div>
 
-          <!-- Variables Widget -->
-          <div v-else-if="widget.type === 'variables'" class="variables-widget">
-            <div class="variables-grid">
-              <div
-                v-for="(variable, index) in formData.variables"
-                :key="index"
-                class="variable-card"
+          <!-- Variables -->
+          <div
+            v-if="isCustomizationActive('variables')"
+            class="customization-panel"
+          >
+            <div class="panel-header">
+              <i class="fas fa-code"></i>
+              <span>Variables</span>
+              <button
+                @click="toggleCustomization('variables')"
+                class="remove-btn"
               >
-                <div class="variable-header">
-                  <div class="variable-type-icon">
-                    <i :class="getVariableIcon(variable.type)"></i>
-                  </div>
-                  <span class="variable-name">{{ variable.name }}</span>
-                </div>
-                <div class="variable-content">
-                  <div class="variable-default">
-                    <span class="default-value">{{
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="panel-content">
+              <div class="variables-list">
+                <div
+                  v-for="(variable, index) in formData.variables.slice(0, 3)"
+                  :key="index"
+                  class="variable-item"
+                >
+                  <div class="variable-info">
+                    <span class="variable-name">{{ variable.name }}</span>
+                    <span class="variable-default">{{
                       variable.defaultValue
                     }}</span>
                   </div>
                   <input
-                    v-if="variable.type === 'text'"
                     v-model="variable.newValue"
                     :placeholder="`Override ${variable.name.toLowerCase()}`"
                     class="variable-input"
                   />
-                  <input
-                    v-else-if="variable.type === 'date'"
-                    v-model="variable.newValue"
-                    type="date"
-                    class="variable-input"
-                  />
-                  <div
-                    v-else-if="variable.type === 'image'"
-                    class="variable-image-input"
-                  >
-                    <input
-                      v-model="variable.newValue"
-                      placeholder="Image URL or upload"
-                      class="variable-input"
-                    />
-                    <button class="upload-btn">
-                      <i class="fas fa-upload"></i>
-                    </button>
-                  </div>
                 </div>
               </div>
-              <button @click="addVariable" class="add-variable-btn">
-                <i class="fas fa-plus"></i>
-                Add Variable
+            </div>
+          </div>
+
+          <!-- Access Control -->
+          <div
+            v-if="isCustomizationActive('access')"
+            class="customization-panel"
+          >
+            <div class="panel-header">
+              <i class="fas fa-shield-alt"></i>
+              <span>Access Control</span>
+              <button @click="toggleCustomization('access')" class="remove-btn">
+                <i class="fas fa-times"></i>
               </button>
             </div>
-          </div>
-
-          <!-- Access Control Widget -->
-          <div
-            v-else-if="widget.type === 'access-control'"
-            class="access-control-widget"
-          >
-            <div class="form-group">
-              <label class="form-label">Access Control</label>
-              <select v-model="formData.accessControl" class="form-select">
-                <option value="public">Public - Anyone with link</option>
-                <option value="email">Email Required</option>
-                <option value="password">Password Protected</option>
-                <option value="domain">Domain Restricted</option>
-              </select>
-            </div>
-            <div
-              v-if="formData.accessControl === 'password'"
-              class="form-group"
-            >
-              <label class="form-label">Password</label>
-              <input
-                v-model="formData.password"
-                type="password"
-                placeholder="Enter password"
-                class="form-input"
-              />
-            </div>
-            <div v-if="formData.accessControl === 'domain'" class="form-group">
-              <label class="form-label">Allowed Domains</label>
-              <input
-                v-model="formData.allowedDomains"
-                placeholder="e.g., company.com, partner.com"
-                class="form-input"
-              />
+            <div class="panel-content">
+              <div class="setting-group">
+                <label class="setting-label">Access Level</label>
+                <select v-model="formData.accessControl" class="setting-select">
+                  <option value="public">Public - Anyone with link</option>
+                  <option value="email">Email Required</option>
+                  <option value="password">Password Protected</option>
+                </select>
+              </div>
+              <div
+                v-if="formData.accessControl === 'password'"
+                class="setting-group"
+              >
+                <label class="setting-label">Password</label>
+                <input
+                  v-model="formData.password"
+                  type="password"
+                  placeholder="Enter password"
+                  class="setting-input"
+                />
+              </div>
             </div>
           </div>
 
-          <!-- CRM Integration Widget -->
-          <div v-else-if="widget.type === 'crm-integration'" class="crm-widget">
-            <div class="form-group">
-              <label class="form-label">CRM Integration</label>
-              <select v-model="formData.crmProvider" class="form-select">
-                <option value="">No Integration</option>
-                <option value="hubspot">HubSpot</option>
-                <option value="salesforce">Salesforce</option>
-                <option value="pipedrive">Pipedrive</option>
-                <option value="email">Email Only</option>
-              </select>
+          <!-- CRM Integration -->
+          <div v-if="isCustomizationActive('crm')" class="customization-panel">
+            <div class="panel-header">
+              <i class="fas fa-plug"></i>
+              <span>CRM Integration</span>
+              <button @click="toggleCustomization('crm')" class="remove-btn">
+                <i class="fas fa-times"></i>
+              </button>
             </div>
-            <div v-if="formData.crmProvider" class="crm-config">
-              <div class="form-group">
-                <label class="form-label">Lead Source</label>
+            <div class="panel-content">
+              <div class="setting-group">
+                <label class="setting-label">CRM Provider</label>
+                <select v-model="formData.crmProvider" class="setting-select">
+                  <option value="">No Integration</option>
+                  <option value="hubspot">HubSpot</option>
+                  <option value="salesforce">Salesforce</option>
+                  <option value="pipedrive">Pipedrive</option>
+                </select>
+              </div>
+              <div v-if="formData.crmProvider" class="setting-group">
+                <label class="setting-label">Lead Source</label>
                 <input
                   v-model="formData.leadSource"
                   placeholder="e.g., Demo Customization"
-                  class="form-input"
-                />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Campaign Name</label>
-                <input
-                  v-model="formData.campaignName"
-                  placeholder="e.g., Q4 Demo Campaign"
-                  class="form-input"
+                  class="setting-input"
                 />
               </div>
             </div>
           </div>
-
-          <!-- Conversion Form Widget -->
-          <div
-            v-else-if="widget.type === 'conversion-form'"
-            class="conversion-form-widget"
-          >
-            <div class="form-group">
-              <label class="form-label">Form Fields</label>
-              <div class="form-fields">
-                <label class="checkbox-label">
-                  <input v-model="formData.formFields.name" type="checkbox" />
-                  <span>Name</span>
-                </label>
-                <label class="checkbox-label">
-                  <input v-model="formData.formFields.email" type="checkbox" />
-                  <span>Email</span>
-                </label>
-                <label class="checkbox-label">
-                  <input
-                    v-model="formData.formFields.company"
-                    type="checkbox"
-                  />
-                  <span>Company</span>
-                </label>
-                <label class="checkbox-label">
-                  <input v-model="formData.formFields.phone" type="checkbox" />
-                  <span>Phone</span>
-                </label>
-                <label class="checkbox-label">
-                  <input v-model="formData.formFields.title" type="checkbox" />
-                  <span>Job Title</span>
-                </label>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Form Title</label>
-              <input
-                v-model="formData.formTitle"
-                placeholder="e.g., Get Started Today"
-                class="form-input"
-              />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Form Description</label>
-              <textarea
-                v-model="formData.formDescription"
-                placeholder="Brief description of what happens next..."
-                rows="2"
-                class="form-textarea"
-              ></textarea>
-            </div>
-          </div>
         </div>
-      </div>
-
-      <!-- Add Widget Dropdown -->
-      <div class="add-widget-section">
-        <div class="dropdown-container">
-          <button
-            @click="showAddWidgetDropdown = !showAddWidgetDropdown"
-            class="add-widget-btn"
-          >
-            <i class="fas fa-plus"></i>
-            Add Customization
-            <i
-              :class="
-                showAddWidgetDropdown
-                  ? 'fas fa-chevron-up'
-                  : 'fas fa-chevron-down'
-              "
-              class="dropdown-arrow"
-            ></i>
-          </button>
-
-          <div v-if="showAddWidgetDropdown" class="widget-dropdown">
-            <div class="dropdown-options">
-              <button
-                v-for="option in availableWidgets"
-                :key="option.type"
-                @click="addWidget(option.type)"
-                :disabled="isWidgetActive(option.type)"
-                class="dropdown-option"
-              >
-                <div class="option-icon">
-                  <i :class="option.icon"></i>
-                </div>
-                <div class="option-content">
-                  <h4>{{ option.title }}</h4>
-                  <p>{{ option.description }}</p>
-                </div>
-                <div v-if="isWidgetActive(option.type)" class="option-status">
-                  <i class="fas fa-check"></i>
-                </div>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Confirmation Dialog -->
-    <div v-if="showConfirmation" class="confirmation-dialog">
-      <div class="dialog-overlay" @click="showConfirmation = false"></div>
-      <div class="dialog-content">
-        <div class="dialog-header">
-          <div class="dialog-icon">
-            <i class="fas fa-exclamation-triangle"></i>
-          </div>
-          <h3>Remove Customization</h3>
-        </div>
-        <div class="dialog-body">
-          <p>
-            Are you sure you want to remove the
-            <strong>{{ confirmationWidget?.title }}</strong> customization?
-          </p>
-          <p class="dialog-warning">This action cannot be undone.</p>
-        </div>
-        <div class="dialog-actions">
-          <button @click="showConfirmation = false" class="cancel-btn">
-            Cancel
-          </button>
-          <button @click="confirmRemoveWidget" class="confirm-btn">
-            Remove
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Action Section -->
-    <div class="action-section">
-      <div class="action-buttons">
-        <button @click="previewDemo" class="preview-btn">
-          <i class="fas fa-eye"></i>
-          Preview
-        </button>
-        <button @click="generateLink" :disabled="!isValid" class="create-btn">
-          <i class="fas fa-link"></i>
-          Create Link
-        </button>
       </div>
     </div>
 
     <!-- Success Modal -->
     <div v-if="showSuccess" class="success-modal">
+      <div class="success-overlay" @click="closeSuccess"></div>
       <div class="success-content">
         <div class="success-header">
           <div class="success-icon">
             <i class="fas fa-check-circle"></i>
           </div>
           <h3>Demo Link Created!</h3>
-          <p>Your personalized demo is ready to share</p>
+          <p>Ready to share with your customer</p>
         </div>
 
         <div class="link-section">
-          <div class="link-label">Share this link:</div>
           <div class="link-container">
             <input :value="generatedLink" readonly class="link-input" />
             <button @click="copyLink" class="copy-btn">
               <i class="fas fa-copy"></i>
             </button>
-          </div>
-        </div>
-
-        <div class="demo-info">
-          <div class="demo-preview">
-            <div class="demo-thumbnail">
-              <img
-                v-if="demo?.screenshot_small"
-                :src="getScreenshotUrl(demo.screenshot_small)"
-              />
-              <div v-else class="demo-placeholder">
-                <i class="fas fa-play"></i>
-              </div>
-            </div>
-            <div class="demo-details">
-              <h4>{{ formData.name }}</h4>
-              <p>{{ formData.description }}</p>
-            </div>
           </div>
         </div>
 
@@ -414,49 +328,6 @@
             Open Demo
           </button>
           <button @click="closeSuccess" class="close-btn">Done</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Quick Preview Panel -->
-    <div v-if="showPreview" class="preview-panel">
-      <div class="preview-header">
-        <h3>Preview</h3>
-        <button @click="showPreview = false" class="close-preview">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <div class="preview-content">
-        <div class="preview-demo">
-          <div class="preview-thumbnail">
-            <img
-              v-if="demo?.screenshot_small"
-              :src="getScreenshotUrl(demo.screenshot_small)"
-            />
-            <div v-else class="preview-placeholder">
-              <i class="fas fa-play"></i>
-            </div>
-          </div>
-          <div class="preview-details">
-            <h4>{{ formData.name || "Demo Name" }}</h4>
-            <p>{{ formData.description || "Demo Description" }}</p>
-            <div class="preview-variables">
-              <span
-                v-for="variable in activeVariables"
-                :key="variable.name"
-                class="preview-var"
-              >
-                {{ variable.name }}:
-                {{ variable.newValue || variable.defaultValue }}
-              </span>
-            </div>
-          </div>
-        </div>
-        <div class="preview-actions">
-          <button @click="runDemo" class="run-demo-btn">
-            <i class="fas fa-play"></i>
-            Run Demo
-          </button>
         </div>
       </div>
     </div>
@@ -471,67 +342,20 @@ interface Props {
 }
 
 interface Emits {
-  (e: "back"): void;
+  (e: "close"): void;
   (e: "preview", demo: any, customization: any): void;
   (e: "generate-link", demo: any, customization: any): void;
-}
-
-interface Widget {
-  id: string;
-  type: string;
-  title: string;
-  icon: string;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-const showPreview = ref(false);
 const showSuccess = ref(false);
-const showAddWidgetDropdown = ref(false);
-const showConfirmation = ref(false);
+const showAdvanced = ref(false);
 const generatedLink = ref("");
-const confirmationWidget = ref<Widget | null>(null);
 
-// Widget system
-const activeWidgets = ref<Widget[]>([]);
-let widgetIdCounter = 0;
-
-// Available widget types
-const availableWidgets = [
-  {
-    type: "welcome",
-    title: "Welcome Page",
-    icon: "fas fa-hand-wave",
-    description: "Add a custom welcome page with title and message",
-  },
-  {
-    type: "variables",
-    title: "Variables",
-    icon: "fas fa-code",
-    description: "Customize demo variables like company names and data",
-  },
-  {
-    type: "access-control",
-    title: "Access Control",
-    icon: "fas fa-shield-alt",
-    description:
-      "Control who can access your demo with passwords or domain restrictions",
-  },
-  {
-    type: "crm-integration",
-    title: "CRM Integration",
-    icon: "fas fa-plug",
-    description:
-      "Connect to HubSpot, Salesforce, or other CRMs for lead capture",
-  },
-  {
-    type: "conversion-form",
-    title: "Conversion Form",
-    icon: "fas fa-clipboard-list",
-    description: "Add a lead capture form before or after the demo",
-  },
-];
+// Customization state
+const activeCustomizations = ref<string[]>([]);
 
 // Form data
 const formData = ref({
@@ -539,7 +363,6 @@ const formData = ref({
   description: "",
   expirationDate: "",
   enableGuides: true,
-  showWelcomePage: true,
   welcomeTitle: "",
   welcomeMessage: "",
   variables: [
@@ -561,44 +384,16 @@ const formData = ref({
       defaultValue: "$2.4M",
       newValue: "",
     },
-    {
-      name: "companyLogo",
-      type: "image",
-      defaultValue: "Acme, Inc.",
-      newValue: "",
-    },
-    {
-      name: "boardReviewDate",
-      type: "date",
-      defaultValue: "3/12/2025",
-      newValue: "",
-    },
   ],
-  // New fields for additional widgets
   accessControl: "public",
   password: "",
-  allowedDomains: "",
   crmProvider: "",
   leadSource: "",
-  campaignName: "",
-  formFields: {
-    name: true,
-    email: true,
-    company: false,
-    phone: false,
-    title: false,
-  },
-  formTitle: "",
-  formDescription: "",
 });
 
 // Computed
 const isValid = computed(() => {
   return formData.value.name.trim() !== "";
-});
-
-const activeVariables = computed(() => {
-  return formData.value.variables.filter((v) => v.newValue.trim() !== "");
 });
 
 const getDemoType = (demo: any) => {
@@ -613,81 +408,22 @@ const getScreenshotUrl = (screenshotSmall: string) => {
   return `data:image/png;base64,${screenshotSmall}`;
 };
 
-const getVariableIcon = (type: string) => {
-  switch (type) {
-    case "text":
-      return "fas fa-font";
-    case "date":
-      return "fas fa-calendar";
-    case "image":
-      return "fas fa-image";
-    default:
-      return "fas fa-code";
+// Customization methods
+const toggleCustomization = (type: string) => {
+  const index = activeCustomizations.value.indexOf(type);
+  if (index > -1) {
+    activeCustomizations.value.splice(index, 1);
+  } else {
+    activeCustomizations.value.push(type);
   }
 };
 
-// Widget management methods
-const addWidget = (type: string) => {
-  const widgetConfig = availableWidgets.find((w) => w.type === type);
-  if (widgetConfig && !isWidgetActive(type)) {
-    const newWidget: Widget = {
-      id: `widget-${++widgetIdCounter}`,
-      type: widgetConfig.type,
-      title: widgetConfig.title,
-      icon: widgetConfig.icon,
-    };
-    activeWidgets.value.push(newWidget);
-    showAddWidgetDropdown.value = false;
-  }
-};
-
-const removeWidget = (widgetId: string) => {
-  const widget = activeWidgets.value.find((w) => w.id === widgetId);
-  if (widget) {
-    confirmationWidget.value = widget;
-    showConfirmation.value = true;
-  }
-};
-
-const confirmRemoveWidget = () => {
-  if (confirmationWidget.value) {
-    activeWidgets.value = activeWidgets.value.filter(
-      (w) => w.id !== confirmationWidget.value!.id
-    );
-    showConfirmation.value = false;
-    confirmationWidget.value = null;
-  }
-};
-
-const isWidgetActive = (type: string) => {
-  return activeWidgets.value.some((w) => w.type === type);
-};
-
-// Close dropdown when clicking outside
-const handleClickOutside = (event: Event) => {
-  const target = event.target as HTMLElement;
-  if (!target.closest(".dropdown-container")) {
-    showAddWidgetDropdown.value = false;
-  }
-};
-
-const addVariable = () => {
-  formData.value.variables.push({
-    name: "",
-    type: "text",
-    defaultValue: "",
-    newValue: "",
-  });
+const isCustomizationActive = (type: string) => {
+  return activeCustomizations.value.includes(type);
 };
 
 const previewDemo = () => {
-  showPreview.value = true;
   emit("preview", props.demo, formData.value);
-};
-
-const runDemo = () => {
-  console.log("Running demo with customization:", formData.value);
-  alert(`Running demo: ${formData.value.name}`);
 };
 
 const generateLink = () => {
@@ -704,7 +440,6 @@ const generateLink = () => {
 const copyLink = async () => {
   try {
     await navigator.clipboard.writeText(generatedLink.value);
-    // You could add a toast notification here
     console.log("Link copied to clipboard");
   } catch (err) {
     console.error("Failed to copy: ", err);
@@ -730,7 +465,6 @@ watch(
         description: `Personalized demo for ${props.demo.title}`,
         expirationDate: "",
         enableGuides: true,
-        showWelcomePage: true,
         welcomeTitle: "Introduction to MFA Securities",
         welcomeMessage:
           "Thank you for your interest in exploring our analytics platform. This interactive demo will show you how our solution helps organizations transform raw data into actionable insights.",
@@ -753,247 +487,138 @@ watch(
             defaultValue: "$2.4M",
             newValue: "",
           },
-          {
-            name: "companyLogo",
-            type: "image",
-            defaultValue: "Acme, Inc.",
-            newValue: "",
-          },
-          {
-            name: "boardReviewDate",
-            type: "date",
-            defaultValue: "3/12/2025",
-            newValue: "",
-          },
         ],
-        // Initialize new fields
         accessControl: "public",
         password: "",
-        allowedDomains: "",
         crmProvider: "",
         leadSource: "",
-        campaignName: "",
-        formFields: {
-          name: true,
-          email: true,
-          company: false,
-          phone: false,
-          title: false,
-        },
-        formTitle: "",
-        formDescription: "",
       };
     }
   },
   { immediate: true }
 );
-
-// Lifecycle hooks
-onMounted(() => {
-  document.addEventListener("click", handleClickOutside);
-});
-
-onUnmounted(() => {
-  document.removeEventListener("click", handleClickOutside);
-});
 </script>
 
 <style scoped>
-.demo-customizer {
-  @apply flex flex-col h-full bg-gray-50;
-}
-
-.customizer-header {
-  @apply flex items-center gap-3 p-3 bg-white border-b border-gray-200;
-}
-
-.back-btn {
-  @apply p-2 text-gray-400 hover:text-gray-600 transition-colors rounded;
-}
-
-.customizer-header h2 {
-  @apply text-base font-semibold text-gray-900;
-}
-
-.action-section {
-  @apply p-3 bg-white border-t border-gray-200;
-}
-
-.action-buttons {
-  @apply flex gap-3;
-}
-
-.preview-btn {
-  @apply flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors;
-}
-
-.create-btn {
-  @apply flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors;
-}
-
-/* Widget System Styles */
-.widget-container {
-  @apply flex-1 overflow-y-auto p-3 space-y-3;
-}
-
-.widget {
-  @apply bg-white rounded-lg border border-gray-200 shadow-sm;
-}
-
-.widget-header {
-  @apply flex items-center justify-between p-3 border-b border-gray-100;
-}
-
-.widget-title {
-  @apply flex items-center gap-2 text-sm font-medium text-gray-700;
-}
-
-.widget-title i {
-  @apply text-gray-500;
-}
-
-.remove-widget-btn {
-  @apply p-1 text-gray-400 hover:text-red-600 transition-colors rounded;
-}
-
-.widget-content {
-  @apply p-3 space-y-3;
-}
-
-.add-widget-section {
-  @apply flex justify-center py-4;
-}
-
-.dropdown-container {
-  @apply relative;
-}
-
-.add-widget-btn {
-  @apply px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-2;
-}
-
-.dropdown-arrow {
-  @apply text-xs transition-transform;
-}
-
-/* Widget Dropdown */
-.widget-dropdown {
-  @apply absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10;
-}
-
-.dropdown-options {
-  @apply p-2 space-y-1;
-}
-
-.dropdown-option {
-  @apply w-full p-3 text-left border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200 disabled:hover:bg-white flex items-center gap-3;
-}
-
-.dropdown-option:disabled {
-  @apply opacity-50 cursor-not-allowed;
-}
-
-.option-icon {
-  @apply w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0;
-}
-
-.option-icon i {
-  @apply text-blue-600 text-sm;
-}
-
-.option-content {
-  @apply flex-1 min-w-0;
-}
-
-.option-content h4 {
-  @apply text-sm font-medium text-gray-900 mb-1;
-}
-
-.option-content p {
-  @apply text-xs text-gray-600;
-}
-
-.option-status {
-  @apply text-green-600 flex-shrink-0;
-}
-
-/* Confirmation Dialog */
-.confirmation-dialog {
+/* Modal Overlay */
+.modal-overlay {
   @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
 }
 
-.dialog-overlay {
-  @apply absolute inset-0;
+.modal-container {
+  @apply bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden;
 }
 
-.dialog-content {
-  @apply bg-white rounded-lg p-6 max-w-sm w-full mx-4;
+/* Modal Header */
+.modal-header {
+  @apply p-4 border-b border-gray-200;
 }
 
-.dialog-header {
-  @apply text-center mb-4;
+.header-content {
+  @apply flex items-center justify-between;
 }
 
-.dialog-icon {
-  @apply w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3;
+.demo-preview {
+  @apply flex items-center gap-3;
 }
 
-.dialog-icon i {
-  @apply text-yellow-600 text-xl;
+.demo-thumbnail {
+  @apply w-12 h-9 bg-gray-100 rounded overflow-hidden flex-shrink-0;
 }
 
-.dialog-header h3 {
+.demo-thumbnail img {
+  @apply w-full h-full object-cover;
+}
+
+.demo-placeholder {
+  @apply w-full h-full flex items-center justify-center text-gray-400;
+}
+
+.demo-info h2 {
   @apply text-lg font-semibold text-gray-900;
 }
 
-.dialog-body {
-  @apply mb-6;
+.demo-meta {
+  @apply flex items-center gap-2 mt-1;
 }
 
-.dialog-body p {
-  @apply text-sm text-gray-600 mb-2;
+.demo-type {
+  @apply px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded;
 }
 
-.dialog-warning {
-  @apply text-xs text-red-600 font-medium;
+.demo-status {
+  @apply text-xs text-gray-500;
 }
 
-.dialog-actions {
-  @apply flex gap-3;
+.close-btn {
+  @apply p-2 text-gray-400 hover:text-gray-600 transition-colors rounded;
 }
 
-.cancel-btn {
-  @apply flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors;
+/* Quick Actions Bar */
+.quick-actions {
+  @apply flex gap-3 p-4 bg-gray-50 border-b border-gray-200;
 }
 
-.confirm-btn {
-  @apply flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded hover:bg-red-700 transition-colors;
+.action-btn {
+  @apply flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors;
 }
 
-.form-group {
+.preview-btn {
+  @apply text-gray-700 bg-white border border-gray-300 hover:bg-gray-50;
+}
+
+.primary-btn {
+  @apply text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed;
+}
+
+/* Customization Content */
+.customization-content {
+  @apply p-4 space-y-4 max-h-96 overflow-y-auto;
+}
+
+/* Essential Settings */
+.essential-settings {
+  @apply space-y-3;
+}
+
+.setting-group {
   @apply space-y-1;
 }
 
-.form-row {
+.setting-label {
+  @apply block text-sm font-medium text-gray-700;
+}
+
+.setting-input {
+  @apply w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+}
+
+.setting-textarea {
+  @apply w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none;
+}
+
+.setting-select {
+  @apply w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+}
+
+.setting-row {
   @apply grid grid-cols-2 gap-3;
 }
 
-.form-label {
-  @apply block text-xs font-medium text-gray-700;
+/* Advanced Section */
+.advanced-section {
+  @apply border-t border-gray-200 pt-4;
 }
 
-.form-input {
-  @apply w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+.advanced-toggle {
+  @apply flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 transition-colors;
 }
 
-.form-textarea {
-  @apply w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none;
+.advanced-content {
+  @apply mt-3 space-y-3;
 }
 
-.form-select {
-  @apply w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
-}
-
+/* Toggle Switch */
 .toggle-switch {
   @apply relative inline-flex items-center cursor-pointer;
 }
@@ -1032,84 +657,92 @@ onUnmounted(() => {
   transform: translateX(1rem);
 }
 
-/* Widget-specific styles */
-.welcome-content {
-  @apply space-y-3;
+/* Quick Customizations */
+.quick-customizations h3 {
+  @apply text-sm font-semibold text-gray-900 mb-3;
 }
 
-.variables-grid {
-  @apply space-y-3;
+.customization-grid {
+  @apply grid grid-cols-2 gap-2;
 }
 
-.variable-card {
-  @apply p-3 bg-gray-50 rounded border;
+.customization-btn {
+  @apply flex items-center gap-2 p-3 text-sm border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors;
 }
 
-.variable-header {
-  @apply flex items-center gap-2 mb-2;
+.customization-btn.active {
+  @apply border-blue-500 bg-blue-50 text-blue-700;
 }
 
-.variable-type-icon {
-  @apply w-5 h-5 bg-blue-100 rounded flex items-center justify-center;
+.customization-btn i {
+  @apply text-gray-500;
 }
 
-.variable-type-icon i {
-  @apply text-blue-600 text-xs;
+.customization-btn.active i {
+  @apply text-blue-600;
 }
 
-.variable-name {
+/* Active Customizations */
+.active-customizations h3 {
+  @apply text-sm font-semibold text-gray-900 mb-3;
+}
+
+.customization-panel {
+  @apply border border-gray-200 rounded-lg;
+}
+
+.panel-header {
+  @apply flex items-center justify-between p-3 bg-gray-50 border-b border-gray-200;
+}
+
+.panel-header i {
+  @apply text-gray-500 mr-2;
+}
+
+.panel-header span {
   @apply text-sm font-medium text-gray-700 flex-1;
 }
 
-.variable-content {
+.remove-btn {
+  @apply p-1 text-gray-400 hover:text-red-600 transition-colors rounded;
+}
+
+.panel-content {
+  @apply p-3 space-y-3;
+}
+
+/* Variables */
+.variables-list {
   @apply space-y-2;
+}
+
+.variable-item {
+  @apply flex items-center gap-3;
+}
+
+.variable-info {
+  @apply flex items-center gap-2 min-w-0 flex-1;
+}
+
+.variable-name {
+  @apply text-sm font-medium text-gray-700;
 }
 
 .variable-default {
-  @apply text-xs text-gray-500;
-}
-
-.default-value {
-  @apply bg-gray-200 px-2 py-1 rounded text-xs;
+  @apply text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded;
 }
 
 .variable-input {
-  @apply w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500;
-}
-
-.variable-image-input {
-  @apply flex gap-2;
-}
-
-.upload-btn {
-  @apply px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors;
-}
-
-.add-variable-btn {
-  @apply w-full p-3 border-2 border-dashed border-gray-300 rounded text-sm text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors;
-}
-
-/* CRM Integration styles */
-.crm-config {
-  @apply space-y-3 mt-3 p-3 bg-gray-50 rounded;
-}
-
-/* Conversion Form styles */
-.form-fields {
-  @apply space-y-2;
-}
-
-.checkbox-label {
-  @apply flex items-center gap-2 text-sm text-gray-700 cursor-pointer;
-}
-
-.checkbox-label input {
-  @apply rounded border-gray-300 text-blue-600 focus:ring-blue-500;
+  @apply flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500;
 }
 
 /* Success Modal */
 .success-modal {
   @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+}
+
+.success-overlay {
+  @apply absolute inset-0;
 }
 
 .success-content {
@@ -1140,10 +773,6 @@ onUnmounted(() => {
   @apply mb-6;
 }
 
-.link-label {
-  @apply text-sm font-medium text-gray-700 mb-2;
-}
-
 .link-container {
   @apply flex gap-2;
 }
@@ -1154,164 +783,6 @@ onUnmounted(() => {
 
 .copy-btn {
   @apply px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors;
-}
-
-.demo-info {
-  @apply mb-6;
-}
-
-.demo-preview {
-  @apply flex items-center gap-3 p-3 bg-gray-50 rounded;
-}
-
-.demo-thumbnail {
-  @apply w-12 h-9 bg-gray-200 rounded overflow-hidden;
-}
-
-.demo-placeholder {
-  @apply w-full h-full flex items-center justify-center text-gray-400;
-}
-
-.demo-details h4 {
-  @apply text-sm font-medium text-gray-900;
-}
-
-.demo-details p {
-  @apply text-xs text-gray-600;
-}
-
-.success-actions {
-  @apply flex gap-3;
-}
-
-.open-btn {
-  @apply flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition-colors;
-}
-
-.close-btn {
-  @apply flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors;
-}
-
-/* Quick Preview Panel */
-.preview-panel {
-  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
-}
-
-.preview-content {
-  @apply bg-white rounded-lg p-4 max-w-sm w-full mx-4;
-}
-
-.preview-header {
-  @apply flex items-center justify-between mb-3;
-}
-
-.close-preview {
-  @apply p-1 text-gray-400 hover:text-gray-600 transition-colors;
-}
-
-.preview-demo {
-  @apply flex items-center gap-3 mb-3;
-}
-
-.preview-thumbnail {
-  @apply w-16 h-12 bg-gray-100 rounded overflow-hidden;
-}
-
-.preview-placeholder {
-  @apply w-full h-full flex items-center justify-center text-gray-400;
-}
-
-.preview-details h4 {
-  @apply font-medium text-gray-900 text-sm;
-}
-
-.preview-details p {
-  @apply text-xs text-gray-500;
-}
-
-.preview-variables {
-  @apply mt-1 space-y-1;
-}
-
-.preview-var {
-  @apply text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded;
-}
-
-.run-demo-btn {
-  @apply w-full px-3 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded transition-colors;
-}
-
-/* Success Modal */
-.success-modal {
-  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
-}
-
-.success-content {
-  @apply bg-white rounded-lg p-6 max-w-md w-full mx-4;
-}
-
-.success-header {
-  @apply text-center mb-6;
-}
-
-.success-icon {
-  @apply w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4;
-}
-
-.success-icon i {
-  @apply text-green-600 text-2xl;
-}
-
-.success-header h3 {
-  @apply text-xl font-semibold text-gray-900 mb-2;
-}
-
-.success-header p {
-  @apply text-sm text-gray-600;
-}
-
-.link-section {
-  @apply mb-6;
-}
-
-.link-label {
-  @apply text-sm font-medium text-gray-700 mb-2;
-}
-
-.link-container {
-  @apply flex gap-2;
-}
-
-.link-input {
-  @apply flex-1 px-3 py-2 text-sm bg-gray-50 border border-gray-300 rounded font-mono;
-}
-
-.copy-btn {
-  @apply px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors;
-}
-
-.demo-info {
-  @apply mb-6;
-}
-
-.demo-preview {
-  @apply flex items-center gap-3 p-3 bg-gray-50 rounded;
-}
-
-.demo-thumbnail {
-  @apply w-12 h-9 bg-gray-200 rounded overflow-hidden;
-}
-
-.demo-placeholder {
-  @apply w-full h-full flex items-center justify-center text-gray-400;
-}
-
-.demo-details h4 {
-  @apply text-sm font-medium text-gray-900;
-}
-
-.demo-details p {
-  @apply text-xs text-gray-600;
 }
 
 .success-actions {

@@ -3,24 +3,32 @@
     class="folder-sidebar border-r"
     :class="{ 'sidebar-open': showFolderSidebar }"
   >
-    <!-- Folder List -->
+    <!-- Navigation List -->
     <div class="folder-list-container">
       <div class="px-3 py-3">
-        <!-- All Folders Option -->
-        <button
-          @click="$emit('select-folder', null)"
-          class="folder-item"
-          :class="{ 'folder-selected': !currentFolder }"
-        >
-          <div class="folder-icon">
-            <i class="fas fa-folder text-gray-500"></i>
+        <!-- Home Section -->
+        <div class="navigation-section">
+          <div class="section-header">
+            <span class="section-title">Navigation</span>
           </div>
-          <span class="folder-name">All Folders</span>
-          <div class="folder-badge">{{ totalDemoCount }}</div>
-        </button>
+          <button
+            @click="$emit('select-folder', null)"
+            class="folder-item"
+            :class="{ 'folder-selected': !currentFolder }"
+          >
+            <div class="folder-icon">
+              <i class="fas fa-home text-gray-500"></i>
+            </div>
+            <span class="folder-name">Home</span>
+            <div class="folder-badge">{{ totalDemoCount }}</div>
+          </button>
+        </div>
 
-        <!-- All Folders (Flat List) -->
-        <div class="folder-section">
+        <!-- Folders Section -->
+        <div class="folders-section">
+          <div class="section-header">
+            <span class="section-title">Folders</span>
+          </div>
           <div
             v-for="folder in allFolders"
             :key="folder.id"
@@ -70,20 +78,37 @@ defineEmits<Emits>();
 <style scoped>
 /* Folder Sidebar */
 .folder-sidebar {
-  @apply flex flex-col w-0 overflow-hidden transition-all duration-300 ease-in-out;
+  @apply flex flex-col absolute top-0 left-0 h-full bg-white border-r border-gray-200 z-20 overflow-hidden transition-all duration-300 ease-in-out;
   width: 0;
+  transform: translateX(-100%);
 }
 
 .folder-sidebar.sidebar-open {
   width: 190px;
+  transform: translateX(0);
 }
 
-/* Folder List */
+/* Navigation List */
 .folder-list-container {
   @apply flex-1 overflow-y-auto;
 }
 
-.folder-section {
+/* Section Headers */
+.section-header {
+  @apply px-2 py-2;
+}
+
+.section-title {
+  @apply text-xs font-semibold text-gray-500 uppercase tracking-wide;
+}
+
+/* Navigation Section */
+.navigation-section {
+  @apply mb-4;
+}
+
+/* Folders Section */
+.folders-section {
   @apply space-y-1;
 }
 

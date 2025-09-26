@@ -19,18 +19,23 @@
               alt="demo screenshot"
               class="w-full h-full object-cover"
             />
-            <div v-else class="demo-placeholder">
-              <i class="fas fa-play text-gray-400"></i>
+            <div
+              v-else
+              class="demo-placeholder"
+              :style="{ backgroundImage: `url(${getPosterImage(index)})` }"
+            >
+              <div class="play-overlay">
+                <i class="fas fa-play text-white"></i>
+              </div>
             </div>
           </div>
           <div class="demo-info">
             <div class="demo-title">{{ demo.title }}</div>
             <div class="demo-meta">
-              <span class="demo-type">{{ getDemoType(demo) }}</span>
-              <span class="demo-separator">•</span>
-              <span class="demo-folder">{{
-                getFolderName(demo.folder_id || demo.replay_folder_id)
-              }}</span>
+              <span class="demo-folder">
+                <i class="far fa-folder text-gray-400 mr-1"></i>
+                {{ getFolderName(demo.folder_id || demo.replay_folder_id) }}
+              </span>
               <span class="demo-separator">•</span>
               <span class="demo-views">{{ demo.views || 0 }} views</span>
             </div>
@@ -77,18 +82,23 @@
               alt="demo screenshot"
               class="w-full h-full object-cover"
             />
-            <div v-else class="demo-placeholder">
-              <i class="fas fa-play text-gray-400"></i>
+            <div
+              v-else
+              class="demo-placeholder"
+              :style="{ backgroundImage: `url(${getPosterImage(index)})` }"
+            >
+              <div class="play-overlay">
+                <i class="fas fa-play text-white"></i>
+              </div>
             </div>
           </div>
           <div class="demo-info">
             <div class="demo-title">{{ demo.title }}</div>
             <div class="demo-meta">
-              <span class="demo-type">{{ getDemoType(demo) }}</span>
-              <span class="demo-separator">•</span>
-              <span class="demo-folder">{{
-                getFolderName(demo.folder_id || demo.replay_folder_id)
-              }}</span>
+              <span class="demo-folder">
+                <i class="far fa-folder text-gray-400 mr-1"></i>
+                {{ getFolderName(demo.folder_id || demo.replay_folder_id) }}
+              </span>
               <span class="demo-separator">•</span>
               <span class="demo-views">{{ demo.views || 0 }} views</span>
             </div>
@@ -134,15 +144,19 @@
               alt="demo screenshot"
               class="w-full h-full object-cover"
             />
-            <div v-else class="demo-placeholder">
-              <i class="fas fa-play text-gray-400"></i>
+            <div
+              v-else
+              class="demo-placeholder"
+              :style="{ backgroundImage: `url(${getPosterImage(index)})` }"
+            >
+              <div class="play-overlay">
+                <i class="fas fa-play text-white"></i>
+              </div>
             </div>
           </div>
           <div class="demo-info">
             <div class="demo-title">{{ demo.title }}</div>
             <div class="demo-meta">
-              <span class="demo-type">{{ getDemoType(demo) }}</span>
-              <span class="demo-separator">•</span>
               <span class="demo-views">{{ demo.views || 0 }} views</span>
             </div>
           </div>
@@ -233,19 +247,22 @@ const getFolderName = (folderId: string) => {
   return folder?.title || "Unknown Folder";
 };
 
-const getDemoType = (demo: any) => {
-  if (demo.replay_type === "LEGACY") return "Legacy";
-  if (demo.replay_folder_id) return "Maestro";
-  if (demo.folder_id && !demo.replay_type) return "Live";
-  return "Demo";
-};
-
 const getScreenshotUrl = (screenshotSmall: string) => {
   if (!screenshotSmall) return "";
   if (screenshotSmall.startsWith("data:")) {
     return screenshotSmall;
   }
   return `data:image/png;base64,${screenshotSmall}`;
+};
+
+const getPosterImage = (index: number) => {
+  const posterImages = [
+    "/src/images/poster.png",
+    "/src/images/poster (1).png",
+    "/src/images/poster (2).png",
+    "/src/images/poster (3).png",
+  ];
+  return posterImages[index % posterImages.length];
 };
 </script>
 
@@ -260,7 +277,11 @@ const getScreenshotUrl = (screenshotSmall: string) => {
 }
 
 .demo-placeholder {
-  @apply w-full h-full flex items-center justify-center;
+  @apply w-full h-full flex items-center justify-center bg-cover bg-center bg-no-repeat;
+}
+
+.play-overlay {
+  @apply w-full h-full flex items-center justify-center bg-black bg-opacity-30;
 }
 
 .demo-info {
@@ -273,10 +294,6 @@ const getScreenshotUrl = (screenshotSmall: string) => {
 
 .demo-meta {
   @apply text-xs text-gray-500 mt-0.5;
-}
-
-.demo-type {
-  @apply font-medium;
 }
 
 .demo-separator {
