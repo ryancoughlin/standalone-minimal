@@ -2,13 +2,26 @@
   <div class="px-4 pb-4">
     <!-- Recent Demos Section -->
     <div v-if="!currentFolder" class="mb-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-3">Recent Demos</h3>
+      <h3 class="heading-secondary mb-3">Recent Demos</h3>
       <div class="space-y-1">
         <!-- Recent Demo Rows -->
         <div
           v-for="(demo, index) in recentDemos"
           :key="`recent-${index}`"
           class="demo-row group"
+          v-motion
+          :initial="{ opacity: 0, y: 5 }"
+          :enter="{
+            opacity: 1,
+            y: 0,
+            transition: {
+              duration: 150,
+              delay: 50 + index * 30,
+              ease: 'easeOut',
+            },
+          }"
+          :hover="{ scale: 1.01, transition: { duration: 150 } }"
+          :tap="{ scale: 0.99, transition: { duration: 100 } }"
           @click="$emit('view-detail', demo)"
         >
           <div class="demo-thumbnail">
@@ -19,21 +32,15 @@
               alt="demo screenshot"
               class="w-full h-full object-cover"
             />
-            <div
-              v-else
-              class="demo-placeholder"
-              :style="{ backgroundImage: `url(${getPosterImage(index)})` }"
-            >
-              <div class="play-overlay">
-                <i class="fas fa-play text-white"></i>
-              </div>
+            <div v-else class="demo-placeholder">
+              <i class="fal fa-play text-gray-400 text-lg"></i>
             </div>
           </div>
           <div class="demo-info">
             <div class="demo-title">{{ demo.title }}</div>
             <div class="demo-meta">
               <span class="demo-folder">
-                <i class="far fa-folder text-gray-400 mr-1"></i>
+                <i class="fal fa-folder text-gray-400 mr-1 text-sm"></i>
                 {{ getFolderName(demo.folder_id || demo.replay_folder_id) }}
               </span>
               <span class="demo-separator">•</span>
@@ -46,18 +53,8 @@
               class="play-action-btn"
               title="Play Demo"
             >
-              <i class="fas fa-play"></i>
+              <i class="fad fa-arrow-up-right text-lg"></i>
             </button>
-            <div class="demo-actions-overlay group-hover:opacity-100">
-              <button
-                @click.stop="$emit('customize-demo', demo)"
-                class="customize-btn"
-                title="Customize Demo"
-              >
-                <i class="fas fa-edit"></i>
-                Customize
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -65,13 +62,26 @@
 
     <!-- All Demos Section -->
     <div v-if="!currentFolder">
-      <h3 class="text-lg font-semibold text-gray-900 mb-3">All Demos</h3>
+      <h3 class="heading-secondary mb-3">All Demos</h3>
       <div class="space-y-1">
         <!-- All Demo Rows -->
         <div
           v-for="(demo, index) in allDemos"
           :key="`all-${index}`"
           class="demo-row group"
+          v-motion
+          :initial="{ opacity: 0, y: 5 }"
+          :enter="{
+            opacity: 1,
+            y: 0,
+            transition: {
+              duration: 150,
+              delay: 50 + index * 30,
+              ease: 'easeOut',
+            },
+          }"
+          :hover="{ scale: 1.01, transition: { duration: 150 } }"
+          :tap="{ scale: 0.99, transition: { duration: 100 } }"
           @click="$emit('view-detail', demo)"
         >
           <div class="demo-thumbnail">
@@ -82,21 +92,15 @@
               alt="demo screenshot"
               class="w-full h-full object-cover"
             />
-            <div
-              v-else
-              class="demo-placeholder"
-              :style="{ backgroundImage: `url(${getPosterImage(index)})` }"
-            >
-              <div class="play-overlay">
-                <i class="fas fa-play text-white"></i>
-              </div>
+            <div v-else class="demo-placeholder">
+              <i class="fal fa-play text-gray-400 text-lg"></i>
             </div>
           </div>
           <div class="demo-info">
             <div class="demo-title">{{ demo.title }}</div>
             <div class="demo-meta">
               <span class="demo-folder">
-                <i class="far fa-folder text-gray-400 mr-1"></i>
+                <i class="fal fa-folder text-gray-400 mr-1 text-sm"></i>
                 {{ getFolderName(demo.folder_id || demo.replay_folder_id) }}
               </span>
               <span class="demo-separator">•</span>
@@ -109,18 +113,8 @@
               class="play-action-btn"
               title="Play Demo"
             >
-              <i class="fas fa-play"></i>
+              <i class="fad fa-arrow-up-right text-lg"></i>
             </button>
-            <div class="demo-actions-overlay group-hover:opacity-100">
-              <button
-                @click.stop="$emit('customize-demo', demo)"
-                class="customize-btn"
-                title="Customize Demo"
-              >
-                <i class="fas fa-edit"></i>
-                Customize
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -134,6 +128,19 @@
           v-for="(demo, index) in folderDemos"
           :key="`folder-${index}`"
           class="demo-row group"
+          v-motion
+          :initial="{ opacity: 0, y: 5 }"
+          :enter="{
+            opacity: 1,
+            y: 0,
+            transition: {
+              duration: 150,
+              delay: 50 + index * 30,
+              ease: 'easeOut',
+            },
+          }"
+          :hover="{ scale: 1.01, transition: { duration: 150 } }"
+          :tap="{ scale: 0.99, transition: { duration: 100 } }"
           @click="$emit('view-detail', demo)"
         >
           <div class="demo-thumbnail">
@@ -144,14 +151,8 @@
               alt="demo screenshot"
               class="w-full h-full object-cover"
             />
-            <div
-              v-else
-              class="demo-placeholder"
-              :style="{ backgroundImage: `url(${getPosterImage(index)})` }"
-            >
-              <div class="play-overlay">
-                <i class="fas fa-play text-white"></i>
-              </div>
+            <div v-else class="demo-placeholder">
+              <i class="fal fa-play text-gray-400 text-lg"></i>
             </div>
           </div>
           <div class="demo-info">
@@ -166,25 +167,25 @@
               class="play-action-btn"
               title="Play Demo"
             >
-              <i class="fas fa-play"></i>
+              <i class="fad fa-arrow-up-right text-lg"></i>
             </button>
-            <div class="demo-actions-overlay group-hover:opacity-100">
-              <button
-                @click.stop="$emit('customize-demo', demo)"
-                class="customize-btn"
-                title="Customize Demo"
-              >
-                <i class="fas fa-edit"></i>
-                Customize
-              </button>
-            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Empty State -->
-    <div v-if="totalDemoCount === 0" class="text-center py-8 px-4">
+    <div
+      v-if="totalDemoCount === 0"
+      class="text-center py-8 px-4"
+      v-motion
+      :initial="{ opacity: 0, scale: 0.95 }"
+      :enter="{
+        opacity: 1,
+        scale: 1,
+        transition: { duration: 200, ease: 'easeOut' },
+      }"
+    >
       <div class="text-gray-400 mb-3">
         <span class="text-3xl">📁</span>
       </div>
@@ -200,6 +201,13 @@
     <div
       v-else-if="searchQuery && filteredTotalCount === 0"
       class="text-center py-8 px-4"
+      v-motion
+      :initial="{ opacity: 0, scale: 0.95 }"
+      :enter="{
+        opacity: 1,
+        scale: 1,
+        transition: { duration: 200, ease: 'easeOut' },
+      }"
     >
       <div class="text-gray-400 mb-3">
         <span class="text-3xl">🔍</span>
@@ -249,27 +257,31 @@ const getFolderName = (folderId: string) => {
 
 const getScreenshotUrl = (screenshotSmall: string) => {
   if (!screenshotSmall) return "";
+  // If it's already a URL path, return it directly
+  if (screenshotSmall.startsWith("/")) {
+    return screenshotSmall;
+  }
+  // If it's base64 data, format it properly
   if (screenshotSmall.startsWith("data:")) {
     return screenshotSmall;
   }
   return `data:image/png;base64,${screenshotSmall}`;
 };
-
-const getPosterImage = (index: number) => {
-  const posterImages = [
-    "/src/images/poster.png",
-    "/src/images/poster (1).png",
-    "/src/images/poster (2).png",
-    "/src/images/poster (3).png",
-  ];
-  return posterImages[index % posterImages.length];
-};
 </script>
 
 <style scoped>
+/* Primary Typography Classes */
+.heading-primary {
+  @apply text-xl font-semibold text-gray-900;
+}
+
+.heading-secondary {
+  @apply text-base font-medium text-gray-900;
+}
+
 /* Demo Row Layout */
 .demo-row {
-  @apply flex items-center gap-3 py-2 px-3 cursor-pointer transition-colors hover:bg-gray-50 border-b border-gray-100 last:border-b-0;
+  @apply flex items-center gap-3 py-2 px-2 cursor-pointer transition-colors hover:bg-gray-50 border-b border-gray-100 last:border-b-0 min-w-0;
 }
 
 .demo-thumbnail {
@@ -277,15 +289,11 @@ const getPosterImage = (index: number) => {
 }
 
 .demo-placeholder {
-  @apply w-full h-full flex items-center justify-center bg-cover bg-center bg-no-repeat;
-}
-
-.play-overlay {
-  @apply w-full h-full flex items-center justify-center bg-black bg-opacity-30;
+  @apply w-full h-full flex items-center justify-center;
 }
 
 .demo-info {
-  @apply flex-1 min-w-0;
+  @apply flex-1 min-w-0 overflow-hidden;
 }
 
 .demo-title {
@@ -313,19 +321,10 @@ const getPosterImage = (index: number) => {
 }
 
 .play-action-btn {
-  @apply w-full h-6 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-150 text-xs;
+  @apply w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-150 text-xs;
 }
 
-.demo-actions-overlay {
-  @apply absolute inset-0 flex items-center justify-end gap-2 pr-2 opacity-0 transition-opacity duration-200 pointer-events-none;
-  right: 2rem; /* Move overlay to the left to avoid covering play icon */
-}
-
-.group:hover .demo-actions-overlay {
-  @apply opacity-100 pointer-events-auto;
-}
-
-.customize-btn {
-  @apply flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-400 rounded transition-all duration-150 pointer-events-auto shadow-sm;
+.play-action-btn:hover {
+  transform: translate(-1px, -1px);
 }
 </style>

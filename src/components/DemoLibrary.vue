@@ -1,7 +1,15 @@
 <template>
   <!-- Unified Demo Library with Expandable Folder Sidebar -->
   <div
+    ref="demoLibraryContainer"
     class="demo-library-container"
+    v-motion
+    :initial="{ opacity: 0, scale: 0.95 }"
+    :enter="{
+      opacity: 1,
+      scale: 1,
+      transition: { duration: 300, ease: 'easeOut' },
+    }"
     :class="{
       'with-sidebar': showFolderSidebar,
       'on-left': !isOnRight,
@@ -19,14 +27,22 @@
       boxShadow:
         '0 0 0 5px #11182729, 0 4px 24px #0000001a, 0 20px 40px -5px #00000080',
       zIndex: '10000',
-      overflow: 'hidden',
+      overflow: 'auto',
       transition: 'all 0.3s ease-in-out',
     }"
+    @scroll="handleScroll"
   >
     <!-- Main Demo Content -->
     <div class="demo-content">
       <!-- Global Navigation -->
       <GlobalNavigation
+        v-motion
+        :initial="{ opacity: 0, y: -10 }"
+        :enter="{
+          opacity: 1,
+          y: 0,
+          transition: { duration: 200, delay: 100, ease: 'easeOut' },
+        }"
         :is-on-right="isOnRight"
         @reposition="handleReposition"
         @back="handleBack"
@@ -43,6 +59,13 @@
       >
         <!-- Search Bar -->
         <SearchBar
+          v-motion
+          :initial="{ opacity: 0, y: -5 }"
+          :enter="{
+            opacity: 1,
+            y: 0,
+            transition: { duration: 200, delay: 150, ease: 'easeOut' },
+          }"
           v-model:search-query="searchQuery"
           @new-demo="handleNewDemo"
         />
@@ -55,25 +78,47 @@
             :current-folder="currentFolder"
             :all-folders="foldersWithCounts"
             :total-demo-count="totalDemoCount"
+            :recent-demo-count="recentDemoCount"
+            :shared-demo-count="sharedDemoCount"
+            :starred-demo-count="starredDemoCount"
+            :starred-items="STARRED_ITEMS"
+            :current-section="currentSection"
+            :current-starred-item="currentStarredItem"
             @select-folder="handleSelectFolder"
+            @navigate-section="handleNavigateSection"
+            @select-starred-item="handleSelectStarredItem"
+            @create-folder="handleCreateFolder"
           />
 
           <!-- Main Content -->
           <div
             class="main-content"
             :class="{ 'with-sidebar': showFolderSidebar }"
-            ref="scrollContainer"
-            @scroll="handleScroll"
           >
             <!-- Welcome Message -->
-            <div class="px-4 py-8 hero-section" :style="heroTransform">
-              <h2 class="text-2xl font-serif text-gray-900 text-center">
-                Welcome, Will.
-              </h2>
+            <div
+              class="px-4 py-8 hero-section"
+              :style="heroTransform"
+              v-motion
+              :initial="{ opacity: 0, y: 5 }"
+              :enter="{
+                opacity: 1,
+                y: 0,
+                transition: { duration: 200, delay: 200, ease: 'easeOut' },
+              }"
+            >
+              <h2 class="welcome-message text-center">Welcome, Will.</h2>
             </div>
 
             <!-- Breadcrumb Navigation -->
             <BreadcrumbNavigation
+              v-motion
+              :initial="{ opacity: 0, y: 5 }"
+              :enter="{
+                opacity: 1,
+                y: 0,
+                transition: { duration: 200, delay: 250, ease: 'easeOut' },
+              }"
               :show-folder-sidebar="showFolderSidebar"
               :current-folder="currentFolder"
               :breadcrumbs="breadcrumbs"
@@ -83,9 +128,15 @@
             />
 
             <!-- Loading State -->
-            <div v-if="loading" class="space-y-4">
-              <div class="animate-pulse" v-for="i in 5" :key="i">
-                <div class="flex items-center space-x-4">
+            <div
+              v-if="loading"
+              class="space-y-4"
+              v-motion
+              :initial="{ opacity: 0 }"
+              :enter="{ opacity: 1, transition: { duration: 200, delay: 300 } }"
+            >
+              <div v-for="i in 5" :key="i" class="animate-shimmer">
+                <div class="flex items-center space-x-4 p-2">
                   <div class="w-20 h-16 bg-gray-200 rounded" />
                   <div class="flex-1 space-y-2">
                     <div class="h-4 bg-gray-200 rounded w-3/4" />
@@ -98,6 +149,13 @@
             <!-- Demo List -->
             <DemoList
               v-else
+              v-motion
+              :initial="{ opacity: 0, y: 10 }"
+              :enter="{
+                opacity: 1,
+                y: 0,
+                transition: { duration: 200, delay: 300, ease: 'easeOut' },
+              }"
               :current-folder="currentFolder"
               :recent-demos="recentDemos"
               :all-demos="allDemos"
@@ -142,12 +200,11 @@
           @view-analytics="handleViewAnalytics"
         />
 
-        <!-- Demo Customizer Modal -->
-        <DemoCustomizer
+        <!-- Demo Customizer Flow -->
+        <CustomizeFlow
           v-if="showCustomizer"
           :demo="selectedDemo"
           @close="handleCloseCustomizer"
-          @preview="handlePreviewDemo"
           @generate-link="handleGenerateLink"
         />
 
@@ -170,13 +227,14 @@
 import { computed, onMounted, ref } from "vue";
 import { useDemoLibrary } from "../composables/useDemoLibrary";
 import { useFolderService } from "../services/folderService";
+import { STARRED_ITEMS } from "../data/mockData";
 import AIExperienceOverlay from "./AIExperienceOverlay.vue";
 import GlobalNavigation from "./GlobalNavigation.vue";
 import FolderSidebar from "./FolderSidebar.vue";
 import SearchBar from "./SearchBar.vue";
 import BreadcrumbNavigation from "./BreadcrumbNavigation.vue";
 import DemoList from "./DemoList.vue";
-import DemoCustomizer from "./DemoCustomizer.vue";
+import CustomizeFlow from "./CustomizeFlow.vue";
 import LinkManagerView from "./LinkManagerView.vue";
 import DemoDetailView from "./DemoDetailView.vue";
 
@@ -203,18 +261,29 @@ const breadcrumbs = ref<any[]>([]);
 const isOnRight = ref(true); // Start on right side
 
 // Navigation state
-type ViewType = "main" | "link-manager" | "detail";
+type ViewType = "main" | "link-manager" | "detail" | "customizer";
 const currentView = ref<ViewType>("main");
 const selectedDemo = ref<any>(null);
 const showCustomizer = ref(false);
 
+// Navigation section state
+const currentSection = ref("demos");
+const currentStarredItem = ref<any>(null);
+
+// Computed properties for navigation counts
+const recentDemoCount = computed(() => recentDemos.value.length);
+const sharedDemoCount = computed(() => 5); // Mock count for shared demos
+const starredDemoCount = computed(() =>
+  STARRED_ITEMS.reduce((sum, item) => sum + item.demoCount, 0)
+);
+
 // Scroll handling for hero parallax
-const scrollContainer = ref<HTMLElement | null>(null);
+const demoLibraryContainer = ref<HTMLElement | null>(null);
 const scrollY = ref(0);
 
 const handleScroll = () => {
-  if (scrollContainer.value) {
-    scrollY.value = scrollContainer.value.scrollTop;
+  if (demoLibraryContainer.value) {
+    scrollY.value = demoLibraryContainer.value.scrollTop;
   }
 };
 
@@ -373,7 +442,7 @@ const handleViewAnalytics = (demo: any) => {
   alert(`Analytics for: ${demo.title}`);
 };
 
-const handlePreviewDemo = (demo: any, customization: any) => {
+const handlePreviewDemo = (demo: any, customization?: any) => {
   console.log("Previewing demo with customization:", demo, customization);
   // In real app, this would open preview
   alert(`Previewing ${demo.title} with customization`);
@@ -456,6 +525,48 @@ const updateBreadcrumbs = (folder: any) => {
   }
 };
 
+// New navigation handlers
+const handleNavigateSection = (section: string) => {
+  currentSection.value = section;
+  currentFolder.value = null;
+  currentStarredItem.value = null;
+
+  // Update breadcrumbs based on section
+  switch (section) {
+    case "demos":
+      breadcrumbs.value = [{ name: "Demo Library", id: null }];
+      break;
+    case "recent":
+      breadcrumbs.value = [{ name: "Recent Demos", id: null }];
+      break;
+    case "shared":
+      breadcrumbs.value = [{ name: "Shared with me", id: null }];
+      break;
+    case "starred":
+      breadcrumbs.value = [{ name: "Starred", id: null }];
+      break;
+  }
+
+  showFolderSidebar.value = false;
+};
+
+const handleSelectStarredItem = (item: any) => {
+  currentStarredItem.value = item;
+  currentFolder.value = null;
+
+  breadcrumbs.value = [
+    { name: "Starred", id: null },
+    { name: item.title, id: item.id },
+  ];
+
+  showFolderSidebar.value = false;
+};
+
+const handleCreateFolder = () => {
+  // TODO: Implement folder creation
+  console.log("Create folder clicked");
+};
+
 const navigateToBreadcrumb = (crumb: any) => {
   const folder = foldersWithCounts.value.find((f) => f.id === crumb.id);
   handleSelectFolder(folder || null);
@@ -501,9 +612,18 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* Primary Typography Classes */
+.heading-primary {
+  @apply text-xl font-semibold text-gray-900;
+}
+
+.heading-secondary {
+  @apply text-base font-medium text-gray-900;
+}
+
 /* Unified Container Layout */
 .demo-library-container {
-  @apply flex;
+  @apply flex overflow-x-hidden;
 }
 
 .demo-library-container.with-sidebar {
@@ -532,7 +652,7 @@ onMounted(async () => {
 
 /* Main Content */
 .main-content {
-  @apply flex-1 overflow-y-auto min-h-0 transition-all duration-300 ease-in-out;
+  @apply flex-1 min-h-0 transition-all duration-300 ease-in-out overflow-x-hidden;
 }
 
 .main-content.with-sidebar {
@@ -547,21 +667,31 @@ onMounted(async () => {
 }
 
 /* Custom scrollbar for webkit browsers */
-.overflow-y-auto::-webkit-scrollbar {
+.demo-library-container::-webkit-scrollbar {
   width: 6px;
 }
 
-.overflow-y-auto::-webkit-scrollbar-track {
+.demo-library-container::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 3px;
 }
 
-.overflow-y-auto::-webkit-scrollbar-thumb {
+.demo-library-container::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 3px;
 }
 
-.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+.demo-library-container::-webkit-scrollbar-thumb:hover {
   background: #a1a1a1;
+}
+
+/* Welcome message with Roboto Serif - brand moment styling */
+.welcome-message {
+  font-family: "Roboto Serif", serif;
+  font-size: 2rem;
+  font-weight: 300;
+  color: #1f2937;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
 }
 </style>

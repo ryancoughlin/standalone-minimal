@@ -1,7 +1,7 @@
 <template>
-  <div class="px-3 py-2 border-b border-gray-200">
-    <div class="flex items-center gap-2.5">
-      <div class="flex-1 relative flex items-center">
+  <div class="px-3 py-2 border-b border-gray-200 overflow-x-hidden">
+    <div class="flex items-center gap-2.5 min-w-0">
+      <div class="flex-1 relative flex items-center min-w-0">
         <i
           class="fas fa-search absolute left-2.5 text-gray-400 z-10 text-sm"
         ></i>

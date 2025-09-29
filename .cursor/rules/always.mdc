@@ -8,4 +8,3 @@ alwaysApply: true
 - i will run app and send logs to you
 - do not restart server, it will watch changes
 - when i need packages install them for me
-- never work outside the extension. e.g do not make workflows, lists appear and expand ou side #reprise-conatiner

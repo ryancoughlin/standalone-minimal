@@ -30,3 +30,63 @@ body {
     opacity: 0.5;
   }
 }
+
+/* Motion system - Clean and minimal */
+
+/* Subtle loading shimmer - Keep this for loading states */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Clean transitions for interactive elements */
+.demo-row {
+  transition: background-color 0.15s ease-out;
+}
+
+.folder-item {
+  transition: background-color 0.15s ease-out;
+}
+
+.play-action-btn,
+.customize-btn {
+  transition: background-color 0.15s ease-out, color 0.15s ease-out;
+}
+
+/* Accessibility - Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-shimmer {
+    animation: none;
+  }
+
+  .demo-row,
+  .folder-item,
+  .play-action-btn,
+  .customize-btn {
+    transition: none;
+  }
+}
+
+/* Focus states for accessibility */
+.demo-row:focus-visible,
+.folder-item:focus-visible,
+.play-action-btn:focus-visible,
+.customize-btn:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Smooth scrolling */
+.main-content {
+  scroll-behavior: smooth;
+}

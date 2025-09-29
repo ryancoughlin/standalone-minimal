@@ -5,6 +5,26 @@
 
 import { Demo } from '../types/index';
 
+// Function to get a random poster image for demos
+const getRandomPosterImage = () => {
+    const posterImages = [
+        "/src/images/poster1.png",
+        "/src/images/poster2.png",
+        "/src/images/poster3.png",
+        "/src/images/poster4.png"
+    ];
+    return posterImages[Math.floor(Math.random() * posterImages.length)];
+};
+
+// Starred Items Configuration
+export const STARRED_ITEMS = [
+    { id: 'starred1', title: 'Model serving with Inferen...', demoCount: 12 },
+    { id: 'starred2', title: 'AI/BI Dashboard + Genie', demoCount: 8 },
+    { id: 'starred3', title: 'Carmen Demo', demoCount: 15 },
+    { id: 'starred4', title: 'Q4 Product Launch', demoCount: 6 },
+    { id: 'starred5', title: 'Enterprise Security Suite', demoCount: 9 }
+];
+
 // Enterprise Folder Configuration - Single Source of Truth
 export const FOLDER_CONFIG = {
     // Root Folders (5 main business areas)
@@ -581,7 +601,7 @@ export const legacyDemos = cleanDemos
         owner_last_name: demo.createdBy.split(' ')[1] || '',
         snapshot_count: Math.floor(Math.random() * 20) + 5,
         only_edit4: false,
-        screenshot_small: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        screenshot_small: getRandomPosterImage(),
         custom_links: {
             link1: {
                 title: "Demo Overview",
