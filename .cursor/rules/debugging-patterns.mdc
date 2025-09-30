@@ -1,0 +1,98 @@
+---
+description: Common debugging patterns and error resolution
+---
+
+# Debugging & Error Resolution
+
+## Common Issues and Solutions
+
+### Data Structure Mismatches
+
+**Problem**: Service expects different data structure than what's provided
+**Solution**:
+
+- Check field names match between mock data and service expectations
+- Use console.log to verify data structure
+- Update interfaces to match actual data
+
+**Example**: Folder service expected `replay_folder_id` but data had `folder_id`
+
+### Duplicate Variable Declarations
+
+**Problem**: Variables declared multiple times causing compilation errors
+**Solution**:
+
+- Use unique names for computed properties vs imported values
+- Check for conflicting imports from composables
+- Rename computed properties to avoid conflicts
+
+**Example**: `allDemos` computed vs imported `allDemos`
+
+### Template Structure Issues
+
+**Problem**: Components nested incorrectly preventing proper rendering
+**Solution**:
+
+- Move components outside conditional blocks when they need independent visibility
+- Use `v-if` instead of `v-else-if` for independent components
+- Check component hierarchy and nesting
+
+### Folder Navigation Issues
+
+**Problem**: Folders show no data or incorrect counts
+**Solution**:
+
+- Verify `folder_id` mapping in mock data
+- Check folder service counting logic
+- Use console.log to debug folder filtering
+- Ensure folder hierarchy is properly handled
+
+## Debugging Patterns
+
+### Console Logging
+
+```typescript
+console.log("Demos loaded:", {
+  total: allDemos.value.length,
+  recent: recentDemoCount.value,
+  shared: sharedDemoCount.value,
+  starred: starredDemoCount.value,
+});
+```
+
+### Data Verification
+
+```typescript
+console.log(`Demos in folder ${folderId}:`, {
+  folderIdsToSearch,
+  demos: demosInFolder.length,
+  demosList: demosInFolder.map((d) => d.title),
+});
+```
+
+### Error Handling
+
+```typescript
+try {
+  await fetchAllDemos();
+} catch (error) {
+  console.error("Error fetching demos:", error);
+  // Provide fallback
+} finally {
+  loading.value = false;
+}
+```
+
+## Linting Error Resolution
+
+- Fix TypeScript errors before runtime issues
+- Use explicit type assertions when necessary: `as FolderWithCounts`
+- Check for missing properties in interfaces
+- Verify function signatures match usage
+
+## Testing Data Flow
+
+1. Check mock data structure in [mockData.ts](mdc:src/data/mockData.ts)
+2. Verify service layer transformations
+3. Test component data consumption
+4. Validate UI rendering with actual data

@@ -1,22 +1,17 @@
 import { ref, computed } from "vue";
-import {
-  maestroDemos,
-  legacyDemos,
-  liveDemos,
-  mockApiResponses
-} from "../data/mockData";
+import { demos, folders, getDemosByFolder, getRecentDemos, getSharedDemos, getStarredDemos } from "../data/mockData";
 
 export function useDemoLibrary() {
   // State
-  const maestroDemosRef = ref<any[]>([]);
-  const legacyDemosRef = ref<any[]>([]);
-  const liveDemosRef = ref<any[]>([]);
+  const allDemos = ref<any[]>([]);
+  const allFolders = ref<any[]>([]);
   const loading = ref(false);
 
   // Computed
-  const totalDemoCount = computed(
-    () => maestroDemosRef.value.length + legacyDemosRef.value.length + liveDemosRef.value.length
-  );
+  const totalDemoCount = computed(() => allDemos.value.length);
+  const recentDemoCount = computed(() => getRecentDemos().length);
+  const sharedDemoCount = computed(() => getSharedDemos().length);
+  const starredDemoCount = computed(() => getStarredDemos().length);
 
   // Actions
   const fetchAllDemos = async (): Promise<void> => {
@@ -25,44 +20,78 @@ export function useDemoLibrary() {
       // Simulate API delay for realistic loading experience
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      // Use direct exports instead of mock API responses
-      maestroDemosRef.value = maestroDemos;
-      legacyDemosRef.value = legacyDemos;
-      liveDemosRef.value = liveDemos;
-
-      // Ensure default URLs for legacy demos
-      for (const demo of legacyDemosRef.value) {
-        if (!demo.default_url) {
-          demo.default_url = `https://demo.example.com/${demo.id}`;
-        }
-      }
+      // Use our simplified data
+      allDemos.value = demos;
+      allFolders.value = folders;
 
       console.log('Demos loaded:', {
-        maestro: maestroDemosRef.value.length,
-        legacy: legacyDemosRef.value.length,
-        live: liveDemosRef.value.length
+        total: allDemos.value.length,
+        recent: recentDemoCount.value,
+        shared: sharedDemoCount.value,
+        starred: starredDemoCount.value
       });
 
     } catch (error) {
       console.error("Error fetching demos:", error);
-      // Fallback to empty arrays
-      maestroDemosRef.value = [];
-      legacyDemosRef.value = [];
-      liveDemosRef.value = [];
+      allDemos.value = [];
+      allFolders.value = [];
     } finally {
       loading.value = false;
     }
   };
 
+  const getDemosInFolder = (folderId: string) => {
+    return getDemosByFolder(folderId);
+  };
+
+  const getFolderPath = (folderId: string) => {
+    const folder = allFolders.value.find(f => f.id === folderId);
+    if (!folder) return [];
+
+    const path = [folder];
+    let currentFolder = folder;
+
+    while (currentFolder.parent_id) {
+      currentFolder = allFolders.value.find(f => f.id === currentFolder.parent_id);
+      if (currentFolder) {
+        path.unshift(currentFolder);
+      } else {
+        break;
+      }
+    }
+
+    return path;
+  };
+
+  const selectFolder = (folderId: string) => {
+    return allFolders.value.find(f => f.id === folderId);
+  };
+
+  // Folder counts with demo counts
+  const foldersWithCounts = computed(() => {
+    return allFolders.value.map(folder => ({
+      ...folder,
+      demo_count: getDemosByFolder(folder.id).length
+    }));
+  });
+
   return {
-    // Data
-    maestroDemos: maestroDemosRef,
-    legacyDemos: legacyDemosRef,
-    liveDemos: liveDemosRef,
-    totalDemoCount,
+    // State
+    allDemos,
+    allFolders,
     loading,
+
+    // Computed
+    totalDemoCount,
+    recentDemoCount,
+    sharedDemoCount,
+    starredDemoCount,
+    foldersWithCounts,
 
     // Actions
     fetchAllDemos,
+    getDemosInFolder,
+    getFolderPath,
+    selectFolder
   };
 }

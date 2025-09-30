@@ -1,0 +1,73 @@
+---
+alwaysApply: true
+description: Vue.js component architecture patterns and standards
+---
+
+# Vue Component Architecture
+
+## Component Structure Standards
+
+### Template Organization
+
+- Use semantic HTML structure with clear component hierarchy
+- Place main container elements first, then nested content
+- Use `v-motion` for consistent animations with staggered delays
+- Group related elements with clear comments
+
+### Script Setup Patterns
+
+```vue
+<script setup lang="ts">
+// 1. Imports first
+import { computed, onMounted, ref } from "vue";
+import { useDemoLibrary } from "../composables/useDemoLibrary";
+
+// 2. Composables/services
+const { allDemos, loading, fetchAllDemos } = useDemoLibrary();
+
+// 3. State variables
+const searchQuery = ref("");
+const currentView = ref<ViewType>("main");
+
+// 4. Computed properties
+const filteredDemos = computed(() => {
+  /* logic */
+});
+
+// 5. Event handlers
+const handlePlayDemo = (demo: any) => {
+  /* logic */
+};
+
+// 6. Lifecycle hooks
+onMounted(async () => {
+  await fetchAllDemos();
+});
+</script>
+```
+
+### Event Handling Patterns
+
+- Use kebab-case for event names in templates: `@play-demo`
+- Use camelCase for handler functions: `handlePlayDemo`
+- Always pass specific data, avoid generic events
+- Use explicit event handlers over inline expressions for complex logic
+
+### Props and Emits
+
+- Define explicit TypeScript interfaces for props and emits
+- Use descriptive prop names that indicate their purpose
+- Prefer v-model for two-way data binding when appropriate
+
+## Component Communication
+
+- Use props for data flow down to child components
+- Use events for communication up to parent components
+- Keep component responsibilities focused and single-purpose
+- Avoid prop drilling - use composables for shared state
+
+## Examples from this codebase:
+
+- [DemoLibrary.vue](mdc:src/components/DemoLibrary.vue) - Main orchestrator component
+- [NavigationSidebar.vue](mdc:src/components/NavigationSidebar.vue) - Focused sidebar component
+- [SearchBar.vue](mdc:src/components/SearchBar.vue) - Simple search functionality

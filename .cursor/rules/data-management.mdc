@@ -1,0 +1,78 @@
+---
+alwaysApply: true
+description: Data management patterns and service architecture
+---
+
+# Data Management Architecture
+
+## Mock Data Structure
+
+The application uses a unified data structure defined in [mockData.ts](mdc:src/data/mockData.ts):
+
+### Demo Data Model
+
+```typescript
+interface Demo {
+  id: string;
+  title: string;
+  productType: "replicate" | "replay" | "reveal";
+  description: string;
+  lastModified: string;
+  createdBy: string;
+  views: number;
+  starred: boolean;
+  tags: string[];
+  folder_id: string; // Key field for folder mapping
+  folder_title: string;
+  isRecent: boolean;
+  isShared: boolean;
+  screenshot_small: string;
+}
+```
+
+### Folder Data Model
+
+```typescript
+interface Folder {
+  id: string;
+  title: string;
+  parent_id: string | null; // null for root folders
+  demo_count: number;
+}
+```
+
+## Service Layer Patterns
+
+### Composables Structure
+
+- Use `useDemoLibrary()` for demo data management
+- Use `useFolderService()` for folder operations and hierarchy
+- Keep services focused on single responsibilities
+- Return reactive state, computed properties, and actions
+
+### Data Flow
+
+1. **Single Source of Truth**: All demo data comes from [mockData.ts](mdc:src/data/mockData.ts)
+2. **Service Layer**: Composables handle data transformation and business logic
+3. **Component Layer**: Components consume services and handle UI interactions
+
+### Folder Mapping Logic
+
+- Demos are mapped to folders via `folder_id` field
+- Root folders include demos from all subfolders (enterprise hierarchy)
+- Folder counts are computed dynamically based on actual demo assignments
+- Use `getDemosInFolder(folderId)` to get demos for a specific folder
+
+## Helper Functions
+
+Located in [mockData.ts](mdc:src/data/mockData.ts):
+
+- `getDemosByFolder(folderId)` - Get demos in specific folder
+- `getRecentDemos()` - Get recent demos
+- `getSharedDemos()` - Get shared demos
+- `getStarredDemos()` - Get starred demos
+
+## Examples:
+
+- [useDemoLibrary.ts](mdc:src/composables/useDemoLibrary.ts) - Demo data management
+- [folderService.ts](mdc:src/services/folderService.ts) - Folder hierarchy management

@@ -1,6 +1,20 @@
 <template>
   <div class="px-3 py-2 border-b border-gray-200 overflow-x-hidden">
     <div class="flex items-center gap-2.5 min-w-0">
+      <!-- Sidebar Toggle Button -->
+      <button
+        @click="$emit('toggle-sidebar')"
+        class="flex-shrink-0 px-2 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+        :class="{ 'text-reprise-blue': showNavigationSidebar }"
+        :title="
+          showNavigationSidebar
+            ? 'Close navigation sidebar'
+            : 'Open navigation sidebar'
+        "
+      >
+        <i class="fas fa-bars text-sm"></i>
+      </button>
+
       <div class="flex-1 relative flex items-center min-w-0">
         <i
           class="fas fa-search absolute left-2.5 text-gray-400 z-10 text-sm"
@@ -36,11 +50,13 @@
 <script setup lang="ts">
 interface Props {
   searchQuery: string;
+  showNavigationSidebar: boolean;
 }
 
 interface Emits {
   (e: "update:searchQuery", value: string): void;
   (e: "new-demo"): void;
+  (e: "toggle-sidebar"): void;
 }
 
 defineProps<Props>();

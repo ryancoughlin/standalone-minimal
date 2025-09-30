@@ -1,0 +1,89 @@
+---
+globs: *.ts,*.tsx
+description: TypeScript coding standards and patterns
+---
+
+# TypeScript Standards
+
+## Type Definitions
+
+- Use explicit interfaces for all data structures
+- Define types in [types/index.ts](mdc:src/types/index.ts) for shared interfaces
+- Use union types for constrained values: `'replicate' | 'replay' | 'reveal'`
+- Avoid `any` type - use specific types or `unknown`
+
+## Interface Patterns
+
+```typescript
+// Base interface
+export interface Demo {
+  id: string;
+  title: string;
+  // ... other properties
+}
+
+// Extended interface
+export interface FolderWithCounts extends Folder {
+  total_demo_count: number;
+  maestro_count: number;
+  legacy_count: number;
+  live_count: number;
+}
+```
+
+## Function Patterns
+
+- Use explicit return types for functions
+- Use async/await for asynchronous operations
+- Prefer arrow functions for simple operations
+- Use descriptive parameter names
+
+## Service Function Patterns
+
+```typescript
+export function useFolderService(allDemos: any) {
+  // State
+  const currentFolder = ref<Folder | null>(null);
+
+  // Computed
+  const foldersWithCounts = computed((): FolderWithCounts[] => {
+    return folders.map((folder) => ({
+      /* logic */
+    }));
+  });
+
+  // Actions
+  const selectFolder = (folder: Folder | null) => {
+    currentFolder.value = folder;
+  };
+
+  return {
+    // State
+    currentFolder,
+    // Computed
+    foldersWithCounts,
+    // Actions
+    selectFolder,
+  };
+}
+```
+
+## Import/Export Patterns
+
+- Use named exports for functions and interfaces
+- Use default exports for Vue components
+- Group imports: Vue imports first, then local imports
+- Use double quotes for string literals consistently
+
+## Error Handling
+
+- Use try/catch for async operations
+- Log errors with context information
+- Provide fallback values for failed operations
+- Use console.log for debugging with structured data
+
+## Examples:
+
+- [types/index.ts](mdc:src/types/index.ts) - Type definitions
+- [folderService.ts](mdc:src/services/folderService.ts) - Service patterns
+- [useDemoLibrary.ts](mdc:src/composables/useDemoLibrary.ts) - Composable patterns

@@ -1,16 +1,37 @@
 <template>
   <div
-    class="folder-sidebar border-r"
-    :class="{ 'sidebar-open': showFolderSidebar }"
+    class="navigation-sidebar border-r"
+    :class="{ 'sidebar-open': showNavigationSidebar }"
   >
     <!-- Navigation List -->
-    <div class="folder-list-container">
+    <div class="navigation-list-container">
       <div class="px-3 py-3">
         <!-- Demo Library Section -->
         <div class="navigation-section">
           <div class="section-header">
             <span class="section-title">Demo Library</span>
           </div>
+
+          <!-- Home -->
+          <button
+            @click="$emit('navigate-section', 'home')"
+            class="nav-item"
+            :class="{ 'nav-selected': currentSection === 'home' }"
+            v-motion
+            :initial="{ opacity: 0, x: -10 }"
+            :enter="{
+              opacity: 1,
+              x: 0,
+              transition: { duration: 150, delay: 70, ease: 'easeOut' },
+            }"
+            :hover="{ x: 2, transition: { duration: 150 } }"
+          >
+            <div class="nav-icon">
+              <i class="fas fa-home text-gray-500"></i>
+            </div>
+            <span class="nav-name">Home</span>
+            <div class="nav-badge">{{ totalDemoCount }}</div>
+          </button>
 
           <!-- All Demos -->
           <button
@@ -29,7 +50,7 @@
             <div class="nav-icon">
               <i class="fas fa-folder text-gray-500"></i>
             </div>
-            <span class="nav-name">Demos</span>
+            <span class="nav-name">Library</span>
             <div class="nav-badge">{{ totalDemoCount }}</div>
           </button>
 
@@ -76,74 +97,10 @@
           </button>
         </div>
 
-        <!-- Starred Section -->
-        <div class="starred-section">
-          <div class="section-header">
-            <span class="section-title">Starred</span>
-          </div>
-          <button
-            @click="$emit('navigate-section', 'starred')"
-            class="nav-item"
-            :class="{ 'nav-selected': currentSection === 'starred' }"
-            v-motion
-            :initial="{ opacity: 0, x: -10 }"
-            :enter="{
-              opacity: 1,
-              x: 0,
-              transition: { duration: 150, delay: 200, ease: 'easeOut' },
-            }"
-            :hover="{ x: 2, transition: { duration: 150 } }"
-          >
-            <div class="nav-icon">
-              <i class="fas fa-star text-gray-500"></i>
-            </div>
-            <span class="nav-name">Starred</span>
-            <div class="nav-badge">{{ starredDemoCount }}</div>
-          </button>
-
-          <!-- Starred Items -->
-          <div
-            v-for="(item, index) in starredItems"
-            :key="item.id"
-            class="starred-group"
-          >
-            <button
-              @click="$emit('select-starred-item', item)"
-              class="nav-item starred-item"
-              :class="{ 'nav-selected': currentStarredItem?.id === item.id }"
-              v-motion
-              :initial="{ opacity: 0, x: -10 }"
-              :enter="{
-                opacity: 1,
-                x: 0,
-                transition: {
-                  duration: 150,
-                  delay: 230 + index * 30,
-                  ease: 'easeOut',
-                },
-              }"
-              :hover="{ x: 2, transition: { duration: 150 } }"
-            >
-              <div class="nav-icon">
-                <i class="fas fa-folder text-gray-500"></i>
-              </div>
-              <span class="nav-name">{{ item.title }}</span>
-              <div class="nav-badge">{{ item.demoCount }}</div>
-            </button>
-          </div>
-        </div>
-
         <!-- Folders Section -->
         <div class="folders-section">
           <div class="section-header">
             <span class="section-title">Folders</span>
-            <button
-              @click="$emit('create-folder')"
-              class="add-folder-btn"
-              title="Add Folder"
-            >
-              <i class="fas fa-plus text-gray-400"></i>
-            </button>
           </div>
           <div
             v-for="(folder, index) in allFolders"
@@ -188,22 +145,18 @@
 
 <script setup lang="ts">
 interface Props {
-  showFolderSidebar: boolean;
+  showNavigationSidebar: boolean;
   currentFolder: any;
   allFolders: any[];
   totalDemoCount: number;
   recentDemoCount: number;
   sharedDemoCount: number;
-  starredDemoCount: number;
-  starredItems: any[];
   currentSection: string;
-  currentStarredItem: any;
 }
 
 interface Emits {
   (e: "select-folder", folder: any): void;
   (e: "navigate-section", section: string): void;
-  (e: "select-starred-item", item: any): void;
   (e: "create-folder"): void;
 }
 
@@ -212,28 +165,29 @@ defineEmits<Emits>();
 </script>
 
 <style scoped>
-/* Folder Sidebar */
-.folder-sidebar {
-  @apply flex flex-col absolute top-0 left-0 h-full bg-white border-r border-gray-200 z-20 overflow-hidden transition-all duration-300 ease-in-out;
+/* Navigation Sidebar */
+.navigation-sidebar {
+  @apply flex flex-col absolute top-0 left-0 h-full bg-white border-r border-gray-200 overflow-hidden transition-all duration-300 ease-in-out;
   width: 0;
   transform: translateX(-100%);
   min-width: 0;
+  z-index: 30;
 }
 
-.folder-sidebar.sidebar-open {
+.navigation-sidebar.sidebar-open {
   width: 190px;
   transform: translateX(0);
   min-width: 190px;
 }
 
 /* Navigation List */
-.folder-list-container {
+.navigation-list-container {
   @apply flex-1 overflow-y-auto;
 }
 
 /* Section Headers */
 .section-header {
-  @apply px-2 py-2;
+  @apply px-2 py-2 flex items-center justify-between;
 }
 
 .section-title {
@@ -243,15 +197,6 @@ defineEmits<Emits>();
 /* Navigation Section */
 .navigation-section {
   @apply mb-4;
-}
-
-/* Starred Section */
-.starred-section {
-  @apply mb-4;
-}
-
-.starred-group {
-  @apply space-y-1;
 }
 
 /* Folders Section */
@@ -280,10 +225,6 @@ defineEmits<Emits>();
   @apply ml-4;
 }
 
-.nav-item.starred-item {
-  @apply ml-4;
-}
-
 .nav-icon {
   @apply flex-shrink-0 text-gray-500;
 }
@@ -306,11 +247,6 @@ defineEmits<Emits>();
 
 .nav-item.nav-selected .nav-badge {
   @apply text-reprise-deep-blue bg-reprise-sky;
-}
-
-/* Section Header with Add Button */
-.section-header {
-  @apply px-2 py-2 flex items-center justify-between;
 }
 
 .add-folder-btn {

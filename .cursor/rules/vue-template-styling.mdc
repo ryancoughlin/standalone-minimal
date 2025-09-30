@@ -1,0 +1,63 @@
+---
+globs: *.vue
+description: Vue template and styling patterns
+---
+
+# Vue Template & Styling Patterns
+
+## Template Structure
+
+- Use semantic HTML with clear component hierarchy
+- Place main container elements first, then nested content
+- Use consistent indentation (2 spaces)
+- Break long attribute lines for readability
+
+## Animation Patterns
+
+Use `v-motion` with consistent timing:
+
+```vue
+v-motion :initial="{ opacity: 0, y: -10 }" :enter="{ opacity: 1, y: 0,
+transition: { duration: 200, delay: 100, ease: 'easeOut' }, }"
+```
+
+## Conditional Rendering
+
+- Use `v-if` for expensive operations or when elements shouldn't exist in DOM
+- Use `v-show` for simple visibility toggles
+- Prefer `v-else-if` over nested `v-if` statements
+
+## Event Binding
+
+- Use kebab-case for event names: `@play-demo`, `@select-folder`
+- Use explicit event handlers for complex logic
+- Pass specific data in events, avoid generic payloads
+
+## Styling Patterns
+
+- Use Tailwind CSS classes consistently
+- Keep component-specific styles scoped
+- Use CSS custom properties for theme colors
+- Maintain consistent spacing and typography
+
+## Scoped Styles
+
+```vue
+<style scoped>
+/* Component-specific styles */
+.demo-library-container {
+  @apply flex overflow-x-hidden;
+}
+
+/* Custom scrollbar styling */
+.demo-library-container::-webkit-scrollbar {
+  width: 6px;
+}
+</style>
+```
+
+## Examples from this codebase:
+
+- [DemoLibrary.vue](mdc:src/components/DemoLibrary.vue) - Complex template with animations
+- [SearchBar.vue](mdc:src/components/SearchBar.vue) - Simple form component
+- [BreadcrumbNavigation.vue](mdc:src/components/BreadcrumbNavigation.vue) - Navigation component

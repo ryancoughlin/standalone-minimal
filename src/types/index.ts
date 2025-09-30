@@ -5,7 +5,7 @@
 
 export interface Demo {
     id: string;
-    name: string;
+    title: string;
     productType: 'replicate' | 'replay' | 'reveal';
     description: string;
     lastModified: string;
@@ -13,16 +13,16 @@ export interface Demo {
     views: number;
     starred: boolean;
     tags: string[];
+    folder_id: string;
+    folder_title: string;
+    isRecent: boolean;
+    isShared: boolean;
+    screenshot_small: string;
 }
 
 export interface Folder {
     id: string;
     title: string;
     parent_id: string | null;
-    sort_index: number;
-    archived: boolean;
-    acl: any;
-    ac_replay_count: number;
-    sc_replay_count: number;
-    created_by: string;
+    demo_count: number;
 }

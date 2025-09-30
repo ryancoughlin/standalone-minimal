@@ -1,0 +1,86 @@
+---
+globs: src/components/*
+description: Component organization and file structure patterns
+---
+
+# Component Organization
+
+## File Structure
+
+```
+src/
+├── components/           # Vue components
+├── composables/          # Vue composables
+├── data/                 # Mock data and helpers
+├── services/             # Business logic services
+├── types/                # TypeScript type definitions
+└── utils/                # Utility functions
+```
+
+## Component Naming
+
+- Use PascalCase for component files: `DemoLibrary.vue`
+- Use descriptive names that indicate purpose
+- Group related components in subdirectories when needed
+
+## Component Responsibilities
+
+### Main Components
+
+- [DemoLibrary.vue](mdc:src/components/DemoLibrary.vue) - Main orchestrator, handles routing and state
+- [NavigationSidebar.vue](mdc:src/components/NavigationSidebar.vue) - Folder navigation
+- [DemoList.vue](mdc:src/components/DemoList.vue) - Demo display logic
+
+### Utility Components
+
+- [SearchBar.vue](mdc:src/components/SearchBar.vue) - Search functionality
+- [BreadcrumbNavigation.vue](mdc:src/components/BreadcrumbNavigation.vue) - Breadcrumb navigation
+- [GlobalNavigation.vue](mdc:src/components/GlobalNavigation.vue) - Top navigation
+
+### Feature Components
+
+- [DemoDetailView.vue](mdc:src/components/DemoDetailView.vue) - Demo detail modal
+- [CustomizeFlow.vue](mdc:src/components/CustomizeFlow.vue) - Demo customization
+- [LinkManagerView.vue](mdc:src/components/LinkManagerView.vue) - Link management
+
+## Component Communication Patterns
+
+### Props Down, Events Up
+
+```vue
+<!-- Parent passes data down -->
+<DemoList :demos="filteredDemos" @play-demo="handlePlayDemo" />
+
+<!-- Child emits events up -->
+<button @click="$emit('play-demo', demo)">Play</button>
+```
+
+### Service Integration
+
+```vue
+<script setup lang="ts">
+// Import services
+const { allDemos, loading, fetchAllDemos } = useDemoLibrary();
+const { currentFolder, selectFolder } = useFolderService(allDemos);
+</script>
+```
+
+## Component Lifecycle
+
+- Use `onMounted` for data fetching
+- Use `computed` for derived state
+- Use `ref` for reactive primitive values
+- Use `reactive` for complex objects (rarely needed)
+
+## Styling Organization
+
+- Keep styles scoped to components
+- Use Tailwind classes for consistent styling
+- Define custom CSS properties for theme colors
+- Use CSS modules for complex styling needs
+
+## Examples:
+
+- [DemoLibrary.vue](mdc:src/components/DemoLibrary.vue) - Complex orchestrator pattern
+- [SearchBar.vue](mdc:src/components/SearchBar.vue) - Simple utility component
+- [NavigationSidebar.vue](mdc:src/components/NavigationSidebar.vue) - Navigation component

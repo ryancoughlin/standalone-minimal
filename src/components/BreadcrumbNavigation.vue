@@ -1,24 +1,6 @@
 <template>
-  <div class="px-3 py-2">
+  <div v-if="currentFolder" class="px-3 py-2">
     <nav class="breadcrumb-nav" aria-label="Folder navigation">
-      <!-- Consolidated All/Folder Toggle Button -->
-      <button
-        @click="handleAllButtonClick"
-        class="breadcrumb-item breadcrumb-all-toggle"
-        :class="{
-          active: !currentFolder,
-          'sidebar-open': showFolderSidebar,
-        }"
-        :title="getAllButtonTooltip()"
-      >
-        <i class="fas fa-folder text-xs"></i>
-        <span class="breadcrumb-text">All</span>
-        <i
-          class="fas fa-bars text-xs ml-1 transition-transform duration-200"
-          :class="{ 'rotate-90': showFolderSidebar }"
-        ></i>
-      </button>
-
       <!-- Breadcrumb Path -->
       <div class="breadcrumb-path" ref="breadcrumbPath">
         <!-- Collapsed Intermediate Path -->
@@ -69,14 +51,11 @@
 import { computed, ref, onMounted, onUnmounted, nextTick } from "vue";
 
 interface Props {
-  showFolderSidebar: boolean;
   currentFolder: any;
   breadcrumbs: any[];
 }
 
 interface Emits {
-  (e: "toggle-sidebar"): void;
-  (e: "select-folder", folder: any): void;
   (e: "navigate-breadcrumb", crumb: any): void;
 }
 
@@ -89,8 +68,8 @@ const containerWidth = ref(300); // Default width for extension bar
 
 // Calculate how many breadcrumbs can fit
 const maxVisibleBreadcrumbs = computed(() => {
-  // Reserve space for: toggle button (32px) + "All" button (60px) + separators + padding
-  const reservedSpace = 100;
+  // Reserve space for separators + padding
+  const reservedSpace = 20;
   const availableSpace = containerWidth.value - reservedSpace;
   const breadcrumbWidth = 80; // Approximate width per breadcrumb
   return Math.max(1, Math.floor(availableSpace / breadcrumbWidth));
@@ -144,29 +123,6 @@ const handleCollapsedClick = () => {
   }
 };
 
-// Handle consolidated All button click
-const handleAllButtonClick = () => {
-  if (props.showFolderSidebar) {
-    // If sidebar is open, close it
-    emit("toggle-sidebar");
-  } else {
-    // If sidebar is closed, open it and select all folders
-    emit("toggle-sidebar");
-    emit("select-folder", null);
-  }
-};
-
-// Get tooltip for All button
-const getAllButtonTooltip = () => {
-  if (props.showFolderSidebar) {
-    return "Close folder sidebar";
-  }
-  if (!props.currentFolder) {
-    return "Currently viewing all folders - Click to open folder sidebar";
-  }
-  return "View all folders and open folder sidebar";
-};
-
 // Text truncation based on position
 const getMaxTextLength = (index: number) => {
   const isLast = index === visibleBreadcrumbs.value.length - 1;
@@ -178,7 +134,7 @@ const getMaxTextLength = (index: number) => {
 };
 
 const truncateText = (text: string, maxLength: number) => {
-  if (text.length <= maxLength) return text;
+  if (!text || text.length <= maxLength) return text || "";
   return text.substring(0, maxLength - 3) + "...";
 };
 
@@ -211,19 +167,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* Consolidated All/Folder Toggle Button */
-.breadcrumb-all-toggle {
-  @apply flex-shrink-0;
-}
-
-.breadcrumb-all-toggle.sidebar-open {
-  @apply text-reprise-blue;
-}
-
-.breadcrumb-all-toggle.sidebar-open .fas.fa-bars {
-  @apply text-reprise-blue;
-}
-
 /* Breadcrumb Navigation */
 .breadcrumb-nav {
   @apply flex items-center gap-1 min-w-0;
@@ -244,10 +187,6 @@ onUnmounted(() => {
 
 .breadcrumb-item.breadcrumb-current {
   @apply text-reprise-deep-blue font-bold;
-}
-
-.breadcrumb-item.breadcrumb-all-toggle {
-  @apply flex-shrink-0;
 }
 
 .breadcrumb-item.breadcrumb-collapsed-btn {
@@ -301,10 +240,6 @@ onUnmounted(() => {
 
 /* Focus states for accessibility */
 .breadcrumb-item:focus {
-  @apply outline-none ring-2 ring-reprise-blue ring-opacity-50;
-}
-
-.folder-toggle-button:focus {
   @apply outline-none ring-2 ring-reprise-blue ring-opacity-50;
 }
 </style>

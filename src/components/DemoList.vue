@@ -1,122 +1,56 @@
 <template>
   <div class="px-4 pb-4">
-    <!-- Recent Demos Section -->
-    <div v-if="!currentFolder" class="mb-6">
-      <h3 class="heading-secondary mb-3">Recent Demos</h3>
+    <!-- Folder Content -->
+    <div v-if="currentFolder" class="mb-6">
+      <h3 class="heading-secondary mb-3">{{ currentFolder.title }}</h3>
       <div class="space-y-1">
-        <!-- Recent Demo Rows -->
-        <div
-          v-for="(demo, index) in recentDemos"
-          :key="`recent-${index}`"
-          class="demo-row group"
-          v-motion
-          :initial="{ opacity: 0, y: 5 }"
-          :enter="{
-            opacity: 1,
-            y: 0,
-            transition: {
-              duration: 150,
-              delay: 50 + index * 30,
-              ease: 'easeOut',
-            },
-          }"
-          :hover="{ scale: 1.01, transition: { duration: 150 } }"
-          :tap="{ scale: 0.99, transition: { duration: 100 } }"
-          @click="$emit('view-detail', demo)"
-        >
-          <div class="demo-thumbnail">
-            <img
-              v-if="demo.screenshot_small && !imageErrors[`recent-${index}`]"
-              :src="getScreenshotUrl(demo.screenshot_small)"
-              @error="imageErrors[`recent-${index}`] = true"
-              alt="demo screenshot"
-              class="w-full h-full object-cover"
-            />
-            <div v-else class="demo-placeholder">
-              <i class="fal fa-play text-gray-400 text-lg"></i>
-            </div>
-          </div>
-          <div class="demo-info">
-            <div class="demo-title">{{ demo.title }}</div>
-            <div class="demo-meta">
-              <span class="demo-folder">
-                <i class="fal fa-folder text-gray-400 mr-1 text-sm"></i>
-                {{ getFolderName(demo.folder_id || demo.replay_folder_id) }}
-              </span>
-              <span class="demo-separator">•</span>
-              <span class="demo-views">{{ demo.views || 0 }} views</span>
-            </div>
-          </div>
-          <div class="demo-actions">
-            <button
-              @click.stop="$emit('play-demo', demo)"
-              class="play-action-btn"
-              title="Play Demo"
-            >
-              <i class="fad fa-arrow-up-right text-lg"></i>
-            </button>
-          </div>
-        </div>
+        <!-- Folder Demo Rows -->
+        <DemoRow
+          v-for="(demo, index) in folderDemos"
+          :key="`folder-${index}`"
+          :demo="demo"
+          :folders-with-counts="foldersWithCounts"
+          :delay="50 + index * 30"
+          :show-views="true"
+          @view-detail="$emit('view-detail', demo)"
+          @play-demo="$emit('play-demo', demo)"
+        />
       </div>
     </div>
 
-    <!-- All Demos Section -->
-    <div v-if="!currentFolder">
-      <h3 class="heading-secondary mb-3">All Demos</h3>
+    <!-- Recent Demos Section (only show for home) -->
+    <div v-if="!currentFolder && currentSection === 'home'" class="mb-6">
+      <h3 class="heading-secondary mb-3">Recent Demos</h3>
       <div class="space-y-1">
-        <!-- All Demo Rows -->
-        <div
-          v-for="(demo, index) in allDemos"
+        <!-- Recent Demo Rows -->
+        <DemoRow
+          v-for="(demo, index) in recentDemos"
+          :key="`recent-${index}`"
+          :demo="demo"
+          :folders-with-counts="foldersWithCounts"
+          :delay="50 + index * 30"
+          :show-views="true"
+          @view-detail="$emit('view-detail', demo)"
+          @play-demo="$emit('play-demo', demo)"
+        />
+      </div>
+    </div>
+
+    <!-- Dynamic Section Content -->
+    <div v-if="!currentFolder">
+      <h3 class="heading-secondary mb-3">{{ sectionTitle }}</h3>
+      <div class="space-y-1">
+        <!-- Demo Rows -->
+        <DemoRow
+          v-for="(demo, index) in displayDemos"
           :key="`all-${index}`"
-          class="demo-row group"
-          v-motion
-          :initial="{ opacity: 0, y: 5 }"
-          :enter="{
-            opacity: 1,
-            y: 0,
-            transition: {
-              duration: 150,
-              delay: 50 + index * 30,
-              ease: 'easeOut',
-            },
-          }"
-          :hover="{ scale: 1.01, transition: { duration: 150 } }"
-          :tap="{ scale: 0.99, transition: { duration: 100 } }"
-          @click="$emit('view-detail', demo)"
-        >
-          <div class="demo-thumbnail">
-            <img
-              v-if="demo.screenshot_small && !imageErrors[`all-${index}`]"
-              :src="getScreenshotUrl(demo.screenshot_small)"
-              @error="imageErrors[`all-${index}`] = true"
-              alt="demo screenshot"
-              class="w-full h-full object-cover"
-            />
-            <div v-else class="demo-placeholder">
-              <i class="fal fa-play text-gray-400 text-lg"></i>
-            </div>
-          </div>
-          <div class="demo-info">
-            <div class="demo-title">{{ demo.title }}</div>
-            <div class="demo-meta">
-              <span class="demo-folder">
-                <i class="fal fa-folder text-gray-400 mr-1 text-sm"></i>
-                {{ getFolderName(demo.folder_id || demo.replay_folder_id) }}
-              </span>
-              <span class="demo-separator">•</span>
-              <span class="demo-views">{{ demo.views || 0 }} views</span>
-            </div>
-          </div>
-          <div class="demo-actions">
-            <button
-              @click.stop="$emit('play-demo', demo)"
-              class="play-action-btn"
-              title="Play Demo"
-            >
-              <i class="fad fa-arrow-up-right text-lg"></i>
-            </button>
-          </div>
-        </div>
+          :demo="demo"
+          :folders-with-counts="foldersWithCounts"
+          :delay="50 + index * 30"
+          :show-views="true"
+          @view-detail="$emit('view-detail', demo)"
+          @play-demo="$emit('play-demo', demo)"
+        />
       </div>
     </div>
 
@@ -124,53 +58,16 @@
     <div v-else>
       <div class="space-y-1">
         <!-- Folder Demo Rows -->
-        <div
+        <DemoRow
           v-for="(demo, index) in folderDemos"
           :key="`folder-${index}`"
-          class="demo-row group"
-          v-motion
-          :initial="{ opacity: 0, y: 5 }"
-          :enter="{
-            opacity: 1,
-            y: 0,
-            transition: {
-              duration: 150,
-              delay: 50 + index * 30,
-              ease: 'easeOut',
-            },
-          }"
-          :hover="{ scale: 1.01, transition: { duration: 150 } }"
-          :tap="{ scale: 0.99, transition: { duration: 100 } }"
-          @click="$emit('view-detail', demo)"
-        >
-          <div class="demo-thumbnail">
-            <img
-              v-if="demo.screenshot_small && !imageErrors[`folder-${index}`]"
-              :src="getScreenshotUrl(demo.screenshot_small)"
-              @error="imageErrors[`folder-${index}`] = true"
-              alt="demo screenshot"
-              class="w-full h-full object-cover"
-            />
-            <div v-else class="demo-placeholder">
-              <i class="fal fa-play text-gray-400 text-lg"></i>
-            </div>
-          </div>
-          <div class="demo-info">
-            <div class="demo-title">{{ demo.title }}</div>
-            <div class="demo-meta">
-              <span class="demo-views">{{ demo.views || 0 }} views</span>
-            </div>
-          </div>
-          <div class="demo-actions">
-            <button
-              @click.stop="$emit('play-demo', demo)"
-              class="play-action-btn"
-              title="Play Demo"
-            >
-              <i class="fad fa-arrow-up-right text-lg"></i>
-            </button>
-          </div>
-        </div>
+          :demo="demo"
+          :folders-with-counts="foldersWithCounts"
+          :delay="50 + index * 30"
+          :show-views="true"
+          @view-detail="$emit('view-detail', demo)"
+          @play-demo="$emit('play-demo', demo)"
+        />
       </div>
     </div>
 
@@ -221,10 +118,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed } from "vue";
+import DemoRow from "./demo-cards/DemoRow.vue";
 
 interface Props {
   currentFolder: any;
+  currentSection: string;
   recentDemos: any[];
   allDemos: any[];
   folderDemos: any[];
@@ -246,27 +145,36 @@ interface Emits {
 const props = defineProps<Props>();
 defineEmits<Emits>();
 
-const imageErrors = ref<Record<string, boolean>>({});
-
-const getFolderName = (folderId: string) => {
-  const folder =
-    props.rootFolders.find((f) => f.id === folderId) ||
-    props.foldersWithCounts.find((f) => f.id === folderId);
-  return folder?.title || "Unknown Folder";
-};
-
-const getScreenshotUrl = (screenshotSmall: string) => {
-  if (!screenshotSmall) return "";
-  // If it's already a URL path, return it directly
-  if (screenshotSmall.startsWith("/")) {
-    return screenshotSmall;
+// Computed properties for section handling
+const sectionTitle = computed(() => {
+  switch (props.currentSection) {
+    case "home":
+      return "All Demos";
+    case "demos":
+      return "All Demos";
+    case "recent":
+      return "Recent Demos";
+    case "shared":
+      return "Shared with me";
+    default:
+      return "All Demos";
   }
-  // If it's base64 data, format it properly
-  if (screenshotSmall.startsWith("data:")) {
-    return screenshotSmall;
+});
+
+const displayDemos = computed(() => {
+  switch (props.currentSection) {
+    case "home":
+      return props.allDemos;
+    case "demos":
+      return props.allDemos;
+    case "recent":
+      return props.recentDemos;
+    case "shared":
+      return props.recentDemos; // recentDemos prop contains filtered demos for current section
+    default:
+      return props.allDemos;
   }
-  return `data:image/png;base64,${screenshotSmall}`;
-};
+});
 </script>
 
 <style scoped>
@@ -277,54 +185,5 @@ const getScreenshotUrl = (screenshotSmall: string) => {
 
 .heading-secondary {
   @apply text-base font-medium text-gray-900;
-}
-
-/* Demo Row Layout */
-.demo-row {
-  @apply flex items-center gap-3 py-2 px-2 cursor-pointer transition-colors hover:bg-gray-50 border-b border-gray-100 last:border-b-0 min-w-0;
-}
-
-.demo-thumbnail {
-  @apply w-12 h-8 flex-shrink-0 rounded overflow-hidden bg-gray-100;
-}
-
-.demo-placeholder {
-  @apply w-full h-full flex items-center justify-center;
-}
-
-.demo-info {
-  @apply flex-1 min-w-0 overflow-hidden;
-}
-
-.demo-title {
-  @apply text-sm font-medium text-gray-900 truncate;
-}
-
-.demo-meta {
-  @apply text-xs text-gray-500 mt-0.5;
-}
-
-.demo-separator {
-  @apply mx-1;
-}
-
-.demo-folder {
-  @apply text-gray-600;
-}
-
-.demo-views {
-  @apply text-gray-500;
-}
-
-.demo-actions {
-  @apply flex-shrink-0 relative;
-}
-
-.play-action-btn {
-  @apply w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-150 text-xs;
-}
-
-.play-action-btn:hover {
-  transform: translate(-1px, -1px);
 }
 </style>
