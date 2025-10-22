@@ -253,7 +253,7 @@ const updateVariable = (index: number, field: string, value: string) => {
 }
 
 .toggle-switch input:checked + .slider {
-  background-color: #2563eb;
+  background-color: #3a8ddb;
 }
 
 .toggle-switch input:checked + .slider::after {
@@ -261,7 +261,7 @@ const updateVariable = (index: number, field: string, value: string) => {
 }
 
 .welcome-content {
-  @apply space-y-4 p-4 bg-blue-50 rounded-lg border border-blue-200;
+  @apply space-y-4 p-4 bg-reprise-sky rounded-lg border border-reprise-blue;
 }
 
 .form-group {
@@ -273,11 +273,11 @@ const updateVariable = (index: number, field: string, value: string) => {
 }
 
 .form-input {
-  @apply w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-reprise-blue focus:border-transparent bg-white;
 }
 
 .form-textarea {
-  @apply w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none;
+  @apply w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-reprise-blue focus:border-transparent resize-none bg-white;
 }
 
 /* Variables Grid */
@@ -318,7 +318,7 @@ const updateVariable = (index: number, field: string, value: string) => {
 }
 
 .variable-input {
-  @apply w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-reprise-blue focus:border-transparent bg-white;
 }
 
 /* Preview Section */

@@ -150,11 +150,11 @@ const getScreenshotUrl = (screenshotSmall: string) => {
 }
 
 .form-input {
-  @apply w-full px-2.5 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply w-full px-2.5 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-reprise-blue focus:border-transparent bg-white;
 }
 
 .form-textarea {
-  @apply w-full px-2.5 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none;
+  @apply w-full px-2.5 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-reprise-blue focus:border-transparent resize-none bg-white;
 }
 
 .date-input-container {

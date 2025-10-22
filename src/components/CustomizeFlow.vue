@@ -331,12 +331,12 @@ watch(
 }
 
 .modal-container {
-  @apply bg-white rounded-xl shadow-xl w-[750px] h-[540px] overflow-hidden flex flex-col;
+  @apply bg-reprise-light-tan rounded-xl shadow-xl w-[750px] h-[540px] overflow-hidden flex flex-col;
 }
 
 /* Modal Header */
 .modal-header {
-  @apply bg-gray-50 px-5 py-3 border-b border-gray-200;
+  @apply bg-white px-5 py-3 border-b border-gray-200;
 }
 
 .header-content {
@@ -366,15 +366,15 @@ watch(
 }
 
 .step-navigation {
-  @apply p-4 space-y-0;
+  @apply p-2 space-y-0;
 }
 
 .step-button {
-  @apply w-full flex items-center gap-2.5 p-2.5 text-left rounded-lg transition-all duration-200 mb-0;
+  @apply w-full flex items-center gap-2 p-2 text-left rounded-lg transition-all duration-200 mb-0;
 }
 
 .step-button.active {
-  @apply bg-blue-50 text-blue-600;
+  @apply bg-reprise-sky text-reprise-blue;
 }
 
 .step-button.completed {
@@ -407,12 +407,12 @@ watch(
 }
 
 .step-content-container {
-  @apply flex-1 p-5 overflow-y-auto;
+  @apply flex-1 p-5 overflow-y-auto bg-reprise-light-tan;
 }
 
 /* Navigation Footer */
 .navigation-footer {
-  @apply bg-gray-50 px-5 py-3 border-t border-gray-200;
+  @apply bg-white px-5 py-3 border-t border-gray-200;
 }
 
 .footer-actions {
@@ -424,7 +424,7 @@ watch(
 }
 
 .nav-button.primary {
-  @apply text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed;
+  @apply text-white bg-reprise-blue hover:bg-reprise-deep-blue disabled:bg-gray-300 disabled:cursor-not-allowed;
 }
 
 .nav-button.secondary {

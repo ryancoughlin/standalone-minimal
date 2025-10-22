@@ -256,11 +256,11 @@ const getAccessLevelLabel = () => {
 }
 
 .access-option {
-  @apply flex items-center gap-4 p-4 border border-gray-200 rounded-lg cursor-pointer transition-all duration-200 hover:border-blue-300 hover:bg-blue-50;
+  @apply flex items-center gap-4 p-4 border border-gray-200 rounded-lg cursor-pointer transition-all duration-200 hover:border-reprise-blue hover:bg-reprise-sky;
 }
 
 .access-option.selected {
-  @apply border-blue-500 bg-blue-50;
+  @apply border-reprise-blue bg-reprise-sky;
 }
 
 .option-icon {
@@ -268,7 +268,7 @@ const getAccessLevelLabel = () => {
 }
 
 .access-option.selected .option-icon {
-  @apply bg-blue-100 text-blue-600;
+  @apply bg-reprise-sky text-reprise-blue;
 }
 
 .option-icon i {
@@ -276,7 +276,7 @@ const getAccessLevelLabel = () => {
 }
 
 .access-option.selected .option-icon i {
-  @apply text-blue-600;
+  @apply text-reprise-blue;
 }
 
 .option-content {
@@ -300,7 +300,7 @@ const getAccessLevelLabel = () => {
 }
 
 .radio-button.checked {
-  @apply border-blue-500 bg-blue-500;
+  @apply border-reprise-blue bg-reprise-blue;
 }
 
 .radio-button.checked::after {
@@ -318,7 +318,7 @@ const getAccessLevelLabel = () => {
 }
 
 .form-input {
-  @apply w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-reprise-blue focus:border-transparent bg-white;
 }
 
 .form-hint {
@@ -348,11 +348,11 @@ const getAccessLevelLabel = () => {
 }
 
 .security-icon {
-  @apply w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0;
+  @apply w-12 h-12 bg-reprise-sky rounded-lg flex items-center justify-center flex-shrink-0;
 }
 
 .security-icon i {
-  @apply text-blue-600 text-lg;
+  @apply text-reprise-blue text-lg;
 }
 
 .security-info {

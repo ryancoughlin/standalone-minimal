@@ -12,6 +12,7 @@ export default {
         reprise: {
           "off-white": "#FCFBF7",
           "base-surface": "#FEFEF6",
+          "light-tan": "#F7F5F0",
           sky: "#BCE8F8",
           blue: "#3A8DDB",
           "deep-blue": "#0D0D41",

@@ -301,11 +301,11 @@ const getCrmTitle = () => {
 }
 
 .crm-option {
-  @apply flex items-center gap-4 p-4 border border-gray-200 rounded-lg cursor-pointer transition-all duration-200 hover:border-blue-300 hover:bg-blue-50;
+  @apply flex items-center gap-4 p-4 border border-gray-200 rounded-lg cursor-pointer transition-all duration-200 hover:border-reprise-blue hover:bg-reprise-sky;
 }
 
 .crm-option.selected {
-  @apply border-blue-500 bg-blue-50;
+  @apply border-reprise-blue bg-reprise-sky;
 }
 
 .option-icon {
@@ -313,7 +313,7 @@ const getCrmTitle = () => {
 }
 
 .crm-option.selected .option-icon {
-  @apply bg-blue-100;
+  @apply bg-reprise-sky;
 }
 
 .crm-logo {
@@ -325,7 +325,7 @@ const getCrmTitle = () => {
 }
 
 .crm-option.selected .option-icon i {
-  @apply text-blue-600;
+  @apply text-reprise-blue;
 }
 
 .option-content {
@@ -349,7 +349,7 @@ const getCrmTitle = () => {
 }
 
 .radio-button.checked {
-  @apply border-blue-500 bg-blue-500;
+  @apply border-reprise-blue bg-reprise-blue;
 }
 
 .radio-button.checked::after {
@@ -379,7 +379,7 @@ const getCrmTitle = () => {
 }
 
 .form-input {
-  @apply w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-reprise-blue focus:border-transparent bg-white;
 }
 
 /* Analytics Settings */
@@ -431,7 +431,7 @@ const getCrmTitle = () => {
 }
 
 .toggle-switch input:checked + .slider {
-  background-color: #2563eb;
+  background-color: #3a8ddb;
 }
 
 .toggle-switch input:checked + .slider::after {
@@ -439,7 +439,7 @@ const getCrmTitle = () => {
 }
 
 .analytics-details {
-  @apply p-4 bg-blue-50 rounded-lg border border-blue-200;
+  @apply p-4 bg-reprise-sky rounded-lg border border-reprise-blue;
 }
 
 .analytics-features {
@@ -451,7 +451,7 @@ const getCrmTitle = () => {
 }
 
 .feature-item i {
-  @apply text-blue-600;
+  @apply text-reprise-blue;
 }
 
 /* Preview Section */
@@ -472,11 +472,11 @@ const getCrmTitle = () => {
 }
 
 .integration-icon {
-  @apply w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0;
+  @apply w-12 h-12 bg-reprise-sky rounded-lg flex items-center justify-center flex-shrink-0;
 }
 
 .integration-icon i {
-  @apply text-blue-600 text-lg;
+  @apply text-reprise-blue text-lg;
 }
 
 .integration-info {

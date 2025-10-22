@@ -73,14 +73,6 @@
 
     <!-- Results Summary -->
     <div class="results-summary">
-      <div class="results-count">
-        <span class="count-number">{{ filteredCount }}</span>
-        <span class="count-label">
-          {{ filteredCount === 1 ? "demo" : "demos" }}
-          {{ hasActiveFilters ? "found" : "total" }}
-        </span>
-      </div>
-
       <div v-if="hasActiveFilters" class="active-filters">
         <span class="filters-label">Filters:</span>
         <div class="filter-tags">

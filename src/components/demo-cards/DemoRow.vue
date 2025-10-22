@@ -18,12 +18,12 @@
     }"
     :hover="{ scale: 1.01, transition: { duration: 150 } }"
     :tap="{ scale: 0.99, transition: { duration: 100 } }"
-    @click="$emit('view-detail', demo)"
+    @click="$emit('play-demo', demo)"
     @mouseenter="isHovered = true"
     @mouseleave="isHovered = false"
   >
     <!-- Demo Thumbnail -->
-    <div class="demo-thumbnail">
+    <div class="demo-thumbnail" @click.stop="$emit('play-demo', demo)">
       <img
         v-if="demo.screenshot_small && !imageError"
         :src="getScreenshotUrl(demo.screenshot_small)"
@@ -34,14 +34,18 @@
       <div v-else class="demo-placeholder">
         <i class="fal fa-play text-gray-400 text-sm"></i>
       </div>
+
+      <!-- Hover Overlay -->
+      <div class="thumbnail-overlay">
+        <i class="fas fa-arrow-up-right text-white text-lg"></i>
+      </div>
     </div>
 
     <!-- Demo Content -->
     <div class="demo-content">
-      <!-- Title and Shared Tag -->
+      <!-- Title -->
       <div class="demo-header">
         <h3 class="demo-title">{{ demo.title }}</h3>
-        <span v-if="demo.isShared" class="shared-tag">Shared</span>
       </div>
 
       <!-- Metadata -->
@@ -58,23 +62,45 @@
           formatDate(demo.lastModified)
         }}</span>
       </div>
+
+      <!-- Shared Status -->
+      <div v-if="demo.isShared" class="shared-status">
+        <i class="fal fa-users text-xs"></i>
+        <span class="shared-text">Shared</span>
+      </div>
     </div>
 
-    <!-- Play Button -->
-    <div class="demo-actions">
+    <!-- Context Menu -->
+    <div class="demo-context-menu">
       <button
-        @click.stop="$emit('play-demo', demo)"
-        class="play-action-btn"
-        :title="getActionTitle(demo.productType)"
+        @click.stop="toggleContextMenu"
+        class="context-menu-trigger"
+        title="More actions"
       >
-        <i :class="getActionIcon(demo.productType)" class="text-sm"></i>
+        <i class="fas fa-ellipsis-v text-gray-400"></i>
       </button>
+
+      <!-- Context Menu Dropdown -->
+      <div v-if="showContextMenu" class="context-menu-dropdown" @click.stop>
+        <button @click="handleCustomizeClick" class="context-menu-item">
+          <i class="fal fa-cog text-gray-500"></i>
+          <span>Customize</span>
+        </button>
+        <button @click="handleCopyLink" class="context-menu-item">
+          <i class="fal fa-copy text-gray-500"></i>
+          <span>Copy Link</span>
+        </button>
+        <button @click="handleManageLinks" class="context-menu-item">
+          <i class="fal fa-link text-gray-500"></i>
+          <span>Manage Links</span>
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 
 interface Props {
   demo: any;
@@ -85,8 +111,10 @@ interface Props {
 }
 
 interface Emits {
-  (e: "view-detail", demo: any): void;
   (e: "play-demo", demo: any): void;
+  (e: "customize-demo", demo: any): void;
+  (e: "manage-links", demo: any): void;
+  (e: "copy-link", demo: any): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -96,10 +124,11 @@ const props = withDefaults(defineProps<Props>(), {
   showViews: false,
 });
 
-defineEmits<Emits>();
+const emit = defineEmits<Emits>();
 
 const imageError = ref(false);
 const isHovered = ref(false);
+const showContextMenu = ref(false);
 
 // Helper functions
 const getFolderName = (folderId: string) => {
@@ -128,51 +157,72 @@ const getScreenshotUrl = (screenshotSmall: string) => {
   return `data:image/png;base64,${screenshotSmall}`;
 };
 
-const getActionIcon = (productType: string) => {
-  const icons = {
-    replicate: "fal fa-magic",
-    replay: "fal fa-play",
-    reveal: "fal fa-external-link",
-  };
-  return icons[productType as keyof typeof icons] || "fal fa-play";
+const handleCustomizeClick = () => {
+  emit("customize-demo", props.demo);
+  showContextMenu.value = false;
 };
 
-const getActionTitle = (productType: string) => {
-  const titles = {
-    replicate: "Run Demo",
-    replay: "Play Demo",
-    reveal: "Open Demo",
-  };
-  return titles[productType as keyof typeof titles] || "Play Demo";
+const handleCopyLink = () => {
+  emit("copy-link", props.demo);
+  showContextMenu.value = false;
 };
+
+const handleManageLinks = () => {
+  emit("manage-links", props.demo);
+  showContextMenu.value = false;
+};
+
+const toggleContextMenu = () => {
+  showContextMenu.value = !showContextMenu.value;
+};
+
+// Close context menu when clicking outside
+const handleClickOutside = (event: Event) => {
+  const target = event.target as HTMLElement;
+  if (!target.closest(".demo-context-menu")) {
+    showContextMenu.value = false;
+  }
+};
+
+onMounted(() => {
+  document.addEventListener("click", handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener("click", handleClickOutside);
+});
 </script>
 
 <style scoped>
 /* Demo Row - Single consistent design */
 .demo-row {
-  @apply flex items-center gap-2 py-2 px-2 cursor-pointer transition-all duration-200 border-b border-gray-100 last:border-b-0 min-w-0;
-}
-
-.demo-row.row-hover {
-  @apply bg-gray-50;
-}
-
-.demo-row.row-selected {
-  @apply bg-blue-50 border-blue-200;
+  @apply flex items-start gap-2 py-2 px-2 cursor-pointer transition-all duration-200 border-b border-gray-100 last:border-b-0 min-w-0 relative;
 }
 
 /* Demo Thumbnail */
 .demo-thumbnail {
-  @apply w-12 h-8 flex-shrink-0 rounded overflow-hidden bg-gray-100;
+  @apply w-24 h-16 flex-shrink-0 rounded-md border border-gray-200 overflow-hidden bg-gray-100 relative cursor-pointer transition-all duration-200;
+}
+
+.demo-thumbnail:hover {
+  @apply border-gray-300 shadow-sm;
 }
 
 .demo-placeholder {
   @apply w-full h-full flex items-center justify-center;
 }
 
+.thumbnail-overlay {
+  @apply absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 transition-opacity duration-200;
+}
+
+.demo-thumbnail:hover .thumbnail-overlay {
+  @apply opacity-100;
+}
+
 /* Demo Content */
 .demo-content {
-  @apply flex-1 min-w-0 overflow-hidden;
+  @apply flex-1 min-w-0 overflow-hidden pr-20;
 }
 
 .demo-header {
@@ -183,8 +233,12 @@ const getActionTitle = (productType: string) => {
   @apply text-xs font-medium text-gray-900 truncate flex-1;
 }
 
-.shared-tag {
-  @apply text-xs px-1 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium ml-2 flex-shrink-0;
+.shared-status {
+  @apply flex items-center gap-1 mt-1 px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-xs w-fit;
+}
+
+.shared-text {
+  @apply text-xs font-medium;
 }
 
 /* Metadata */
@@ -212,16 +266,28 @@ const getActionTitle = (productType: string) => {
   @apply text-gray-500;
 }
 
-/* Actions */
-.demo-actions {
-  @apply flex-shrink-0;
+/* Context Menu */
+.demo-context-menu {
+  @apply relative flex-shrink-0;
 }
 
-.play-action-btn {
-  @apply w-5 h-5 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-150;
+.context-menu-trigger {
+  @apply w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-150;
 }
 
-.play-action-btn:hover {
-  transform: translate(-1px, -1px);
+.context-menu-trigger:hover {
+  @apply text-gray-600;
+}
+
+.context-menu-dropdown {
+  @apply absolute right-0 top-6 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50 min-w-32;
+}
+
+.context-menu-item {
+  @apply w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors text-left;
+}
+
+.context-menu-item i {
+  @apply w-4 h-4 flex-shrink-0;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="page-template">
+  <div class="unified-demo-page">
     <!-- Page Header -->
     <PageHeader
       :title="pageTitle"
@@ -14,9 +14,9 @@
       </template>
     </PageHeader>
 
-    <!-- Filters -->
+    <!-- Filters (skip for home dashboard) -->
     <DemoFilters
-      v-if="showFilters"
+      v-if="showFilters && pageType !== 'home'"
       :current-view="currentView"
       :current-sort="currentSort"
       :selected-demo-type="selectedDemoType"
@@ -73,8 +73,8 @@
             @view-detail="$emit('view-detail', $event)"
             @play-demo="$emit('play-demo', $event)"
             @customize-demo="$emit('customize-demo', $event)"
-            @copy-link="$emit('copy-link', $event)"
             @manage-links="$emit('manage-links', $event)"
+            @copy-link="$emit('copy-link', $event)"
           />
         </div>
 
@@ -108,18 +108,7 @@
                 class="w-full h-full object-cover"
               />
               <div v-else class="card-placeholder">
-                <i
-                  :class="getProductTypeIcon(demo.productType)"
-                  class="text-gray-400 text-2xl"
-                ></i>
-              </div>
-
-              <!-- Type Badge -->
-              <div class="card-type-badge" :class="`type-${demo.productType}`">
-                <i
-                  :class="getProductTypeIcon(demo.productType)"
-                  class="text-xs"
-                ></i>
+                <i class="fal fa-play text-gray-400 text-2xl"></i>
               </div>
 
               <!-- Starred Indicator -->
@@ -144,9 +133,9 @@
               <button
                 @click.stop="$emit('play-demo', demo)"
                 class="card-action-btn primary"
-                :title="getPrimaryActionLabel(demo.productType)"
+                title="Play Demo"
               >
-                <i :class="getPrimaryActionIcon(demo.productType)"></i>
+                <i class="fal fa-play"></i>
               </button>
               <button
                 @click.stop="$emit('customize-demo', demo)"
@@ -165,21 +154,27 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import PageHeader from "../PageHeader.vue";
-import DemoRow from "./DemoRow.vue";
-import DemoFilters from "./DemoFilters.vue";
+import PageHeader from "./PageHeader.vue";
+import DemoRow from "./demo-cards/DemoRow.vue";
+import DemoFilters from "./demo-cards/DemoFilters.vue";
 
 interface Props {
-  pageTitle: string;
-  pageDescription?: string;
+  // Page identification
+  pageType: "home" | "library" | "recent" | "shared" | "folder";
+
+  // Page content
   demos: any[];
   foldersWithCounts?: any[];
   loading?: boolean;
-  isEmpty?: boolean;
-  emptyTitle?: string;
-  emptyDescription?: string;
-  emptyIcon?: string;
-  emptyActionText?: string;
+
+  // Page header
+  title?: string;
+  description?: string;
+  showBreadcrumbs?: boolean;
+  currentFolder?: any;
+  breadcrumbs?: any[];
+
+  // Filters
   showFilters?: boolean;
   currentView?: "list" | "grid";
   currentSort?: string;
@@ -187,9 +182,12 @@ interface Props {
   filteredCount?: number;
   totalCount?: number;
   selectedDemoId?: string;
-  showBreadcrumbs?: boolean;
-  currentFolder?: any;
-  breadcrumbs?: any[];
+
+  // Empty state
+  emptyTitle?: string;
+  emptyDescription?: string;
+  emptyIcon?: string;
+  emptyActionText?: string;
 }
 
 interface Emits {
@@ -211,11 +209,9 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   foldersWithCounts: () => [],
   loading: false,
-  isEmpty: false,
-  emptyTitle: "No demos found",
-  emptyDescription: "Create your first demo to get started.",
-  emptyIcon: "fal fa-folder",
-  emptyActionText: "",
+  showBreadcrumbs: false,
+  currentFolder: null,
+  breadcrumbs: () => [],
   showFilters: true,
   currentView: "list",
   currentSort: "lastModified",
@@ -223,14 +219,60 @@ const props = withDefaults(defineProps<Props>(), {
   filteredCount: 0,
   totalCount: 0,
   selectedDemoId: "",
-  showBreadcrumbs: false,
-  currentFolder: null,
-  breadcrumbs: () => [],
+  emptyTitle: "No demos found",
+  emptyDescription: "Create your first demo to get started.",
+  emptyIcon: "fal fa-folder",
+  emptyActionText: "",
 });
 
 defineEmits<Emits>();
 
 const imageErrors = ref<Record<string, boolean>>({});
+
+// Computed properties for page header
+const pageTitle = computed(() => {
+  if (props.title) return props.title;
+
+  switch (props.pageType) {
+    case "home":
+      return "Recent Demos";
+    case "library":
+      return "All Demos";
+    case "recent":
+      return "Recent Demos";
+    case "shared":
+      return "Shared with me";
+    case "folder":
+      return props.currentFolder?.title || "Folder";
+    default:
+      return "Demos";
+  }
+});
+
+const pageDescription = computed(() => {
+  if (props.description) return props.description;
+
+  switch (props.pageType) {
+    case "home":
+      return `${props.filteredCount} recent demos`;
+    case "library":
+      return `${props.filteredCount} demos`;
+    case "recent":
+      return `${props.filteredCount} recent demos`;
+    case "shared":
+      return `${props.filteredCount} shared demos`;
+    case "folder":
+      return `${props.demos.length} demos in this folder`;
+    default:
+      return `${props.filteredCount} demos`;
+  }
+});
+
+const showBreadcrumbs = computed(() => {
+  return props.showBreadcrumbs || props.pageType === "folder";
+});
+
+const isEmpty = computed(() => props.demos.length === 0);
 
 // Helper functions
 const getFolderName = (folderId: string) => {
@@ -245,51 +287,20 @@ const getScreenshotUrl = (screenshotSmall: string) => {
   if (screenshotSmall.startsWith("data:")) return screenshotSmall;
   return `data:image/png;base64,${screenshotSmall}`;
 };
-
-const getProductTypeIcon = (productType: string) => {
-  const icons = {
-    replicate: "fal fa-magic",
-    replay: "fal fa-play",
-    reveal: "fal fa-external-link",
-  };
-  return icons[productType as keyof typeof icons] || "fal fa-play";
-};
-
-const getPrimaryActionLabel = (productType: string) => {
-  const labels = {
-    replicate: "Run Demo",
-    replay: "Play Demo",
-    reveal: "Open Demo",
-  };
-  return labels[productType as keyof typeof labels] || "Play Demo";
-};
-
-const getPrimaryActionIcon = (productType: string) => {
-  const icons = {
-    replicate: "fal fa-magic",
-    replay: "fal fa-play",
-    reveal: "fal fa-external-link",
-  };
-  return icons[productType as keyof typeof icons] || "fal fa-play";
-};
 </script>
 
 <style scoped>
-/* Page Template - Compact for Chrome Extension */
-.page-template {
-  @apply flex flex-col h-full;
+/* Unified Demo Page */
+.unified-demo-page {
+  @apply flex flex-col h-full bg-reprise-light-tan;
 }
 
-.new-demo-btn {
-  @apply flex items-center px-2 py-1 bg-blue-600 text-white text-xs font-medium rounded-md hover:bg-blue-700 transition-colors;
-}
-
-/* Page Content - Compact */
+/* Page Content */
 .page-content {
   @apply flex-1 overflow-y-auto;
 }
 
-/* Loading State - Compact */
+/* Loading State */
 .loading-state {
   @apply px-2 py-2 space-y-2;
 }
@@ -314,7 +325,7 @@ const getPrimaryActionIcon = (productType: string) => {
   @apply h-2 bg-gray-200 rounded animate-pulse w-1/2;
 }
 
-/* Empty State - Compact */
+/* Empty State */
 .empty-state {
   @apply flex flex-col items-center justify-center py-8 px-2 text-center;
 }
@@ -335,18 +346,70 @@ const getPrimaryActionIcon = (productType: string) => {
   @apply px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-md hover:bg-blue-700 transition-colors;
 }
 
-/* Demo List - Compact */
+/* Demo List */
 .demo-list {
   @apply px-2 py-1;
 }
 
-/* List View - Compact */
+/* List View */
 .list-view {
   @apply space-y-0.5;
 }
 
-/* Grid View - Compact */
+/* Grid View */
 .grid-view {
   @apply grid grid-cols-1 gap-2;
+}
+
+.demo-card {
+  @apply bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer;
+}
+
+.card-thumbnail {
+  @apply relative w-full h-20 bg-gray-100;
+}
+
+.card-placeholder {
+  @apply w-full h-full flex items-center justify-center;
+}
+
+.card-starred {
+  @apply absolute top-2 right-2;
+}
+
+.card-content {
+  @apply p-3;
+}
+
+.card-title {
+  @apply text-sm font-medium text-gray-900 mb-1 m-0 truncate;
+}
+
+.card-meta {
+  @apply flex items-center justify-between text-xs text-gray-500;
+}
+
+.card-folder {
+  @apply text-gray-600 font-medium;
+}
+
+.card-views {
+  @apply text-gray-500;
+}
+
+.card-actions {
+  @apply flex items-center gap-1 p-2 border-t border-gray-100;
+}
+
+.card-action-btn {
+  @apply flex-1 flex items-center justify-center px-2 py-1 text-xs font-medium rounded transition-colors;
+}
+
+.card-action-btn.primary {
+  @apply bg-blue-600 text-white hover:bg-blue-700;
+}
+
+.card-action-btn.secondary {
+  @apply bg-gray-100 text-gray-700 hover:bg-gray-200;
 }
 </style>

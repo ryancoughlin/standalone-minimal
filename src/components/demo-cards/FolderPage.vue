@@ -1,6 +1,7 @@
 <template>
   <PageTemplate
     :page-title="folderTitle"
+    :page-description="folderDescription"
     :demos="folderDemos"
     :folders-with-counts="foldersWithCounts"
     :loading="loading"
@@ -16,6 +17,9 @@
     :active-status-filters="activeStatusFilters"
     :filtered-count="filteredCount"
     :total-count="totalCount"
+    :show-breadcrumbs="true"
+    :current-folder="currentFolder"
+    :breadcrumbs="breadcrumbs"
     row-variant="compact"
     @create-new="$emit('create-new')"
     @change-view="$emit('change-view', $event)"
@@ -30,6 +34,7 @@
     @customize-demo="$emit('customize-demo', $event)"
     @copy-link="$emit('copy-link', $event)"
     @manage-links="$emit('manage-links', $event)"
+    @navigate-breadcrumb="$emit('navigate-breadcrumb', $event)"
   >
     <!-- Custom Folder Page Actions -->
     <template #actions>
@@ -156,6 +161,7 @@ interface Props {
   activeStatusFilters: string[];
   filteredCount: number;
   totalCount: number;
+  breadcrumbs: any[];
 }
 
 interface Emits {
@@ -178,6 +184,7 @@ interface Emits {
   (e: "customize-demo", demo: any): void;
   (e: "copy-link", demo: any): void;
   (e: "manage-links", demo: any): void;
+  (e: "navigate-breadcrumb", crumb: any): void;
 }
 
 const props = defineProps<Props>();

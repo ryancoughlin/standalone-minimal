@@ -109,20 +109,6 @@
               <h2 class="welcome-message text-center">Welcome, Will.</h2>
             </div>
 
-            <!-- Breadcrumb Navigation -->
-            <BreadcrumbNavigation
-              v-motion
-              :initial="{ opacity: 0, y: 5 }"
-              :enter="{
-                opacity: 1,
-                y: 0,
-                transition: { duration: 200, delay: 250, ease: 'easeOut' },
-              }"
-              :current-folder="currentFolder"
-              :breadcrumbs="breadcrumbs"
-              @navigate-breadcrumb="navigateToBreadcrumb"
-            />
-
             <!-- Scrollable Content Area -->
             <div class="flex-1 overflow-y-auto">
               <!-- Loading State -->
@@ -147,165 +133,41 @@
                 </div>
               </div>
 
-              <!-- New Content Design System Pages -->
-              <!-- Home Page -->
-              <HomePage
-                v-if="currentSection === 'home' && !currentFolder"
+              <!-- Unified Demo Page -->
+              <UnifiedDemoPage
+                :page-type="getPageType()"
                 :demos="filteredDemos"
                 :folders-with-counts="foldersWithCounts"
                 :loading="loading"
+                :title="getPageTitle()"
+                :description="getPageDescription()"
+                :show-breadcrumbs="!!currentFolder"
+                :current-folder="currentFolder"
+                :breadcrumbs="breadcrumbs"
+                :show-filters="true"
                 :current-view="currentView"
                 :current-sort="currentSort"
                 :selected-demo-type="selectedDemoType"
                 :filtered-count="filteredTotalCount"
                 :total-count="totalDemoCount"
-                :recent-count="recentDemoCount"
-                :shared-count="sharedDemoCount"
-                :starred-count="starredDemoCount"
+                :empty-title="getEmptyTitle()"
+                :empty-description="getEmptyDescription()"
+                :empty-icon="getEmptyIcon()"
+                :empty-action-text="getEmptyActionText()"
                 @create-new="handleNewDemo"
-                @view-all="handleNavigateSection('demos')"
-                @view-recent="handleNavigateSection('recent')"
                 @change-view="handleViewChange"
                 @change-sort="handleSortChange"
                 @change-demo-type="handleDemoTypeChange"
                 @clear-filters="handleClearFilters"
                 @remove-filter="handleRemoveFilter"
+                @empty-action="handleEmptyAction"
                 @view-detail="handleViewDemoDetail"
                 @play-demo="handlePlayDemo"
                 @customize-demo="handleCustomizeDemo"
                 @copy-link="handleCopyLink"
                 @manage-links="handleManageLinks"
+                @navigate-breadcrumb="navigateToBreadcrumb"
               />
-
-              <!-- Recent Page -->
-              <RecentPage
-                v-else-if="currentSection === 'recent' && !currentFolder"
-                v-motion
-                :initial="{ opacity: 0, y: 10 }"
-                :enter="{
-                  opacity: 1,
-                  y: 0,
-                  transition: { duration: 200, delay: 300, ease: 'easeOut' },
-                }"
-                :recent-demos="filteredDemos"
-                :folders-with-counts="foldersWithCounts"
-                :loading="loading"
-                :current-view="currentView"
-                :current-sort="currentSort"
-                :active-type-filters="activeTypeFilters"
-                :active-status-filters="activeStatusFilters"
-                :filtered-count="filteredTotalCount"
-                :total-count="totalDemoCount"
-                @create-new="handleNewDemo"
-                @browse-all="handleNavigateSection('demos')"
-                @change-view="handleViewChange"
-                @change-sort="handleSortChange"
-                @toggle-type-filter="handleToggleTypeFilter"
-                @toggle-status-filter="handleToggleStatusFilter"
-                @clear-filters="handleClearFilters"
-                @remove-filter="handleRemoveFilter"
-                @view-detail="handleViewDemoDetail"
-                @play-demo="handlePlayDemo"
-                @customize-demo="handleCustomizeDemo"
-                @copy-link="handleCopyLink"
-                @manage-links="handleManageLinks"
-              />
-
-              <!-- Shared Page -->
-              <SharedPage
-                v-else-if="currentSection === 'shared' && !currentFolder"
-                v-motion
-                :initial="{ opacity: 0, y: 10 }"
-                :enter="{
-                  opacity: 1,
-                  y: 0,
-                  transition: { duration: 200, delay: 300, ease: 'easeOut' },
-                }"
-                :shared-demos="filteredDemos"
-                :folders-with-counts="foldersWithCounts"
-                :loading="loading"
-                :current-view="currentView"
-                :current-sort="currentSort"
-                :active-type-filters="activeTypeFilters"
-                :active-status-filters="activeStatusFilters"
-                :filtered-count="filteredTotalCount"
-                :total-count="totalDemoCount"
-                @create-new="handleNewDemo"
-                @browse-all="handleNavigateSection('demos')"
-                @change-view="handleViewChange"
-                @change-sort="handleSortChange"
-                @toggle-type-filter="handleToggleTypeFilter"
-                @toggle-status-filter="handleToggleStatusFilter"
-                @clear-filters="handleClearFilters"
-                @remove-filter="handleRemoveFilter"
-                @view-detail="handleViewDemoDetail"
-                @play-demo="handlePlayDemo"
-                @customize-demo="handleCustomizeDemo"
-                @copy-link="handleCopyLink"
-                @manage-links="handleManageLinks"
-              />
-
-              <!-- Folder Page -->
-              <FolderPage
-                v-else-if="currentFolder"
-                v-motion
-                :initial="{ opacity: 0, y: 10 }"
-                :enter="{
-                  opacity: 1,
-                  y: 0,
-                  transition: { duration: 200, delay: 300, ease: 'easeOut' },
-                }"
-                :current-folder="currentFolder"
-                :folder-demos="folderDemos"
-                :folders-with-counts="foldersWithCounts"
-                :loading="loading"
-                :current-view="currentView"
-                :current-sort="currentSort"
-                :active-type-filters="activeTypeFilters"
-                :active-status-filters="activeStatusFilters"
-                :filtered-count="filteredTotalCount"
-                :total-count="totalDemoCount"
-                @create-new="handleNewDemo"
-                @select-subfolder="handleSelectFolder"
-                @change-view="handleViewChange"
-                @change-sort="handleSortChange"
-                @toggle-type-filter="handleToggleTypeFilter"
-                @toggle-status-filter="handleToggleStatusFilter"
-                @clear-filters="handleClearFilters"
-                @remove-filter="handleRemoveFilter"
-                @view-detail="handleViewDemoDetail"
-                @play-demo="handlePlayDemo"
-                @customize-demo="handleCustomizeDemo"
-                @copy-link="handleCopyLink"
-                @manage-links="handleManageLinks"
-              />
-
-              <!-- All Demos Page (fallback) -->
-              <div
-                v-else
-                class="px-2 pb-2"
-                v-motion
-                :initial="{ opacity: 0, y: 10 }"
-                :enter="{
-                  opacity: 1,
-                  y: 0,
-                  transition: { duration: 200, delay: 300, ease: 'easeOut' },
-                }"
-              >
-                <h3 class="heading-secondary mb-2">All Demos</h3>
-                <div class="space-y-0.5">
-                  <DemoRow
-                    v-for="(demo, index) in filteredDemos"
-                    :key="`all-${index}`"
-                    :demo="demo"
-                    :folders-with-counts="foldersWithCounts"
-                    :delay="50 + index * 30"
-                    :show-views="true"
-                    @view-detail="handleViewDemoDetail"
-                    @play-demo="handlePlayDemo"
-                  />
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -365,9 +227,8 @@ import AIExperienceOverlay from "./AIExperienceOverlay.vue";
 import GlobalNavigation from "./GlobalNavigation.vue";
 import NavigationSidebar from "./NavigationSidebar.vue";
 import SearchBar from "./SearchBar.vue";
-import BreadcrumbNavigation from "./BreadcrumbNavigation.vue";
-import DemoList from "./DemoList.vue";
 import { HomePage, RecentPage, SharedPage, FolderPage } from "./demo-cards";
+import UnifiedDemoPage from "./UnifiedDemoPage.vue";
 import DemoRow from "./demo-cards/DemoRow.vue";
 import CustomizeFlow from "./CustomizeFlow.vue";
 import LinkManagerView from "./LinkManagerView.vue";
@@ -790,6 +651,122 @@ const getScreenshotUrl = (screenshotSmall: string) => {
   if (screenshotSmall.startsWith("/")) return screenshotSmall;
   if (screenshotSmall.startsWith("data:")) return screenshotSmall;
   return `data:image/png;base64,${screenshotSmall}`;
+};
+
+// Helper functions for unified template
+const getPageType = () => {
+  if (currentFolder.value) return "folder";
+  switch (currentSection.value) {
+    case "home":
+      return "home";
+    case "demos":
+      return "library";
+    case "recent":
+      return "recent";
+    case "shared":
+      return "shared";
+    default:
+      return "library";
+  }
+};
+
+const getPageTitle = () => {
+  if (currentFolder.value) return currentFolder.value.title;
+  switch (currentSection.value) {
+    case "home":
+      return "Recent Demos";
+    case "demos":
+      return "All Demos";
+    case "recent":
+      return "Recent Demos";
+    case "shared":
+      return "Shared with me";
+    default:
+      return "All Demos";
+  }
+};
+
+const getPageDescription = () => {
+  if (currentFolder.value) {
+    return `${folderDemos.value.length} demos in this folder`;
+  }
+  switch (currentSection.value) {
+    case "home":
+      return `${filteredTotalCount.value} recent demos`;
+    case "demos":
+    case "recent":
+    case "shared":
+    default:
+      return `${filteredTotalCount.value} demos`;
+  }
+};
+
+const getEmptyTitle = () => {
+  if (currentFolder.value) {
+    return `${currentFolder.value.title} is empty`;
+  }
+  switch (currentSection.value) {
+    case "home":
+      return "No recent demos";
+    case "recent":
+      return "No recent demos";
+    case "shared":
+      return "No shared demos";
+    default:
+      return "No demos found";
+  }
+};
+
+const getEmptyDescription = () => {
+  if (currentFolder.value) {
+    return "Add demos to this folder to organize your content.";
+  }
+  switch (currentSection.value) {
+    case "home":
+      return "Demos you access will appear here for quick reference.";
+    case "recent":
+      return "Demos you access will appear here for quick reference.";
+    case "shared":
+      return "Demos shared with you by teammates will appear here.";
+    default:
+      return "Create your first demo to get started.";
+  }
+};
+
+const getEmptyIcon = () => {
+  if (currentFolder.value) return "fal fa-folder-open";
+  switch (currentSection.value) {
+    case "home":
+      return "fal fa-clock";
+    case "recent":
+      return "fal fa-clock";
+    case "shared":
+      return "fal fa-users";
+    default:
+      return "fal fa-folder";
+  }
+};
+
+const getEmptyActionText = () => {
+  if (currentFolder.value) return "Add Demo to Folder";
+  switch (currentSection.value) {
+    case "home":
+      return "Browse All Demos";
+    case "recent":
+    case "shared":
+      return "Browse All Demos";
+    default:
+      return "Create New Demo";
+  }
+};
+
+const handleEmptyAction = () => {
+  if (currentFolder.value) {
+    // TODO: Handle add to folder
+    console.log("Add demo to folder");
+  } else {
+    handleNewDemo();
+  }
 };
 
 onMounted(async () => {

@@ -316,7 +316,7 @@ const handleGenerateLink = () => {
 }
 
 .demo-type {
-  @apply px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded;
+  @apply px-2 py-1 text-xs font-medium bg-reprise-sky text-reprise-blue rounded;
 }
 
 .customization-badge {
@@ -414,7 +414,7 @@ const handleGenerateLink = () => {
 }
 
 .action-btn.primary {
-  @apply text-white bg-blue-600 hover:bg-blue-700;
+  @apply text-white bg-reprise-blue hover:bg-reprise-deep-blue;
 }
 
 .action-info {
@@ -426,6 +426,6 @@ const handleGenerateLink = () => {
 }
 
 .info-item i {
-  @apply text-blue-500;
+  @apply text-reprise-blue;
 }
 </style>
