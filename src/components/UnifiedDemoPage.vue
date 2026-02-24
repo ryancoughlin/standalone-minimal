@@ -73,8 +73,6 @@
             @view-detail="$emit('view-detail', $event)"
             @play-demo="$emit('play-demo', $event)"
             @customize-demo="$emit('customize-demo', $event)"
-            @manage-links="$emit('manage-links', $event)"
-            @copy-link="$emit('copy-link', $event)"
           />
         </div>
 
@@ -121,9 +119,6 @@
             <div class="card-content">
               <h3 class="card-title">{{ demo.title }}</h3>
               <div class="card-meta">
-                <span class="card-folder">{{
-                  getFolderName(demo.folder_id)
-                }}</span>
                 <span class="card-views">{{ demo.views || 0 }} views</span>
               </div>
             </div>
@@ -201,8 +196,6 @@ interface Emits {
   (e: "view-detail", demo: any): void;
   (e: "play-demo", demo: any): void;
   (e: "customize-demo", demo: any): void;
-  (e: "copy-link", demo: any): void;
-  (e: "manage-links", demo: any): void;
   (e: "navigate-breadcrumb", crumb: any): void;
 }
 
@@ -275,12 +268,6 @@ const showBreadcrumbs = computed(() => {
 const isEmpty = computed(() => props.demos.length === 0);
 
 // Helper functions
-const getFolderName = (folderId: string) => {
-  if (!folderId) return "Unorganized";
-  const folder = props.foldersWithCounts?.find((f) => f.id === folderId);
-  return folder?.title || "Unknown Folder";
-};
-
 const getScreenshotUrl = (screenshotSmall: string) => {
   if (!screenshotSmall) return "";
   if (screenshotSmall.startsWith("/")) return screenshotSmall;
@@ -292,7 +279,7 @@ const getScreenshotUrl = (screenshotSmall: string) => {
 <style scoped>
 /* Unified Demo Page */
 .unified-demo-page {
-  @apply flex flex-col h-full bg-reprise-light-tan;
+  @apply flex flex-col h-full bg-white;
 }
 
 /* Page Content */
@@ -387,10 +374,6 @@ const getScreenshotUrl = (screenshotSmall: string) => {
 
 .card-meta {
   @apply flex items-center justify-between text-xs text-gray-500;
-}
-
-.card-folder {
-  @apply text-gray-600 font-medium;
 }
 
 .card-views {

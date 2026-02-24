@@ -50,11 +50,6 @@
 
       <!-- Metadata -->
       <div class="demo-metadata">
-        <div class="folder-info">
-          <i class="fal fa-folder text-gray-400 mr-1 text-xs"></i>
-          <span class="demo-folder">{{ getFolderName(demo.folder_id) }}</span>
-        </div>
-        <span class="demo-separator">•</span>
         <span v-if="showViews" class="demo-views"
           >{{ demo.views || 0 }} views</span
         >
@@ -86,14 +81,6 @@
           <i class="fal fa-cog text-gray-500"></i>
           <span>Customize</span>
         </button>
-        <button @click="handleCopyLink" class="context-menu-item">
-          <i class="fal fa-copy text-gray-500"></i>
-          <span>Copy Link</span>
-        </button>
-        <button @click="handleManageLinks" class="context-menu-item">
-          <i class="fal fa-link text-gray-500"></i>
-          <span>Manage Links</span>
-        </button>
       </div>
     </div>
   </div>
@@ -106,21 +93,17 @@ interface Props {
   demo: any;
   delay?: number;
   isSelected?: boolean;
-  foldersWithCounts?: any[];
   showViews?: boolean;
 }
 
 interface Emits {
   (e: "play-demo", demo: any): void;
   (e: "customize-demo", demo: any): void;
-  (e: "manage-links", demo: any): void;
-  (e: "copy-link", demo: any): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   delay: 0,
   isSelected: false,
-  foldersWithCounts: () => [],
   showViews: false,
 });
 
@@ -131,12 +114,6 @@ const isHovered = ref(false);
 const showContextMenu = ref(false);
 
 // Helper functions
-const getFolderName = (folderId: string) => {
-  if (!folderId) return "Unorganized";
-  const folder = props.foldersWithCounts?.find((f) => f.id === folderId);
-  return folder?.title || "Unknown Folder";
-};
-
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   const now = new Date();
@@ -159,16 +136,6 @@ const getScreenshotUrl = (screenshotSmall: string) => {
 
 const handleCustomizeClick = () => {
   emit("customize-demo", props.demo);
-  showContextMenu.value = false;
-};
-
-const handleCopyLink = () => {
-  emit("copy-link", props.demo);
-  showContextMenu.value = false;
-};
-
-const handleManageLinks = () => {
-  emit("manage-links", props.demo);
   showContextMenu.value = false;
 };
 
@@ -244,18 +211,6 @@ onUnmounted(() => {
 /* Metadata */
 .demo-metadata {
   @apply flex items-center text-xs text-gray-500;
-}
-
-.folder-info {
-  @apply flex items-center;
-}
-
-.demo-folder {
-  @apply text-gray-600 font-medium;
-}
-
-.demo-separator {
-  @apply mx-1;
 }
 
 .demo-date {

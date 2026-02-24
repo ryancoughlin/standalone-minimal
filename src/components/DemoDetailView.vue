@@ -52,14 +52,6 @@
         <i class="fas fa-eye"></i>
         Preview
       </button>
-      <button
-        @click="$emit('copy-link', demo)"
-        class="action-btn secondary"
-        title="Copy share link"
-      >
-        <i class="fas fa-link"></i>
-        Copy Link
-      </button>
     </div>
 
     <!-- Demo Information -->
@@ -124,14 +116,6 @@
         Customize
       </button>
       <button
-        @click="$emit('manage-links', demo)"
-        class="advanced-btn"
-        title="Manage links"
-      >
-        <i class="fas fa-link"></i>
-        Manage Links
-      </button>
-      <button
         @click="$emit('view-analytics', demo)"
         class="advanced-btn"
         title="View analytics"
@@ -155,9 +139,7 @@ interface Emits {
   (e: "back"): void;
   (e: "launch-demo", demo: any): void;
   (e: "preview-demo", demo: any): void;
-  (e: "copy-link", demo: any): void;
   (e: "customize-demo", demo: any): void;
-  (e: "manage-links", demo: any): void;
   (e: "view-analytics", demo: any): void;
 }
 

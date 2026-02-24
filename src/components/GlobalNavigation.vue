@@ -11,12 +11,6 @@
         />
       </div>
 
-      <!-- Center Actions -->
-      <div class="flex items-center gap-4">
-        <!-- AI Assistant -->
-        <AIAssistant @assist-click="$emit('assist-click')" />
-      </div>
-
       <!-- Right Actions -->
       <div class="flex items-center gap-2">
         <button
@@ -42,8 +36,6 @@
 </template>
 
 <script setup lang="ts">
-import AIAssistant from "./AIAssistant.vue";
-
 interface Props {
   isOnRight: boolean;
 }
@@ -54,7 +46,6 @@ interface Emits {
   (e: "close"): void;
   (e: "undo"): void;
   (e: "redo"): void;
-  (e: "assist-click"): void;
 }
 
 defineProps<Props>();

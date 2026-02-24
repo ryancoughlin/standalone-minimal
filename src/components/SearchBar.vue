@@ -37,12 +37,6 @@
           <i class="fas fa-filter text-xs"></i>
         </button>
       </div>
-      <button
-        class="px-3 py-2 bg-reprise-blue text-white border-none rounded-md text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-reprise-deep-blue"
-        @click="$emit('new-demo')"
-      >
-        New Demo
-      </button>
     </div>
   </div>
 </template>
@@ -55,7 +49,6 @@ interface Props {
 
 interface Emits {
   (e: "update:searchQuery", value: string): void;
-  (e: "new-demo"): void;
   (e: "toggle-sidebar"): void;
 }
 

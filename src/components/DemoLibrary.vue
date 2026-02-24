@@ -1,7 +1,6 @@
 <template>
   <!-- Unified Demo Library with Expandable Folder Sidebar -->
   <div
-    ref="demoLibraryContainer"
     class="demo-library-container"
     v-motion
     :initial="{ opacity: 0, scale: 0.95 }"
@@ -30,7 +29,6 @@
       overflow: 'auto',
       transition: 'all 0.3s ease-in-out',
     }"
-    @scroll="handleScroll"
   >
     <!-- Main Demo Content -->
     <div class="demo-content">
@@ -49,12 +47,11 @@
         @close="handleClose"
         @undo="handleUndo"
         @redo="handleRedo"
-        @assist-click="handleAssistClick"
       />
 
       <!-- Main View -->
       <div
-        v-if="currentViewType === 'main' && !showAIExperience"
+        v-if="currentViewType === 'main'"
         class="flex flex-col flex-1 h-full overflow-hidden"
       >
         <!-- Search Bar -->
@@ -68,7 +65,6 @@
           }"
           v-model:search-query="searchQuery"
           :show-navigation-sidebar="showNavigationSidebar"
-          @new-demo="handleNewDemo"
           @toggle-sidebar="showNavigationSidebar = !showNavigationSidebar"
         />
 
@@ -93,22 +89,6 @@
             class="main-content"
             :class="{ 'with-sidebar': showNavigationSidebar }"
           >
-            <!-- Welcome Message (only on home) -->
-            <div
-              v-if="currentSection === 'home'"
-              class="px-4 py-8 hero-section"
-              :style="heroTransform"
-              v-motion
-              :initial="{ opacity: 0, y: 5 }"
-              :enter="{
-                opacity: 1,
-                y: 0,
-                transition: { duration: 200, delay: 200, ease: 'easeOut' },
-              }"
-            >
-              <h2 class="welcome-message text-center">Welcome, Will.</h2>
-            </div>
-
             <!-- Scrollable Content Area -->
             <div class="flex-1 overflow-y-auto">
               <!-- Loading State -->
@@ -154,7 +134,6 @@
                 :empty-description="getEmptyDescription()"
                 :empty-icon="getEmptyIcon()"
                 :empty-action-text="getEmptyActionText()"
-                @create-new="handleNewDemo"
                 @change-view="handleViewChange"
                 @change-sort="handleSortChange"
                 @change-demo-type="handleDemoTypeChange"
@@ -164,23 +143,12 @@
                 @view-detail="handleViewDemoDetail"
                 @play-demo="handlePlayDemo"
                 @customize-demo="handleCustomizeDemo"
-                @copy-link="handleCopyLink"
-                @manage-links="handleManageLinks"
                 @navigate-breadcrumb="navigateToBreadcrumb"
               />
             </div>
           </div>
         </div>
 
-        <!-- AI Experience View -->
-        <div v-if="showAIExperience" class="flex flex-col flex-1">
-          <AIExperienceOverlay
-            :is-visible="showAIExperience"
-            @close="handleCloseAIExperience"
-            @action="handleAIAction"
-            @submit="handleAISubmit"
-          />
-        </div>
       </div>
 
       <!-- Demo Detail View -->
@@ -191,9 +159,7 @@
         @back="handleBackToMain"
         @launch-demo="handlePlayDemo"
         @preview-demo="handlePreviewDemo"
-        @copy-link="handleCopyLink"
         @customize-demo="handleCustomizeDemo"
-        @manage-links="handleManageLinks"
         @view-analytics="handleViewAnalytics"
       />
 
@@ -205,16 +171,6 @@
         @generate-link="handleGenerateLink"
       />
 
-      <!-- Link Manager View -->
-      <LinkManagerView
-        v-if="currentViewType === 'link-manager'"
-        :demo="selectedDemo"
-        @back="handleBackToMain"
-        @create-link="handleCreateLink"
-        @duplicate-link="handleDuplicateLink"
-        @delete-link="handleDeleteLink"
-        @toggle-link-status="handleToggleLinkStatus"
-      />
     </div>
   </div>
 </template>
@@ -223,7 +179,6 @@
 import { computed, onMounted, ref } from "vue";
 import { useDemoLibrary } from "../composables/useDemoLibrary";
 import { useFolderService } from "../services/folderService";
-import AIExperienceOverlay from "./AIExperienceOverlay.vue";
 import GlobalNavigation from "./GlobalNavigation.vue";
 import NavigationSidebar from "./NavigationSidebar.vue";
 import SearchBar from "./SearchBar.vue";
@@ -231,7 +186,6 @@ import { HomePage, RecentPage, SharedPage, FolderPage } from "./demo-cards";
 import UnifiedDemoPage from "./UnifiedDemoPage.vue";
 import DemoRow from "./demo-cards/DemoRow.vue";
 import CustomizeFlow from "./CustomizeFlow.vue";
-import LinkManagerView from "./LinkManagerView.vue";
 import DemoDetailView from "./DemoDetailView.vue";
 
 const { allDemos, allFolders, loading, fetchAllDemos } = useDemoLibrary();
@@ -256,7 +210,7 @@ const breadcrumbs = ref<any[]>([]);
 const isOnRight = ref(true); // Start on right side
 
 // Navigation state
-type ViewType = "main" | "link-manager" | "detail" | "customizer";
+type ViewType = "main" | "detail" | "customizer";
 const currentViewType = ref<ViewType>("main");
 const selectedDemo = ref<any>(null);
 const showCustomizer = ref(false);
@@ -268,36 +222,6 @@ const currentSection = ref("home");
 const currentView = ref<"list" | "grid">("list");
 const currentSort = ref("lastModified");
 const selectedDemoType = ref("");
-
-// Scroll handling for hero parallax
-const demoLibraryContainer = ref<HTMLElement | null>(null);
-const scrollY = ref(0);
-
-const handleScroll = () => {
-  if (demoLibraryContainer.value) {
-    scrollY.value = demoLibraryContainer.value.scrollTop;
-  }
-};
-
-// Hero parallax transform
-const heroTransform = computed(() => {
-  const scroll = scrollY.value;
-  const maxScroll = 200; // Distance to complete transition
-  const progress = Math.min(scroll / maxScroll, 1);
-
-  // Scale from 1 to 0.8
-  const scale = 1 - progress * 0.2;
-
-  // Translate up and fade out
-  const translateY = -scroll * 0.5; // Parallax effect
-  const opacity = 1 - progress;
-
-  return {
-    transform: `translateY(${translateY}px) scale(${scale})`,
-    opacity: opacity,
-    transition: "transform 0.1s ease-out, opacity 0.1s ease-out",
-  };
-});
 
 // Unified demo list - single source of truth
 const allUnifiedDemos = computed(() => allDemos.value);
@@ -426,17 +350,6 @@ const handleViewDemoDetail = (demo: any) => {
   currentViewType.value = "detail";
 };
 
-const handleCopyLink = (demo: any) => {
-  console.log("Copying link for:", demo);
-  // In real app, this would copy the share link to clipboard
-  const link = `https://demo.reprise.com/share/${Math.random()
-    .toString(36)
-    .substr(2, 9)}`;
-  navigator.clipboard.writeText(link).then(() => {
-    alert(`Link copied to clipboard: ${link}`);
-  });
-};
-
 const handleCustomizeDemo = (demo: any) => {
   selectedDemo.value = demo;
   showCustomizer.value = true;
@@ -445,11 +358,6 @@ const handleCustomizeDemo = (demo: any) => {
 const handleCloseCustomizer = () => {
   showCustomizer.value = false;
   selectedDemo.value = null;
-};
-
-const handleManageLinks = (demo: any) => {
-  selectedDemo.value = demo;
-  currentViewType.value = "link-manager";
 };
 
 const handleBackToMain = () => {
@@ -479,35 +387,6 @@ const handleGenerateLink = (demo: any, customization: any) => {
   alert(`Generated link: ${link}`);
   showCustomizer.value = false;
   selectedDemo.value = null;
-};
-
-const handleCreateLink = (demo: any) => {
-  selectedDemo.value = demo;
-  showCustomizer.value = true;
-};
-
-const handleDuplicateLink = (link: any) => {
-  console.log("Duplicating link:", link);
-  // In real app, this would duplicate the link
-  alert(`Duplicating link: ${link.url}`);
-};
-
-const handleDeleteLink = (link: any) => {
-  console.log("Deleting link:", link);
-  // In real app, this would delete the link
-  alert(`Deleting link: ${link.url}`);
-};
-
-const handleToggleLinkStatus = (link: any) => {
-  console.log("Toggling link status:", link);
-  // In real app, this would toggle the link status
-  link.isActive = !link.isActive;
-  alert(`Link ${link.isActive ? "activated" : "archived"}: ${link.url}`);
-};
-
-const handleNewDemo = () => {
-  console.log("New demo button clicked");
-  // In real app, this would open new demo creation
 };
 
 const handleBack = () => {
@@ -579,10 +458,6 @@ const navigateToBreadcrumb = (crumb: any) => {
   handleSelectFolder(folder || null);
 };
 
-// AI Experience state
-const showAIExperience = ref(false);
-
-// AI Assistant handlers
 const handleUndo = () => {
   console.log("Undo action triggered");
   // TODO: Implement undo functionality
@@ -591,26 +466,6 @@ const handleUndo = () => {
 const handleRedo = () => {
   console.log("Redo action triggered");
   // TODO: Implement redo functionality
-};
-
-const handleAssistClick = () => {
-  showAIExperience.value = true;
-};
-
-const handleCloseAIExperience = () => {
-  showAIExperience.value = false;
-};
-
-const handleAIAction = (action: string) => {
-  console.log(`AI Action triggered: ${action}`);
-  showAIExperience.value = false;
-  // TODO: Implement specific AI actions
-};
-
-const handleAISubmit = (prompt: string) => {
-  console.log(`AI Prompt submitted: ${prompt}`);
-  showAIExperience.value = false;
-  // TODO: Process AI prompt
 };
 
 // Filter event handlers for new content design system
@@ -756,7 +611,7 @@ const getEmptyActionText = () => {
     case "shared":
       return "Browse All Demos";
     default:
-      return "Create New Demo";
+      return "Browse All Demos";
   }
 };
 
@@ -765,7 +620,8 @@ const handleEmptyAction = () => {
     // TODO: Handle add to folder
     console.log("Add demo to folder");
   } else {
-    handleNewDemo();
+    // Navigate to all demos
+    handleNavigateSection("demos");
   }
 };
 
@@ -824,13 +680,6 @@ onMounted(async () => {
   margin-left: 190px;
 }
 
-/* Hero section parallax styling */
-.hero-section {
-  position: relative;
-  z-index: 10;
-  will-change: transform, opacity;
-}
-
 /* Custom scrollbar for webkit browsers */
 .demo-library-container::-webkit-scrollbar {
   width: 6px;
@@ -850,13 +699,4 @@ onMounted(async () => {
   background: #a1a1a1;
 }
 
-/* Welcome message with Roboto Serif - brand moment styling */
-.welcome-message {
-  font-family: "Roboto Serif", serif;
-  font-size: 2rem;
-  font-weight: 300;
-  color: #1f2937;
-  letter-spacing: -0.025em;
-  line-height: 1.2;
-}
 </style>
