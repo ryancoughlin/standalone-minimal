@@ -45,15 +45,10 @@
         @reposition="handleReposition"
         @back="handleBack"
         @close="handleClose"
-        @undo="handleUndo"
-        @redo="handleRedo"
       />
 
       <!-- Main View -->
-      <div
-        v-if="currentViewType === 'main'"
-        class="flex flex-col flex-1 h-full overflow-hidden"
-      >
+      <div class="flex flex-col flex-1 h-full overflow-hidden">
         <!-- Search Bar -->
         <SearchBar
           v-motion
@@ -151,25 +146,6 @@
 
       </div>
 
-      <!-- Demo Detail View -->
-      <DemoDetailView
-        v-if="currentViewType === 'detail'"
-        :demo="selectedDemo"
-        :folders-with-counts="foldersWithCounts"
-        @back="handleBackToMain"
-        @launch-demo="handlePlayDemo"
-        @preview-demo="handlePreviewDemo"
-        @customize-demo="handleCustomizeDemo"
-        @view-analytics="handleViewAnalytics"
-      />
-
-      <!-- Demo Customizer Flow -->
-      <CustomizeFlow
-        v-if="showCustomizer"
-        :demo="selectedDemo"
-        @close="handleCloseCustomizer"
-        @generate-link="handleGenerateLink"
-      />
 
     </div>
   </div>
@@ -182,11 +158,7 @@ import { useFolderService } from "../services/folderService";
 import GlobalNavigation from "./GlobalNavigation.vue";
 import NavigationSidebar from "./NavigationSidebar.vue";
 import SearchBar from "./SearchBar.vue";
-import { HomePage, RecentPage, SharedPage, FolderPage } from "./demo-cards";
 import UnifiedDemoPage from "./UnifiedDemoPage.vue";
-import DemoRow from "./demo-cards/DemoRow.vue";
-import CustomizeFlow from "./CustomizeFlow.vue";
-import DemoDetailView from "./DemoDetailView.vue";
 
 const { allDemos, allFolders, loading, fetchAllDemos } = useDemoLibrary();
 
@@ -208,12 +180,6 @@ const breadcrumbs = ref<any[]>([]);
 
 // Extension positioning
 const isOnRight = ref(true); // Start on right side
-
-// Navigation state
-type ViewType = "main" | "detail" | "customizer";
-const currentViewType = ref<ViewType>("main");
-const selectedDemo = ref<any>(null);
-const showCustomizer = ref(false);
 
 // Navigation section state
 const currentSection = ref("home");
@@ -270,73 +236,6 @@ const sharedDemoCount = computed(() => {
   return allUnifiedDemos.value.filter((demo) => demo.isShared).length;
 });
 
-const starredDemoCount = computed(() => {
-  return allUnifiedDemos.value.filter((demo) => demo.isStarred).length;
-});
-
-// New computed properties for homepage layout
-const recentDemos = computed(() => {
-  // If we're in recent section, show filtered recent demos
-  if (currentSection.value === "recent") {
-    return filteredDemos.value;
-  }
-
-  // If we're in shared section, show filtered shared demos
-  if (currentSection.value === "shared") {
-    return filteredDemos.value;
-  }
-
-  // If we're in demos section, show all demos
-  if (currentSection.value === "demos") {
-    return filteredDemos.value;
-  }
-
-  // If we're in a folder, show folder demos
-  if (currentFolder.value) {
-    return filteredDemos.value;
-  }
-
-  // Otherwise show truly recent demos (for home section)
-  return allUnifiedDemos.value
-    .sort(
-      (a, b) =>
-        new Date(b.last_modified_at || b.lastModified).getTime() -
-        new Date(a.last_modified_at || a.lastModified).getTime()
-    )
-    .slice(0, 5); // Show 5 most recent
-});
-
-const allDemosComputed = computed(() => {
-  // If we're in demos section, show all filtered demos
-  if (currentSection.value === "demos") {
-    return filteredDemos.value;
-  }
-
-  // If we're in recent section, show filtered recent demos
-  if (currentSection.value === "recent") {
-    return filteredDemos.value;
-  }
-
-  // If we're in shared section, show filtered shared demos
-  if (currentSection.value === "shared") {
-    return filteredDemos.value;
-  }
-
-  // If we're in a folder, show folder demos
-  if (currentFolder.value) {
-    return filteredDemos.value;
-  }
-
-  // Otherwise show all demos after recent ones (for home section)
-  return allUnifiedDemos.value
-    .sort(
-      (a, b) =>
-        new Date(b.last_modified_at || b.lastModified).getTime() -
-        new Date(a.last_modified_at || a.lastModified).getTime()
-    )
-    .slice(5); // Show rest after recent
-});
-
 const folderDemos = computed(() => {
   if (!currentFolder.value) return [];
   return getDemosInFolder(currentFolder.value.id);
@@ -344,61 +243,18 @@ const folderDemos = computed(() => {
 
 const handlePlayDemo = (demo: any) => {
   console.log("Playing demo:", demo);
-  // In real app, this would open the demo
-  alert(`Playing demo: ${demo.title}`);
 };
 
 const handleViewDemoDetail = (demo: any) => {
-  selectedDemo.value = demo;
-  currentViewType.value = "detail";
+  console.log("View detail:", demo);
 };
 
 const handleCustomizeDemo = (demo: any) => {
-  selectedDemo.value = demo;
-  showCustomizer.value = true;
-};
-
-const handleCloseCustomizer = () => {
-  showCustomizer.value = false;
-  selectedDemo.value = null;
-};
-
-const handleBackToMain = () => {
-  currentViewType.value = "main";
-  selectedDemo.value = null;
-  showCustomizer.value = false;
-};
-
-const handleViewAnalytics = (demo: any) => {
-  console.log("Viewing analytics for:", demo);
-  // In real app, this would open analytics
-  alert(`Analytics for: ${demo.title}`);
-};
-
-const handlePreviewDemo = (demo: any, customization?: any) => {
-  console.log("Previewing demo with customization:", demo, customization);
-  // In real app, this would open preview
-  alert(`Previewing ${demo.title} with customization`);
-};
-
-const handleGenerateLink = (demo: any, customization: any) => {
-  console.log("Generating link for:", demo, customization);
-  // In real app, this would generate and return a link
-  const link = `https://demo.reprise.com/custom/${Math.random()
-    .toString(36)
-    .substr(2, 9)}`;
-  alert(`Generated link: ${link}`);
-  showCustomizer.value = false;
-  selectedDemo.value = null;
+  console.log("Customize demo:", demo);
 };
 
 const handleBack = () => {
-  if (currentViewType.value !== "main") {
-    handleBackToMain();
-  } else {
-    console.log("Back button clicked - already at main view");
-    // In real app, this would navigate back to parent app
-  }
+  console.log("Back button clicked");
 };
 
 const handleClose = () => {
@@ -461,15 +317,6 @@ const navigateToBreadcrumb = (crumb: any) => {
   handleSelectFolder(folder || null);
 };
 
-const handleUndo = () => {
-  console.log("Undo action triggered");
-  // TODO: Implement undo functionality
-};
-
-const handleRedo = () => {
-  console.log("Redo action triggered");
-  // TODO: Implement redo functionality
-};
 
 // Filter event handlers for new content design system
 const handleViewChange = (view: "list" | "grid") => {
@@ -495,20 +342,6 @@ const handleRemoveFilter = (filterKey: string) => {
       selectedDemoType.value = "";
     }
   }
-};
-
-// Helper functions
-const getFolderName = (folderId: string) => {
-  if (!folderId) return "Unorganized";
-  const folder = foldersWithCounts.value.find((f) => f.id === folderId);
-  return folder?.title || "Unknown Folder";
-};
-
-const getScreenshotUrl = (screenshotSmall: string) => {
-  if (!screenshotSmall) return "";
-  if (screenshotSmall.startsWith("/")) return screenshotSmall;
-  if (screenshotSmall.startsWith("data:")) return screenshotSmall;
-  return `data:image/png;base64,${screenshotSmall}`;
 };
 
 // Helper functions for unified template
