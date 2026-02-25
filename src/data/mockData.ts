@@ -5,8 +5,8 @@
 
 import { Demo } from '../types/index';
 
-// Single unified demo array - our source of truth
-export const demos: Demo[] = [
+// Seed data — the duplicated set references this by index
+const demos_seed: Demo[] = [
     {
         id: '1',
         title: 'Enterprise Cloud Integration',
@@ -750,7 +750,19 @@ export const demos: Demo[] = [
         textEditCount: 11,
         imageEditCount: 0,
         linkCount: 8
-    }
+    },
+];
+
+// Double the data for stress testing pagination
+export const demos: Demo[] = [
+    ...demos_seed,
+    ...demos_seed.map((src, i) => ({
+        ...src,
+        id: String(41 + i),
+        title: src.title + ' v2',
+        views: Math.round((src.views ?? 0) * 0.8),
+        lastModified: src.lastModified.replace('2024-03', '2024-01').replace('2024-02', '2023-12'),
+    })),
 ];
 
 // Simple folder structure
