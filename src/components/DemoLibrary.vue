@@ -36,23 +36,22 @@
         >
           <UnifiedDemoPage
             :page-type="pageType"
-            :demos="filteredDemos"
+            :demos="demos"
             :loading="loading"
             :title="pageTitle"
-            :description="pageDescription"
             :show-breadcrumbs="!!currentFolder"
             :current-folder="currentFolder"
             :breadcrumbs="breadcrumbs"
             :current-sort="currentSort"
-            :filtered-count="filteredDemos.length"
-            :total-count="tabDemoCount"
             :empty-title="emptyState.title"
             :empty-description="emptyState.description"
             :empty-icon="emptyState.icon"
             :empty-action-text="emptyState.action"
             :active-tab="activeTab"
+            :env-filter="envFilter"
             :show-navigation-sidebar="showNavigationSidebar"
             @change-tab="activeTab = $event"
+            @change-env-filter="envFilter = $event"
             @toggle-sidebar="showNavigationSidebar = !showNavigationSidebar"
             @change-sort="currentSort = $event"
             @empty-action="handleEmptyAction"
@@ -92,48 +91,53 @@ const showNavigationSidebar = ref(false);
 const breadcrumbs = ref<any[]>([]);
 const currentSection = ref("recent");
 const activeTab = ref<"overlays" | "environments">("overlays");
+const envFilter = ref<"all" | "html" | "cloned">("all");
 const currentSort = ref("lastModified");
 
-// ─── Filtering ───────────────────────────────────────────────
+// ─── Demo pipeline (tab → section → search) ─────────────────
 
-const tabFilteredDemos = computed(() => {
+const tabDemos = computed(() => {
   if (activeTab.value === "overlays") {
     return allDemos.value.filter((d) => d.productType === "overlay");
   }
-  return allDemos.value.filter(
-    (d) => d.productType === "html_environment" || d.productType === "cloned_environment"
-  );
+  const envTypes: Record<string, string[]> = {
+    all:    ["html_environment", "cloned_environment"],
+    html:   ["html_environment"],
+    cloned: ["cloned_environment"],
+  };
+  const types = new Set(envTypes[envFilter.value]);
+  return allDemos.value.filter((d) => types.has(d.productType));
 });
 
-const filteredDemos = computed(() => {
-  let demos = tabFilteredDemos.value;
+const demos = computed(() => {
+  let result = tabDemos.value;
 
   if (currentSection.value === "recent") {
-    demos = demos.filter((d) => d.isRecent);
+    result = result.filter((d) => d.isRecent);
   } else if (currentSection.value === "shared") {
-    demos = demos.filter((d) => d.isShared);
+    result = result.filter((d) => d.isShared);
   } else if (currentFolder.value) {
     const ids = new Set(getDemosInFolder(currentFolder.value.id).map((d) => d.id));
-    demos = demos.filter((d) => ids.has(d.id));
+    result = result.filter((d) => ids.has(d.id));
   }
 
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase();
-    demos = demos.filter(
+    result = result.filter(
       (d) =>
         d.title.toLowerCase().includes(q) ||
         (d.dataset?.name && d.dataset.name.toLowerCase().includes(q))
     );
   }
 
-  return demos;
+  return result;
 });
 
 // ─── Sidebar counts (scoped to active tab) ───────────────────
 
-const tabDemoCount = computed(() => tabFilteredDemos.value.length);
-const recentDemoCount = computed(() => tabFilteredDemos.value.filter((d) => d.isRecent).length);
-const sharedDemoCount = computed(() => tabFilteredDemos.value.filter((d) => d.isShared).length);
+const tabDemoCount = computed(() => tabDemos.value.length);
+const recentDemoCount = computed(() => tabDemos.value.filter((d) => d.isRecent).length);
+const sharedDemoCount = computed(() => tabDemos.value.filter((d) => d.isShared).length);
 
 // ─── Page chrome (titles, empty states) ──────────────────────
 
@@ -156,12 +160,6 @@ const pageType = computed(() =>
 
 const pageTitle = computed(() =>
   currentFolder.value ? currentFolder.value.title : (SECTIONS[currentSection.value]?.title ?? "All Demos")
-);
-
-const pageDescription = computed(() =>
-  currentFolder.value
-    ? `${getDemosInFolder(currentFolder.value.id).length} demos in this folder`
-    : `${filteredDemos.value.length} demos`
 );
 
 const emptyState = computed(() => {

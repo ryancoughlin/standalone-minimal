@@ -46,13 +46,15 @@
 
       <!-- Page Header (includes sort dropdown) -->
       <PageHeader
-        :title="pageTitle"
-        :description="pageDescription"
+        :title="title"
         :show-breadcrumbs="showBreadcrumbs"
         :current-folder="currentFolder"
         :breadcrumbs="breadcrumbs"
+        :active-tab="activeTab"
+        :env-filter="envFilter"
         :current-sort="currentSort"
         @navigate-breadcrumb="$emit('navigate-breadcrumb', $event)"
+        @change-env-filter="$emit('change-env-filter', $event)"
         @change-sort="$emit('change-sort', $event)"
       />
     </div>
@@ -108,16 +110,14 @@ interface Props {
   pageType: "library" | "recent" | "shared" | "folder";
   demos: any[];
   activeTab: "overlays" | "environments";
+  envFilter?: "all" | "html" | "cloned";
   showNavigationSidebar: boolean;
   loading?: boolean;
   title?: string;
-  description?: string;
   showBreadcrumbs?: boolean;
   currentFolder?: any;
   breadcrumbs?: any[];
   currentSort?: string;
-  filteredCount?: number;
-  totalCount?: number;
   emptyTitle?: string;
   emptyDescription?: string;
   emptyIcon?: string;
@@ -126,6 +126,7 @@ interface Props {
 
 interface Emits {
   (e: "change-tab", tab: "overlays" | "environments"): void;
+  (e: "change-env-filter", filter: "all" | "html" | "cloned"): void;
   (e: "toggle-sidebar"): void;
   (e: "change-sort", sort: string): void;
   (e: "empty-action"): void;
@@ -136,12 +137,11 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   loading: false,
+  envFilter: "all",
   showBreadcrumbs: false,
   currentFolder: null,
   breadcrumbs: () => [],
   currentSort: "lastModified",
-  filteredCount: 0,
-  totalCount: 0,
   emptyTitle: "No demos found",
   emptyDescription: "Create your first demo to get started.",
   emptyIcon: "fal fa-folder",
@@ -157,22 +157,6 @@ const isScrolled = ref(false);
 const onScroll = () => {
   isScrolled.value = (scrollContainer.value?.scrollTop ?? 0) > 0;
 };
-
-const pageTitle = computed(() => {
-  if (props.title) return props.title;
-  const titles: Record<string, string> = {
-    library: "All Demos",
-    recent: "Recent Demos",
-    shared: "Shared with me",
-    folder: props.currentFolder?.title || "Folder",
-  };
-  return titles[props.pageType] || "Demos";
-});
-
-const pageDescription = computed(() => {
-  if (props.description) return props.description;
-  return `${props.filteredCount} demos`;
-});
 
 const showBreadcrumbs = computed(() => {
   return props.showBreadcrumbs || props.pageType === "folder";
