@@ -1,34 +1,38 @@
 <template>
-  <div class="sticky top-0 bg-default z-10">
-    <div class="flex items-center gap-2 px-3 py-1.5 border-b border-default">
-      <!-- Logo -->
-      <img
-        src="/src/reprise-logo.png"
-        alt="Reprise Logo"
-        class="h-5 flex-shrink-0 object-contain"
+  <div
+    class="sticky top-0 z-10 flex items-center gap-4 px-4 py-3 bg-default border-b border-default"
+  >
+    <!-- Logo -->
+    <img
+      src="/src/reprise-logo.png"
+      alt="Reprise"
+      class="h-5 shrink-0 object-contain"
+    />
+
+    <!-- Search -->
+    <label class="flex-1 relative min-w-0">
+      <i
+        class="fas fa-search absolute left-2 top-1/2 -translate-y-1/2 text-xs icon-muted"
+      ></i>
+      <input
+        type="text"
+        placeholder="Search demos..."
+        class="w-full pl-7 pr-3 py-1.5 text-xs border border-default rounded-md bg-reprise-off-white transition-colors focus:outline-none focus:border-reprise-blue focus:ring-1 focus:ring-reprise-blue"
+        :value="searchQuery"
+        @input="
+          $emit('update:searchQuery', ($event.target as HTMLInputElement).value)
+        "
       />
+    </label>
 
-      <!-- Search Input -->
-      <div class="flex-1 relative flex items-center min-w-0">
-        <i class="fas fa-search absolute left-2 icon-muted z-10 text-xs"></i>
-        <input
-          type="text"
-          placeholder="Search demos..."
-          class="w-full pl-7 pr-3 py-1.5 border border-default rounded-md text-xs bg-reprise-off-white transition-all duration-200 focus:outline-none focus:border-reprise-blue focus:ring-1 focus:ring-reprise-blue"
-          :value="searchQuery"
-          @input="$emit('update:searchQuery', ($event.target as HTMLInputElement).value)"
-        />
-      </div>
-
-      <!-- Close -->
-      <button
-        class="w-7 h-7 flex-shrink-0 flex items-center justify-center border-none bg-transparent text-muted cursor-pointer rounded transition-all duration-200 hover:bg-hover hover:text-default"
-        @click="$emit('close')"
-        title="Close"
-      >
-        <i class="fas fa-times text-xs"></i>
-      </button>
-    </div>
+    <!-- Close -->
+    <button
+      class="size-7 shrink-0 flex items-center justify-center rounded text-muted transition-colors hover:bg-hover hover:text-default"
+      title="Close"
+      @click="$emit('close')"
+    >
+      <i class="fas fa-times text-xs"></i>
+    </button>
   </div>
 </template>
 
