@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-full w-full bg-white">
+  <div class="flex flex-col h-full w-full bg-default">
     <!-- Page Header -->
     <PageHeader
       :title="pageTitle"
@@ -40,13 +40,13 @@
 
       <!-- Empty -->
       <div v-else-if="isEmpty" class="flex flex-col items-center justify-center py-8 px-2 text-center">
-        <i :class="emptyIcon" class="text-4xl text-gray-300 mb-2"></i>
-        <h3 class="text-sm font-medium text-gray-900 mb-1">{{ emptyTitle }}</h3>
-        <p class="text-xs text-gray-500 mb-2">{{ emptyDescription }}</p>
+        <i :class="emptyIcon" class="text-4xl text-muted mb-2"></i>
+        <h3 class="text-sm font-medium text-emphasis mb-1">{{ emptyTitle }}</h3>
+        <p class="text-xs text-muted mb-2">{{ emptyDescription }}</p>
         <button
           v-if="emptyActionText"
           @click="$emit('empty-action')"
-          class="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-md hover:bg-blue-700 transition-colors"
+          class="px-3 py-1.5 bg-primary text-white text-xs font-medium rounded-md hover:bg-blue-700 transition-colors"
         >
           {{ emptyActionText }}
         </button>

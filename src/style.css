@@ -1,10 +1,174 @@
 @import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Serif:ital,opsz,wght@0,8..144,100..900;1,8..144,100..900&display=swap");
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
+/* ──────────────────────────────────────────────
+   Theme — brand colors & fonts
+   ────────────────────────────────────────────── */
+@theme {
+  --color-reprise-off-white: #FCFBF7;
+  --color-reprise-base-surface: #FEFEF6;
+  --color-reprise-light-tan: #F7F5F0;
+  --color-reprise-sky: #BCE8F8;
+  --color-reprise-blue: #3A8DDB;
+  --color-reprise-deep-blue: #0D0D41;
+
+  --font-sans: "Geist", system-ui, sans-serif;
+  --font-mono: "Geist Mono", monospace;
+  --font-serif: "Roboto Serif", serif;
+}
+
+/* ──────────────────────────────────────────────
+   Semantic design tokens (CSS custom properties)
+   ────────────────────────────────────────────── */
+:root {
+  /* Text */
+  --text-default: var(--color-gray-700);
+  --text-muted: var(--color-gray-500);
+  --text-emphasis: var(--color-gray-900);
+  --text-primary: var(--color-blue-600);
+  --text-destructive: var(--color-red-600);
+
+  /* Surfaces */
+  --bg-default: #ffffff;
+  --bg-muted: var(--color-gray-50);
+  --bg-emphasis: var(--color-gray-100);
+  --bg-primary: var(--color-blue-600);
+  --bg-primary-muted: var(--color-blue-50);
+  --bg-hover: rgba(0, 0, 0, 0.04);
+
+  /* Borders */
+  --border-default: var(--color-gray-200);
+  --border-muted: var(--color-gray-100);
+  --border-emphasis: var(--color-gray-300);
+  --border-primary: var(--color-blue-500);
+  --border-destructive: var(--color-red-300);
+
+  /* Icons */
+  --icon-default: var(--color-gray-500);
+  --icon-muted: var(--color-gray-400);
+  --icon-emphasis: var(--color-gray-700);
+  --icon-primary: var(--color-blue-600);
+}
+
+/* ──────────────────────────────────────────────
+   Semantic text-color utilities
+   ────────────────────────────────────────────── */
+@utility text-default {
+  color: var(--text-default);
+}
+@utility text-muted {
+  color: var(--text-muted);
+}
+@utility text-emphasis {
+  color: var(--text-emphasis);
+}
+@utility text-primary {
+  color: var(--text-primary);
+}
+@utility text-destructive {
+  color: var(--text-destructive);
+}
+
+/* ──────────────────────────────────────────────
+   Semantic background utilities
+   ────────────────────────────────────────────── */
+@utility bg-default {
+  background-color: var(--bg-default);
+}
+@utility bg-muted {
+  background-color: var(--bg-muted);
+}
+@utility bg-emphasis {
+  background-color: var(--bg-emphasis);
+}
+@utility bg-primary {
+  background-color: var(--bg-primary);
+}
+@utility bg-primary-muted {
+  background-color: var(--bg-primary-muted);
+}
+@utility bg-hover {
+  background-color: var(--bg-hover);
+}
+
+/* ──────────────────────────────────────────────
+   Semantic border utilities
+   ────────────────────────────────────────────── */
+@utility border-default {
+  border-color: var(--border-default);
+}
+@utility border-muted {
+  border-color: var(--border-muted);
+}
+@utility border-emphasis {
+  border-color: var(--border-emphasis);
+}
+@utility border-primary {
+  border-color: var(--border-primary);
+}
+@utility border-destructive {
+  border-color: var(--border-destructive);
+}
+
+/* ──────────────────────────────────────────────
+   Semantic icon utilities
+   ────────────────────────────────────────────── */
+@utility icon-default {
+  color: var(--icon-default);
+}
+@utility icon-muted {
+  color: var(--icon-muted);
+}
+@utility icon-emphasis {
+  color: var(--icon-emphasis);
+}
+@utility icon-primary {
+  color: var(--icon-primary);
+}
+
+/* ──────────────────────────────────────────────
+   Typography composites
+   ────────────────────────────────────────────── */
+@utility title-xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 700;
+  color: var(--text-emphasis);
+}
+@utility title-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+  color: var(--text-emphasis);
+}
+@utility title-md {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  color: var(--text-emphasis);
+}
+@utility title-sm {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  color: var(--text-emphasis);
+}
+@utility body-md {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--text-default);
+}
+@utility body-sm {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--text-default);
+}
+
+/* ──────────────────────────────────────────────
+   Base styles
+   ────────────────────────────────────────────── */
 body {
   margin: 0;
   font-family: "Geist", system-ui, sans-serif;
@@ -12,35 +176,25 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* App container is now handled by the chrome-extension-container class */
 #app {
   /* No styling needed - the extension handles its own positioning */
 }
 
+/* ──────────────────────────────────────────────
+   Animations & keyframes
+   ────────────────────────────────────────────── */
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
-/* Motion system - Clean and minimal */
-
-/* Subtle loading shimmer - Keep this for loading states */
 @keyframes shimmer {
-  0% {
-    background-position: -200px 0;
-  }
-  100% {
-    background-position: calc(200px + 100%) 0;
-  }
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
 }
 
 .animate-shimmer {
@@ -49,7 +203,9 @@ body {
   animation: shimmer 1.5s infinite;
 }
 
-/* Clean transitions for interactive elements */
+/* ──────────────────────────────────────────────
+   Transitions for interactive elements
+   ────────────────────────────────────────────── */
 .demo-row {
   transition: background-color 0.15s ease-out;
 }
@@ -63,7 +219,9 @@ body {
   transition: background-color 0.15s ease-out, color 0.15s ease-out;
 }
 
-/* Accessibility - Respect reduced motion */
+/* ──────────────────────────────────────────────
+   Accessibility
+   ────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .animate-shimmer {
     animation: none;
@@ -77,7 +235,6 @@ body {
   }
 }
 
-/* Focus states for accessibility */
 .demo-row:focus-visible,
 .folder-item:focus-visible,
 .play-action-btn:focus-visible,
@@ -86,7 +243,9 @@ body {
   outline-offset: 2px;
 }
 
-/* Smooth scrolling */
+/* ──────────────────────────────────────────────
+   Smooth scrolling
+   ────────────────────────────────────────────── */
 .main-content {
   scroll-behavior: smooth;
 }

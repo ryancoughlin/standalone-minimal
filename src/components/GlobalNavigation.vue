@@ -1,7 +1,7 @@
 <template>
-  <div class="sticky top-0 bg-white z-10">
+  <div class="sticky top-0 bg-default z-10">
     <div
-      class="flex items-center justify-between px-4 py-3 border-b border-gray-200"
+      class="flex items-center justify-between px-4 py-3 border-b border-default"
     >
       <div class="flex items-center gap-2">
         <img
@@ -14,7 +14,7 @@
       <!-- Right Actions -->
       <div class="flex items-center gap-2">
         <button
-          class="w-7 h-7 flex items-center justify-center border-none bg-transparent text-gray-500 cursor-pointer rounded transition-all duration-200 hover:bg-gray-100 hover:text-gray-700"
+          class="w-7 h-7 flex items-center justify-center border-none bg-transparent text-muted cursor-pointer rounded transition-all duration-200 hover:bg-hover hover:text-default"
           @click="$emit('reposition')"
           :title="isOnRight ? 'Move to Left' : 'Move to Right'"
         >
@@ -24,7 +24,7 @@
           ></i>
         </button>
         <button
-          class="w-7 h-7 flex items-center justify-center border-none bg-transparent text-gray-500 cursor-pointer rounded transition-all duration-200 hover:bg-gray-100 hover:text-gray-700"
+          class="w-7 h-7 flex items-center justify-center border-none bg-transparent text-muted cursor-pointer rounded transition-all duration-200 hover:bg-hover hover:text-default"
           @click="$emit('close')"
           title="Close"
         >

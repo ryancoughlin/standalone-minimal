@@ -11,7 +11,7 @@
 
     <!-- Title -->
     <div class="px-2 py-2">
-      <h2 class="text-sm font-semibold text-gray-900 m-0">{{ title }}</h2>
+      <h2 class="text-sm font-semibold text-emphasis m-0">{{ title }}</h2>
     </div>
   </div>
 </template>

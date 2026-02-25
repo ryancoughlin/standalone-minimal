@@ -1,10 +1,10 @@
 <template>
   <div
-    class="flex items-center gap-2 w-full py-2 px-2 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors duration-150 group relative"
+    class="flex items-center gap-2 w-full py-2 px-2 cursor-pointer border-b border-muted last:border-b-0 hover:bg-hover transition-colors duration-150 group relative"
     @click="$emit('play-demo', demo)"
   >
     <!-- Thumbnail -->
-    <div class="w-20 h-14 flex-shrink-0 rounded border border-gray-200 overflow-hidden bg-gray-100 relative">
+    <div class="w-20 h-14 flex-shrink-0 rounded border border-default overflow-hidden bg-emphasis relative">
       <img
         v-if="demo.screenshot_small && !imageError"
         :src="getScreenshotUrl(demo.screenshot_small)"
@@ -13,14 +13,14 @@
         class="w-full h-full object-cover"
       />
       <div v-else class="w-full h-full flex items-center justify-center">
-        <i class="fal fa-play text-gray-400 text-sm"></i>
+        <i class="fal fa-play icon-muted text-sm"></i>
       </div>
     </div>
 
     <!-- Content -->
     <div class="flex-1 min-w-0">
       <div class="flex items-center gap-1.5 mb-0.5">
-        <h3 class="text-xs font-medium text-gray-900 truncate flex-1 m-0">{{ demo.title }}</h3>
+        <h3 class="text-xs font-medium text-emphasis truncate flex-1 m-0">{{ demo.title }}</h3>
         <div
           class="w-4 h-4 flex-shrink-0 rounded-full flex items-center justify-center"
           :class="typeBadgeClass"
@@ -29,11 +29,11 @@
           <i :class="typeIcon" class="text-[8px]"></i>
         </div>
       </div>
-      <div class="flex items-center text-xs text-gray-500">
+      <div class="flex items-center text-xs text-muted">
         <template v-if="demo.dataset">
-          <i class="fal fa-database text-gray-400 text-[10px] mr-0.5"></i>
+          <i class="fal fa-database icon-muted text-[10px] mr-0.5"></i>
           <span class="truncate max-w-[120px]">{{ demo.dataset.name }}</span>
-          <span class="mx-1 text-gray-300">&middot;</span>
+          <span class="mx-1 text-muted">&middot;</span>
         </template>
         <span>{{ showViews ? `${demo.views || 0} views` : formatDate(demo.lastModified) }}</span>
       </div>
@@ -42,7 +42,7 @@
     <!-- Actions -->
     <button
       @click.stop="$emit('customize-demo', demo)"
-      class="w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors opacity-0 group-hover:opacity-100"
+      class="w-6 h-6 flex items-center justify-center rounded text-muted hover:text-default hover:bg-hover transition-colors opacity-0 group-hover:opacity-100"
       title="Customize"
     >
       <i class="fal fa-cog text-sm"></i>

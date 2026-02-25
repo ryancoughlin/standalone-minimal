@@ -1,7 +1,7 @@
 <template>
   <!-- Unified Demo Library with Expandable Folder Sidebar -->
   <div
-    class="extension-chrome fixed top-5 flex overflow-x-hidden bg-white border-2 border-black rounded-md z-[10000] overflow-auto transition-all duration-300 ease-in-out h-[calc(100vh-40px)]"
+    class="extension-chrome fixed top-5 flex overflow-x-hidden bg-default border-2 border-black rounded-md z-[10000] overflow-auto transition-all duration-300 ease-in-out h-[calc(100vh-40px)]"
     :class="[
       isOnRight ? 'right-5' : 'left-5',
       showNavigationSidebar ? 'w-[544px]' : 'w-96',
