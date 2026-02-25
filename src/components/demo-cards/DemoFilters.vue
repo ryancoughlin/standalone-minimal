@@ -1,35 +1,33 @@
 <template>
-  <div class="demo-filters-container">
+  <div class="w-full bg-white border-b border-gray-200 px-2 py-2">
     <!-- Filter Bar -->
-    <div class="filter-bar">
+    <div class="flex items-center gap-2">
       <!-- View Toggle -->
-      <div class="view-toggle">
+      <div class="flex items-center bg-gray-100 rounded-md p-0.5">
         <button
           @click="$emit('change-view', 'list')"
-          class="view-btn"
-          :class="{ active: currentView === 'list' }"
+          class="w-6 h-6 flex items-center justify-center rounded text-gray-500 hover:text-gray-700 transition-colors"
+          :class="currentView === 'list' ? 'bg-white text-gray-900 shadow-sm' : ''"
           title="List View"
         >
           <i class="fal fa-list text-sm"></i>
         </button>
         <button
           @click="$emit('change-view', 'grid')"
-          class="view-btn"
-          :class="{ active: currentView === 'grid' }"
+          class="w-6 h-6 flex items-center justify-center rounded text-gray-500 hover:text-gray-700 transition-colors"
+          :class="currentView === 'grid' ? 'bg-white text-gray-900 shadow-sm' : ''"
           title="Grid View"
         >
           <i class="fal fa-th text-sm"></i>
         </button>
       </div>
 
-      <!-- Sort Dropdown -->
-      <div class="sort-dropdown">
+      <!-- Sort -->
+      <div class="relative">
         <select
           :value="currentSort"
-          @change="
-            $emit('change-sort', ($event.target as HTMLSelectElement).value)
-          "
-          class="sort-select"
+          @change="$emit('change-sort', ($event.target as HTMLSelectElement).value)"
+          class="appearance-none bg-white border border-gray-300 rounded-md px-2 py-1 pr-6 text-xs text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
         >
           <option value="lastModified">Last Modified</option>
           <option value="title">Name A-Z</option>
@@ -37,67 +35,35 @@
           <option value="created">Date Created</option>
           <option value="type">Demo Type</option>
         </select>
-        <i class="fal fa-chevron-down sort-icon"></i>
+        <i class="fal fa-chevron-down absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-xs"></i>
       </div>
 
-      <!-- Demo Type Filter -->
-      <div class="demo-type-filter">
-        <select
-          @change="
-            $emit(
-              'change-demo-type',
-              ($event.target as HTMLSelectElement).value
-            )
-          "
-          class="demo-type-select"
-          :value="selectedDemoType"
-        >
-          <option value="">All Types</option>
-          <option value="overlay">Overlay</option>
-          <option value="html_environment">HTML Environment</option>
-          <option value="cloned_environment">Cloned Environment</option>
-        </select>
-      </div>
-
-      <!-- Clear Filters -->
-      <button
-        v-if="hasActiveFilters"
-        @click="$emit('clear-filters')"
-        class="clear-filters-btn"
-        title="Clear All Filters"
+      <!-- Type Filter -->
+      <select
+        @change="$emit('change-demo-type', ($event.target as HTMLSelectElement).value)"
+        :value="selectedDemoType"
+        class="appearance-none bg-white border border-gray-300 rounded-md px-2 py-1 pr-6 text-xs text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
       >
-        <i class="fal fa-times text-xs"></i>
+        <option value="">All Types</option>
+        <option value="overlay">Overlay</option>
+        <option value="html_environment">HTML Environment</option>
+        <option value="cloned_environment">Cloned Environment</option>
+      </select>
+
+      <!-- Clear -->
+      <button
+        v-if="selectedDemoType"
+        @click="$emit('clear-filters')"
+        class="flex items-center px-1.5 py-0.5 text-xs text-gray-500 hover:text-gray-700 transition-colors"
+      >
+        <i class="fal fa-times text-xs mr-0.5"></i>
         Clear
       </button>
-    </div>
-
-    <!-- Results Summary -->
-    <div class="results-summary">
-      <div v-if="hasActiveFilters" class="active-filters">
-        <span class="filters-label">Filters:</span>
-        <div class="filter-tags">
-          <span
-            v-for="filter in activeFilterTags"
-            :key="filter.key"
-            class="filter-tag"
-          >
-            {{ filter.label }}
-            <button
-              @click="$emit('remove-filter', filter.key)"
-              class="remove-filter-btn"
-            >
-              <i class="fal fa-times text-xs"></i>
-            </button>
-          </span>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-
 interface Props {
   currentView: "list" | "grid";
   currentSort: string;
@@ -114,119 +80,6 @@ interface Emits {
   (e: "remove-filter", filterKey: string): void;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 defineEmits<Emits>();
-
-const demoTypes = [
-  { value: "overlay", label: "Overlay", icon: "fas fa-layer-group" },
-  { value: "html_environment", label: "HTML Env", icon: "fas fa-code" },
-  { value: "cloned_environment", label: "Cloned Env", icon: "fas fa-clone" },
-];
-
-const hasActiveFilters = computed(() => {
-  return props.selectedDemoType !== "";
-});
-
-const activeFilterTags = computed(() => {
-  const tags: Array<{ key: string; label: string }> = [];
-
-  if (props.selectedDemoType) {
-    const typeInfo = demoTypes.find((t) => t.value === props.selectedDemoType);
-    tags.push({
-      key: `type:${props.selectedDemoType}`,
-      label: typeInfo?.label || props.selectedDemoType,
-    });
-  }
-
-  return tags;
-});
 </script>
-
-<style scoped>
-/* Filter Container - Compact */
-.demo-filters-container {
-  @apply bg-white border-b border-gray-200 px-2 py-2;
-}
-
-/* Filter Bar - Compact */
-.filter-bar {
-  @apply flex items-center gap-2 mb-2;
-}
-
-/* View Toggle - Compact */
-.view-toggle {
-  @apply flex items-center bg-gray-100 rounded-md p-0.5;
-}
-
-.view-btn {
-  @apply w-6 h-6 flex items-center justify-center rounded text-gray-500 hover:text-gray-700 transition-colors;
-}
-
-.view-btn.active {
-  @apply bg-white text-gray-900 shadow-sm;
-}
-
-/* Sort Dropdown - Compact */
-.sort-dropdown {
-  @apply relative;
-}
-
-.sort-select {
-  @apply appearance-none bg-white border border-gray-300 rounded-md px-2 py-1 pr-6 text-xs text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500;
-}
-
-.sort-icon {
-  @apply absolute right-1 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none text-xs;
-}
-
-/* Demo Type Filter - Compact */
-.demo-type-filter {
-  @apply relative;
-}
-
-.demo-type-select {
-  @apply appearance-none bg-white border border-gray-300 rounded-md px-2 py-1 pr-6 text-xs text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500;
-}
-
-/* Clear Filters - Compact */
-.clear-filters-btn {
-  @apply flex items-center px-1.5 py-0.5 text-xs text-gray-500 hover:text-gray-700 transition-colors;
-}
-
-/* Results Summary - Compact */
-.results-summary {
-  @apply flex items-center justify-between;
-}
-
-.results-count {
-  @apply flex items-center gap-1;
-}
-
-.count-number {
-  @apply text-xs font-semibold text-gray-900;
-}
-
-.count-label {
-  @apply text-xs text-gray-500;
-}
-
-.active-filters {
-  @apply flex items-center gap-1;
-}
-
-.filters-label {
-  @apply text-xs text-gray-500;
-}
-
-.filter-tags {
-  @apply flex items-center gap-0.5;
-}
-
-.filter-tag {
-  @apply flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full;
-}
-
-.remove-filter-btn {
-  @apply text-blue-500 hover:text-blue-700 transition-colors;
-}
-</style>

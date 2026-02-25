@@ -1,96 +1,61 @@
 <template>
   <div
-    class="demo-row group"
-    :class="{
-      'row-selected': isSelected,
-      'row-hover': isHovered,
-    }"
-    v-motion
-    :initial="{ opacity: 0, y: 5 }"
-    :enter="{
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 150,
-        delay: delay || 0,
-        ease: 'easeOut',
-      },
-    }"
-    :hover="{ scale: 1.01, transition: { duration: 150 } }"
-    :tap="{ scale: 0.99, transition: { duration: 100 } }"
+    class="flex items-center gap-2 w-full py-2 px-2 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors duration-150 group relative"
     @click="$emit('play-demo', demo)"
-    @mouseenter="isHovered = true"
-    @mouseleave="isHovered = false"
   >
-    <!-- Demo Thumbnail -->
-    <div class="demo-thumbnail" @click.stop="$emit('play-demo', demo)">
+    <!-- Thumbnail -->
+    <div class="w-20 h-14 flex-shrink-0 rounded border border-gray-200 overflow-hidden bg-gray-100 relative">
       <img
         v-if="demo.screenshot_small && !imageError"
         :src="getScreenshotUrl(demo.screenshot_small)"
         @error="imageError = true"
-        alt="demo screenshot"
+        alt=""
         class="w-full h-full object-cover"
       />
-      <div v-else class="demo-placeholder">
+      <div v-else class="w-full h-full flex items-center justify-center">
         <i class="fal fa-play text-gray-400 text-sm"></i>
-      </div>
-
-      <!-- Hover Overlay -->
-      <div class="thumbnail-overlay">
-        <i :class="demo.productType === 'overlay' ? 'fas fa-external-link-alt' : 'fas fa-play'" class="text-white text-lg"></i>
       </div>
     </div>
 
-    <!-- Demo Content -->
-    <div class="demo-content">
-      <!-- Title + Type Indicator -->
-      <div class="demo-header">
-        <h3 class="demo-title">{{ demo.title }}</h3>
-        <div class="type-indicator" :class="typeColorClass" :title="typeLabel">
+    <!-- Content -->
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center gap-1.5 mb-0.5">
+        <h3 class="text-xs font-medium text-gray-900 truncate flex-1 m-0">{{ demo.title }}</h3>
+        <div
+          class="w-4 h-4 flex-shrink-0 rounded-full flex items-center justify-center"
+          :class="typeBadgeClass"
+          :title="typeLabel"
+        >
           <i :class="typeIcon" class="text-[8px]"></i>
         </div>
       </div>
-
-      <!-- Metadata: Dataset + Date -->
-      <div class="demo-metadata">
+      <div class="flex items-center text-xs text-gray-500">
         <template v-if="demo.dataset">
           <i class="fal fa-database text-gray-400 text-[10px] mr-0.5"></i>
-          <span class="dataset-name">{{ demo.dataset.name }}</span>
-          <span class="meta-separator">&middot;</span>
+          <span class="truncate max-w-[120px]">{{ demo.dataset.name }}</span>
+          <span class="mx-1 text-gray-300">&middot;</span>
         </template>
-        <span v-if="showViews" class="demo-views">{{ demo.views || 0 }} views</span>
-        <span v-else class="demo-date">{{ formatDate(demo.lastModified) }}</span>
+        <span>{{ showViews ? `${demo.views || 0} views` : formatDate(demo.lastModified) }}</span>
       </div>
     </div>
 
-    <!-- Context Menu -->
-    <div class="demo-context-menu">
-      <button
-        @click.stop="toggleContextMenu"
-        class="context-menu-trigger"
-        title="More actions"
-      >
-        <i class="fas fa-ellipsis-v text-gray-400"></i>
-      </button>
-
-      <!-- Context Menu Dropdown -->
-      <div v-if="showContextMenu" class="context-menu-dropdown" @click.stop>
-        <button @click="handleCustomizeClick" class="context-menu-item">
-          <i class="fal fa-cog text-gray-500"></i>
-          <span>Customize</span>
-        </button>
-      </div>
-    </div>
+    <!-- Actions -->
+    <button
+      @click.stop="$emit('customize-demo', demo)"
+      class="w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors opacity-0 group-hover:opacity-100"
+      title="Customize"
+    >
+      <i class="fal fa-cog text-sm"></i>
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed } from "vue";
 
 interface Props {
   demo: any;
   delay?: number;
-  isSelected?: boolean;
   showViews?: boolean;
 }
 
@@ -101,17 +66,13 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   delay: 0,
-  isSelected: false,
   showViews: false,
 });
 
-const emit = defineEmits<Emits>();
+defineEmits<Emits>();
 
 const imageError = ref(false);
-const isHovered = ref(false);
-const showContextMenu = ref(false);
 
-// Type identity system
 const typeIcon = computed(() => {
   const icons: Record<string, string> = {
     overlay: "fas fa-layer-group",
@@ -121,11 +82,11 @@ const typeIcon = computed(() => {
   return icons[props.demo.productType] || "fas fa-play";
 });
 
-const typeColorClass = computed(() => {
+const typeBadgeClass = computed(() => {
   const classes: Record<string, string> = {
-    overlay: "type-overlay",
-    html_environment: "type-html",
-    cloned_environment: "type-cloned",
+    overlay: "bg-violet-500/50 text-violet-900",
+    html_environment: "bg-sky-500/50 text-sky-900",
+    cloned_environment: "bg-emerald-500/50 text-emerald-900",
   };
   return classes[props.demo.productType] || "";
 });
@@ -139,13 +100,10 @@ const typeLabel = computed(() => {
   return labels[props.demo.productType] || "Demo";
 });
 
-// Helper functions
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   const now = new Date();
-  const diffTime = Math.abs(now.getTime() - date.getTime());
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
+  const diffDays = Math.ceil(Math.abs(now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
   if (diffDays === 1) return "Today";
   if (diffDays === 2) return "Yesterday";
   if (diffDays <= 7) return `${diffDays - 1} days ago`;
@@ -155,137 +113,7 @@ const formatDate = (dateString: string) => {
 
 const getScreenshotUrl = (screenshotSmall: string) => {
   if (!screenshotSmall) return "";
-  if (screenshotSmall.startsWith("/")) return screenshotSmall;
-  if (screenshotSmall.startsWith("data:")) return screenshotSmall;
+  if (screenshotSmall.startsWith("/") || screenshotSmall.startsWith("data:")) return screenshotSmall;
   return `data:image/png;base64,${screenshotSmall}`;
 };
-
-const handleCustomizeClick = () => {
-  emit("customize-demo", props.demo);
-  showContextMenu.value = false;
-};
-
-const toggleContextMenu = () => {
-  showContextMenu.value = !showContextMenu.value;
-};
-
-// Close context menu when clicking outside
-const handleClickOutside = (event: Event) => {
-  const target = event.target as HTMLElement;
-  if (!target.closest(".demo-context-menu")) {
-    showContextMenu.value = false;
-  }
-};
-
-onMounted(() => {
-  document.addEventListener("click", handleClickOutside);
-});
-
-onUnmounted(() => {
-  document.removeEventListener("click", handleClickOutside);
-});
 </script>
-
-<style scoped>
-/* Demo Row - Single consistent design */
-.demo-row {
-  @apply flex items-start gap-2 py-2 px-2 cursor-pointer transition-all duration-200 border-b border-gray-100 last:border-b-0 min-w-0 relative;
-}
-
-/* Demo Thumbnail */
-.demo-thumbnail {
-  @apply w-24 h-16 flex-shrink-0 rounded-md border border-gray-200 overflow-hidden bg-gray-100 relative cursor-pointer transition-all duration-200;
-}
-
-.demo-thumbnail:hover {
-  @apply border-gray-300 shadow-sm;
-}
-
-.demo-placeholder {
-  @apply w-full h-full flex items-center justify-center;
-}
-
-.thumbnail-overlay {
-  @apply absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 transition-opacity duration-200;
-}
-
-.demo-thumbnail:hover .thumbnail-overlay {
-  @apply opacity-100;
-}
-
-/* Demo Content */
-.demo-content {
-  @apply flex-1 min-w-0 overflow-hidden pr-20;
-}
-
-.demo-header {
-  @apply flex items-center gap-1.5 mb-0.5;
-}
-
-.demo-title {
-  @apply text-xs font-medium text-gray-900 truncate flex-1;
-}
-
-/* Type Indicator - Small colored circle with icon */
-.type-indicator {
-  @apply w-4 h-4 flex-shrink-0 rounded-full flex items-center justify-center;
-}
-
-.type-indicator.type-overlay {
-  @apply bg-violet-500 bg-opacity-50 text-violet-900;
-}
-
-.type-indicator.type-html {
-  @apply bg-sky-500 bg-opacity-50 text-sky-900;
-}
-
-.type-indicator.type-cloned {
-  @apply bg-emerald-500 bg-opacity-50 text-emerald-900;
-}
-
-/* Metadata */
-.demo-metadata {
-  @apply flex items-center text-xs text-gray-500;
-}
-
-.dataset-name {
-  @apply text-gray-500 truncate max-w-[120px];
-}
-
-.meta-separator {
-  @apply mx-1 text-gray-300;
-}
-
-.demo-date {
-  @apply text-gray-500;
-}
-
-.demo-views {
-  @apply text-gray-500;
-}
-
-/* Context Menu */
-.demo-context-menu {
-  @apply relative flex-shrink-0;
-}
-
-.context-menu-trigger {
-  @apply w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-150;
-}
-
-.context-menu-trigger:hover {
-  @apply text-gray-600;
-}
-
-.context-menu-dropdown {
-  @apply absolute right-0 top-6 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50 min-w-32;
-}
-
-.context-menu-item {
-  @apply w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors text-left;
-}
-
-.context-menu-item i {
-  @apply w-4 h-4 flex-shrink-0;
-}
-</style>
