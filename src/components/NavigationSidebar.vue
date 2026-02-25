@@ -10,17 +10,6 @@
             <span class="text-xs font-semibold text-muted uppercase tracking-wide">Demo Library</span>
           </div>
 
-          <!-- Home -->
-          <button
-            @click="$emit('navigate-section', 'home')"
-            class="w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md transition-all duration-200 hover:bg-reprise-off-white min-w-0"
-            :class="currentSection === 'home' ? 'bg-reprise-sky text-reprise-deep-blue' : ''"
-          >
-            <i class="fas fa-home flex-shrink-0" :class="currentSection === 'home' ? 'text-reprise-deep-blue' : 'icon-default'"></i>
-            <span class="text-xs font-medium truncate flex-1 min-w-0" :class="currentSection === 'home' ? 'text-reprise-deep-blue' : 'text-emphasis'">Home</span>
-            <span class="text-xs px-1.5 py-0.5 rounded-full font-medium" :class="currentSection === 'home' ? 'text-reprise-deep-blue bg-reprise-sky' : 'text-muted bg-emphasis'">{{ totalDemoCount }}</span>
-          </button>
-
           <!-- All Demos -->
           <button
             @click="$emit('navigate-section', 'demos')"

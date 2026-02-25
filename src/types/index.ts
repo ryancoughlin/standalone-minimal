@@ -26,6 +26,9 @@ export interface Demo {
     screenshot_small: string;
     dataset?: DemoDataset;
     productionUrl?: string; // Only for overlay type
+    textEditCount?: number;   // Number of text customizations
+    imageEditCount?: number;  // Number of image replacements
+    linkCount?: number;       // Number of configured links
 }
 
 export interface Folder {

@@ -1,5 +1,33 @@
 <template>
   <div class="flex flex-col h-full w-full bg-default">
+    <!-- Tab Bar -->
+    <div class="sticky top-0 z-10 bg-default border-b border-default px-3">
+      <div class="flex gap-4">
+        <button
+          @click="$emit('change-tab', 'overlays')"
+          class="relative py-2 text-xs font-medium transition-colors"
+          :class="activeTab === 'overlays' ? 'text-reprise-deep-blue' : 'text-muted hover:text-emphasis'"
+        >
+          Overlays
+          <span
+            v-if="activeTab === 'overlays'"
+            class="absolute bottom-0 left-0 right-0 h-0.5 bg-reprise-blue rounded-full"
+          ></span>
+        </button>
+        <button
+          @click="$emit('change-tab', 'environments')"
+          class="relative py-2 text-xs font-medium transition-colors"
+          :class="activeTab === 'environments' ? 'text-reprise-deep-blue' : 'text-muted hover:text-emphasis'"
+        >
+          Environments
+          <span
+            v-if="activeTab === 'environments'"
+            class="absolute bottom-0 left-0 right-0 h-0.5 bg-reprise-blue rounded-full"
+          ></span>
+        </button>
+      </div>
+    </div>
+
     <!-- Page Header -->
     <PageHeader
       :title="pageTitle"
@@ -12,17 +40,11 @@
 
     <!-- Filters -->
     <DemoFilters
-      v-if="showFilters && pageType !== 'home'"
-      :current-view="currentView"
+      v-if="showFilters"
       :current-sort="currentSort"
-      :selected-demo-type="selectedDemoType"
       :filtered-count="filteredCount"
       :total-count="totalCount"
-      @change-view="$emit('change-view', $event)"
       @change-sort="$emit('change-sort', $event)"
-      @change-demo-type="$emit('change-demo-type', $event)"
-      @clear-filters="$emit('clear-filters')"
-      @remove-filter="$emit('remove-filter', $event)"
     />
 
     <!-- Content -->
@@ -61,7 +83,7 @@
           :delay="index * 30"
           :show-views="true"
           @play-demo="$emit('play-demo', $event)"
-          @customize-demo="$emit('customize-demo', $event)"
+          @play-demo-with-notes="$emit('play-demo-with-notes', $event)"
         />
       </div>
     </div>
@@ -75,8 +97,9 @@ import DemoRow from "./demo-cards/DemoRow.vue";
 import DemoFilters from "./demo-cards/DemoFilters.vue";
 
 interface Props {
-  pageType: "home" | "library" | "recent" | "shared" | "folder";
+  pageType: "library" | "recent" | "shared" | "folder";
   demos: any[];
+  activeTab: "overlays" | "environments";
   loading?: boolean;
   title?: string;
   description?: string;
@@ -84,9 +107,7 @@ interface Props {
   currentFolder?: any;
   breadcrumbs?: any[];
   showFilters?: boolean;
-  currentView?: "list" | "grid";
   currentSort?: string;
-  selectedDemoType?: string;
   filteredCount?: number;
   totalCount?: number;
   emptyTitle?: string;
@@ -96,14 +117,11 @@ interface Props {
 }
 
 interface Emits {
-  (e: "change-view", view: "list" | "grid"): void;
+  (e: "change-tab", tab: "overlays" | "environments"): void;
   (e: "change-sort", sort: string): void;
-  (e: "change-demo-type", type: string): void;
-  (e: "clear-filters"): void;
-  (e: "remove-filter", filterKey: string): void;
   (e: "empty-action"): void;
   (e: "play-demo", demo: any): void;
-  (e: "customize-demo", demo: any): void;
+  (e: "play-demo-with-notes", demo: any): void;
   (e: "navigate-breadcrumb", crumb: any): void;
 }
 
@@ -113,9 +131,7 @@ const props = withDefaults(defineProps<Props>(), {
   currentFolder: null,
   breadcrumbs: () => [],
   showFilters: true,
-  currentView: "list",
   currentSort: "lastModified",
-  selectedDemoType: "",
   filteredCount: 0,
   totalCount: 0,
   emptyTitle: "No demos found",
@@ -129,7 +145,6 @@ defineEmits<Emits>();
 const pageTitle = computed(() => {
   if (props.title) return props.title;
   const titles: Record<string, string> = {
-    home: "Recent Demos",
     library: "All Demos",
     recent: "Recent Demos",
     shared: "Shared with me",

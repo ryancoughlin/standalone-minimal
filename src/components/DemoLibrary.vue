@@ -1,10 +1,10 @@
 <template>
   <!-- Unified Demo Library with Expandable Folder Sidebar -->
   <div
-    class="extension-chrome fixed top-5 flex overflow-x-hidden bg-default border-2 border-black rounded-md z-[10000] overflow-auto transition-all duration-300 ease-in-out h-[calc(100vh-40px)]"
+    class="extension-chrome fixed top-5 flex overflow-x-hidden bg-default border border-default rounded-xl z-[10000] overflow-auto transition-all duration-300 ease-in-out max-h-[calc(100vh-40px)]"
     :class="[
       isOnRight ? 'right-5' : 'left-5',
-      showNavigationSidebar ? 'w-[544px]' : 'w-96',
+      showNavigationSidebar ? 'w-[580px]' : 'w-[420px]',
     ]"
     v-motion
     :initial="{ opacity: 0, scale: 0.95 }"
@@ -15,7 +15,7 @@
     }"
   >
     <div class="flex flex-col flex-1 min-w-0 h-full">
-      <!-- Global Navigation -->
+      <!-- Global Navigation (includes search) -->
       <GlobalNavigation
         v-motion
         :initial="{ opacity: 0, y: -10 }"
@@ -24,28 +24,15 @@
           y: 0,
           transition: { duration: 200, delay: 100, ease: 'easeOut' },
         }"
-        :is-on-right="isOnRight"
-        @reposition="handleReposition"
+        :show-navigation-sidebar="showNavigationSidebar"
+        v-model:search-query="searchQuery"
         @back="handleBack"
         @close="handleClose"
+        @toggle-sidebar="showNavigationSidebar = !showNavigationSidebar"
       />
 
       <!-- Main View -->
       <div class="flex flex-col flex-1 h-full overflow-hidden">
-        <!-- Search Bar -->
-        <SearchBar
-          v-motion
-          :initial="{ opacity: 0, y: -5 }"
-          :enter="{
-            opacity: 1,
-            y: 0,
-            transition: { duration: 200, delay: 150, ease: 'easeOut' },
-          }"
-          v-model:search-query="searchQuery"
-          :show-navigation-sidebar="showNavigationSidebar"
-          @toggle-sidebar="showNavigationSidebar = !showNavigationSidebar"
-        />
-
         <!-- Content Area with Sidebar -->
         <div class="flex flex-1 relative min-h-0">
           <!-- Navigation Sidebar - Slides out from content area -->
@@ -53,7 +40,7 @@
             :show-navigation-sidebar="showNavigationSidebar"
             :current-folder="currentFolder"
             :all-folders="foldersWithCounts"
-            :total-demo-count="totalDemoCount"
+            :total-demo-count="tabDemoCount"
             :recent-demo-count="recentDemoCount"
             :shared-demo-count="sharedDemoCount"
             :current-section="currentSection"
@@ -101,23 +88,19 @@
                 :show-breadcrumbs="!!currentFolder"
                 :current-folder="currentFolder"
                 :breadcrumbs="breadcrumbs"
-                :current-view="currentView"
                 :current-sort="currentSort"
-                :selected-demo-type="selectedDemoType"
                 :filtered-count="filteredTotalCount"
-                :total-count="totalDemoCount"
+                :total-count="tabDemoCount"
                 :empty-title="getEmptyTitle()"
                 :empty-description="getEmptyDescription()"
                 :empty-icon="getEmptyIcon()"
                 :empty-action-text="getEmptyActionText()"
-                @change-view="handleViewChange"
+                :active-tab="activeTab"
+                @change-tab="handleTabChange"
                 @change-sort="handleSortChange"
-                @change-demo-type="handleDemoTypeChange"
-                @clear-filters="handleClearFilters"
-                @remove-filter="handleRemoveFilter"
                 @empty-action="handleEmptyAction"
                 @play-demo="handlePlayDemo"
-                @customize-demo="handleCustomizeDemo"
+                @play-demo-with-notes="handlePlayDemoWithNotes"
                 @navigate-breadcrumb="navigateToBreadcrumb"
               />
             </div>
@@ -137,7 +120,6 @@ import { useDemoLibrary } from "../composables/useDemoLibrary";
 import { useFolderService } from "../services/folderService";
 import GlobalNavigation from "./GlobalNavigation.vue";
 import NavigationSidebar from "./NavigationSidebar.vue";
-import SearchBar from "./SearchBar.vue";
 import UnifiedDemoPage from "./UnifiedDemoPage.vue";
 
 const { allDemos, allFolders, loading, fetchAllDemos } = useDemoLibrary();
@@ -162,19 +144,30 @@ const breadcrumbs = ref<any[]>([]);
 const isOnRight = ref(true); // Start on right side
 
 // Navigation section state
-const currentSection = ref("home");
+const currentSection = ref("recent");
+
+// Tab state — top-level product-type partition
+const activeTab = ref<"overlays" | "environments">("overlays");
 
 // Filter state for new content design system
-const currentView = ref<"list" | "grid">("list");
 const currentSort = ref("lastModified");
-const selectedDemoType = ref("");
 
 // Unified demo list - single source of truth
 const allUnifiedDemos = computed(() => allDemos.value);
 
+// Tab-filtered demos — partitioned by product type
+const tabFilteredDemos = computed(() => {
+  if (activeTab.value === "overlays") {
+    return allUnifiedDemos.value.filter((d) => d.productType === "overlay");
+  }
+  return allUnifiedDemos.value.filter(
+    (d) => d.productType === "html_environment" || d.productType === "cloned_environment"
+  );
+});
+
 // Filtered demos based on search, folder, and current section
 const filteredDemos = computed(() => {
-  let demos = allUnifiedDemos.value;
+  let demos = tabFilteredDemos.value;
 
   // Filter by current section
   if (currentSection.value === "recent") {
@@ -182,15 +175,11 @@ const filteredDemos = computed(() => {
   } else if (currentSection.value === "shared") {
     demos = demos.filter((demo) => demo.isShared);
   } else if (currentFolder.value) {
-    // Filter by folder if a specific folder is selected
-    demos = getDemosInFolder(currentFolder.value.id);
-  } else if (
-    currentSection.value === "home" ||
-    currentSection.value === "demos"
-  ) {
-    // Home and demos sections show all demos
-    demos = allUnifiedDemos.value;
+    // Filter by folder, then intersect with tab
+    const folderDemoIds = new Set(getDemosInFolder(currentFolder.value.id).map((d) => d.id));
+    demos = demos.filter((d) => folderDemoIds.has(d.id));
   }
+  // "demos" section shows all tab-filtered demos (no additional filter)
 
   // Filter by search (title + dataset name)
   if (searchQuery.value) {
@@ -207,13 +196,15 @@ const filteredDemos = computed(() => {
 
 const filteredTotalCount = computed(() => filteredDemos.value.length);
 
-// Computed properties for navigation counts
+// Computed properties for navigation counts — scoped to active tab
+const tabDemoCount = computed(() => tabFilteredDemos.value.length);
+
 const recentDemoCount = computed(() => {
-  return allUnifiedDemos.value.filter((demo) => demo.isRecent).length;
+  return tabFilteredDemos.value.filter((demo) => demo.isRecent).length;
 });
 
 const sharedDemoCount = computed(() => {
-  return allUnifiedDemos.value.filter((demo) => demo.isShared).length;
+  return tabFilteredDemos.value.filter((demo) => demo.isShared).length;
 });
 
 const folderDemos = computed(() => {
@@ -225,12 +216,12 @@ const handlePlayDemo = (demo: any) => {
   console.log("Playing demo:", demo);
 };
 
-const handleViewDemoDetail = (demo: any) => {
-  console.log("View detail:", demo);
+const handlePlayDemoWithNotes = (demo: any) => {
+  console.log("Playing demo with presenter notes:", demo);
 };
 
-const handleCustomizeDemo = (demo: any) => {
-  console.log("Customize demo:", demo);
+const handleViewDemoDetail = (demo: any) => {
+  console.log("View detail:", demo);
 };
 
 const handleBack = () => {
@@ -240,11 +231,6 @@ const handleBack = () => {
 const handleClose = () => {
   console.log("Close button clicked");
   // In real app, this would close the extension
-};
-
-const handleReposition = () => {
-  isOnRight.value = !isOnRight.value;
-  console.log(`Extension moved to ${isOnRight.value ? "right" : "left"} side`);
 };
 
 // Folder handling functions
@@ -272,9 +258,6 @@ const handleNavigateSection = (section: string) => {
 
   // Update breadcrumbs based on section
   switch (section) {
-    case "home":
-      breadcrumbs.value = [{ name: "Home", id: null }];
-      break;
     case "demos":
       breadcrumbs.value = [{ name: "Demo Library", id: null }];
       break;
@@ -299,37 +282,18 @@ const navigateToBreadcrumb = (crumb: any) => {
 
 
 // Filter event handlers for new content design system
-const handleViewChange = (view: "list" | "grid") => {
-  currentView.value = view;
-};
-
 const handleSortChange = (sort: string) => {
   currentSort.value = sort;
 };
 
-const handleDemoTypeChange = (type: string) => {
-  selectedDemoType.value = type;
-};
-
-const handleClearFilters = () => {
-  selectedDemoType.value = "";
-};
-
-const handleRemoveFilter = (filterKey: string) => {
-  if (filterKey.startsWith("type:")) {
-    const type = filterKey.replace("type:", "");
-    if (selectedDemoType.value === type) {
-      selectedDemoType.value = "";
-    }
-  }
+const handleTabChange = (tab: "overlays" | "environments") => {
+  activeTab.value = tab;
 };
 
 // Helper functions for unified template
 const getPageType = () => {
   if (currentFolder.value) return "folder";
   switch (currentSection.value) {
-    case "home":
-      return "home";
     case "demos":
       return "library";
     case "recent":
@@ -344,8 +308,6 @@ const getPageType = () => {
 const getPageTitle = () => {
   if (currentFolder.value) return currentFolder.value.title;
   switch (currentSection.value) {
-    case "home":
-      return "Recent Demos";
     case "demos":
       return "All Demos";
     case "recent":
@@ -361,15 +323,7 @@ const getPageDescription = () => {
   if (currentFolder.value) {
     return `${folderDemos.value.length} demos in this folder`;
   }
-  switch (currentSection.value) {
-    case "home":
-      return `${filteredTotalCount.value} recent demos`;
-    case "demos":
-    case "recent":
-    case "shared":
-    default:
-      return `${filteredTotalCount.value} demos`;
-  }
+  return `${filteredTotalCount.value} demos`;
 };
 
 const getEmptyTitle = () => {
@@ -377,8 +331,6 @@ const getEmptyTitle = () => {
     return `${currentFolder.value.title} is empty`;
   }
   switch (currentSection.value) {
-    case "home":
-      return "No recent demos";
     case "recent":
       return "No recent demos";
     case "shared":
@@ -393,8 +345,6 @@ const getEmptyDescription = () => {
     return "Add demos to this folder to organize your content.";
   }
   switch (currentSection.value) {
-    case "home":
-      return "Demos you access will appear here for quick reference.";
     case "recent":
       return "Demos you access will appear here for quick reference.";
     case "shared":
@@ -407,8 +357,6 @@ const getEmptyDescription = () => {
 const getEmptyIcon = () => {
   if (currentFolder.value) return "fal fa-folder-open";
   switch (currentSection.value) {
-    case "home":
-      return "fal fa-clock";
     case "recent":
       return "fal fa-clock";
     case "shared":
@@ -420,15 +368,7 @@ const getEmptyIcon = () => {
 
 const getEmptyActionText = () => {
   if (currentFolder.value) return "Add Demo to Folder";
-  switch (currentSection.value) {
-    case "home":
-      return "Browse All Demos";
-    case "recent":
-    case "shared":
-      return "Browse All Demos";
-    default:
-      return "Browse All Demos";
-  }
+  return "Browse All Demos";
 };
 
 const handleEmptyAction = () => {
@@ -447,12 +387,11 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Extension chrome — complex shadow can't be expressed in Tailwind utilities */
+/* Extension chrome — soft two-layer shadow (ambient + directional) */
 .extension-chrome {
   box-shadow:
-    0 0 0 5px rgba(17, 24, 39, 0.16),
-    0 4px 24px rgba(0, 0, 0, 0.1),
-    0 20px 40px -5px rgba(0, 0, 0, 0.5);
+    0 4px 24px rgba(0, 0, 0, 0.08),
+    0 12px 40px -8px rgba(0, 0, 0, 0.18);
 }
 
 /* Scrollbar — pseudo-elements require CSS */
