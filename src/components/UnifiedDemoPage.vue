@@ -1,7 +1,18 @@
 <template>
   <div class="flex flex-col h-full w-full bg-default">
-    <!-- Tab Bar -->
-    <div class="sticky top-0 z-10 bg-default border-b border-default px-3">
+    <!-- Content Nav: Sidebar toggle + Tabs -->
+    <div class="bg-default border-b border-default px-2 flex items-center gap-1">
+      <!-- Sidebar Toggle -->
+      <button
+        @click="$emit('toggle-sidebar')"
+        class="w-7 h-7 flex-shrink-0 flex items-center justify-center border-none bg-transparent text-default cursor-pointer rounded transition-all duration-200 hover:bg-hover hover:text-emphasis"
+        :class="{ 'text-reprise-blue': showNavigationSidebar }"
+        :title="showNavigationSidebar ? 'Close sidebar' : 'Open sidebar'"
+      >
+        <i class="fas fa-bars text-sm"></i>
+      </button>
+
+      <!-- Tab Buttons -->
       <div class="flex gap-4">
         <button
           @click="$emit('change-tab', 'overlays')"
@@ -100,6 +111,7 @@ interface Props {
   pageType: "library" | "recent" | "shared" | "folder";
   demos: any[];
   activeTab: "overlays" | "environments";
+  showNavigationSidebar: boolean;
   loading?: boolean;
   title?: string;
   description?: string;
@@ -118,6 +130,7 @@ interface Props {
 
 interface Emits {
   (e: "change-tab", tab: "overlays" | "environments"): void;
+  (e: "toggle-sidebar"): void;
   (e: "change-sort", sort: string): void;
   (e: "empty-action"): void;
   (e: "play-demo", demo: any): void;

@@ -24,11 +24,8 @@
           y: 0,
           transition: { duration: 200, delay: 100, ease: 'easeOut' },
         }"
-        :show-navigation-sidebar="showNavigationSidebar"
         v-model:search-query="searchQuery"
-        @back="handleBack"
         @close="handleClose"
-        @toggle-sidebar="showNavigationSidebar = !showNavigationSidebar"
       />
 
       <!-- Main View -->
@@ -96,7 +93,9 @@
                 :empty-icon="getEmptyIcon()"
                 :empty-action-text="getEmptyActionText()"
                 :active-tab="activeTab"
+                :show-navigation-sidebar="showNavigationSidebar"
                 @change-tab="handleTabChange"
+                @toggle-sidebar="showNavigationSidebar = !showNavigationSidebar"
                 @change-sort="handleSortChange"
                 @empty-action="handleEmptyAction"
                 @play-demo="handlePlayDemo"
