@@ -1,5 +1,5 @@
 <template>
-  <div class="global-navigation">
+  <div class="sticky top-0 bg-white z-10">
     <div
       class="flex items-center justify-between px-4 py-3 border-b border-gray-200"
     >
@@ -44,16 +44,8 @@ interface Emits {
   (e: "reposition"): void;
   (e: "back"): void;
   (e: "close"): void;
-  (e: "undo"): void;
-  (e: "redo"): void;
 }
 
 defineProps<Props>();
 defineEmits<Emits>();
 </script>
-
-<style scoped>
-.global-navigation {
-  @apply sticky top-0 bg-white z-10;
-}
-</style>

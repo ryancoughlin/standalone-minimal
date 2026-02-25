@@ -1,140 +1,81 @@
 <template>
   <div
-    class="navigation-sidebar border-r"
-    :class="{ 'sidebar-open': showNavigationSidebar }"
+    class="flex flex-col absolute top-0 left-0 h-full bg-white border-r border-gray-200 overflow-hidden transition-all duration-300 ease-in-out z-30"
+    :class="showNavigationSidebar ? 'w-[190px] min-w-[190px] translate-x-0' : 'w-0 min-w-0 -translate-x-full'"
   >
-    <!-- Navigation List -->
-    <div class="navigation-list-container">
+    <div class="flex-1 overflow-y-auto">
       <div class="px-3 py-3">
-        <!-- Demo Library Section -->
-        <div class="navigation-section">
-          <div class="section-header">
-            <span class="section-title">Demo Library</span>
+        <div class="mb-4">
+          <div class="px-2 py-2 flex items-center justify-between">
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Demo Library</span>
           </div>
 
           <!-- Home -->
           <button
             @click="$emit('navigate-section', 'home')"
-            class="nav-item"
-            :class="{ 'nav-selected': currentSection === 'home' }"
-            v-motion
-            :initial="{ opacity: 0, x: -10 }"
-            :enter="{
-              opacity: 1,
-              x: 0,
-              transition: { duration: 150, delay: 70, ease: 'easeOut' },
-            }"
-            :hover="{ x: 2, transition: { duration: 150 } }"
+            class="w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md transition-all duration-200 hover:bg-reprise-off-white min-w-0"
+            :class="currentSection === 'home' ? 'bg-reprise-sky text-reprise-deep-blue' : ''"
           >
-            <div class="nav-icon">
-              <i class="fas fa-home text-gray-500"></i>
-            </div>
-            <span class="nav-name">Home</span>
-            <div class="nav-badge">{{ totalDemoCount }}</div>
+            <i class="fas fa-home flex-shrink-0" :class="currentSection === 'home' ? 'text-reprise-deep-blue' : 'text-gray-500'"></i>
+            <span class="text-xs font-medium truncate flex-1 min-w-0" :class="currentSection === 'home' ? 'text-reprise-deep-blue' : 'text-gray-900'">Home</span>
+            <span class="text-xs px-1.5 py-0.5 rounded-full font-medium" :class="currentSection === 'home' ? 'text-reprise-deep-blue bg-reprise-sky' : 'text-gray-500 bg-gray-100'">{{ totalDemoCount }}</span>
           </button>
 
           <!-- All Demos -->
           <button
             @click="$emit('navigate-section', 'demos')"
-            class="nav-item"
-            :class="{ 'nav-selected': currentSection === 'demos' }"
-            v-motion
-            :initial="{ opacity: 0, x: -10 }"
-            :enter="{
-              opacity: 1,
-              x: 0,
-              transition: { duration: 150, delay: 100, ease: 'easeOut' },
-            }"
-            :hover="{ x: 2, transition: { duration: 150 } }"
+            class="w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md transition-all duration-200 hover:bg-reprise-off-white min-w-0"
+            :class="currentSection === 'demos' ? 'bg-reprise-sky text-reprise-deep-blue' : ''"
           >
-            <div class="nav-icon">
-              <i class="fas fa-folder text-gray-500"></i>
-            </div>
-            <span class="nav-name">Library</span>
-            <div class="nav-badge">{{ totalDemoCount }}</div>
+            <i class="fas fa-folder flex-shrink-0" :class="currentSection === 'demos' ? 'text-reprise-deep-blue' : 'text-gray-500'"></i>
+            <span class="text-xs font-medium truncate flex-1 min-w-0" :class="currentSection === 'demos' ? 'text-reprise-deep-blue' : 'text-gray-900'">Library</span>
+            <span class="text-xs px-1.5 py-0.5 rounded-full font-medium" :class="currentSection === 'demos' ? 'text-reprise-deep-blue bg-reprise-sky' : 'text-gray-500 bg-gray-100'">{{ totalDemoCount }}</span>
           </button>
 
           <!-- Recent Demos -->
           <button
             @click="$emit('navigate-section', 'recent')"
-            class="nav-item"
-            :class="{ 'nav-selected': currentSection === 'recent' }"
-            v-motion
-            :initial="{ opacity: 0, x: -10 }"
-            :enter="{
-              opacity: 1,
-              x: 0,
-              transition: { duration: 150, delay: 130, ease: 'easeOut' },
-            }"
-            :hover="{ x: 2, transition: { duration: 150 } }"
+            class="w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md transition-all duration-200 hover:bg-reprise-off-white min-w-0"
+            :class="currentSection === 'recent' ? 'bg-reprise-sky text-reprise-deep-blue' : ''"
           >
-            <div class="nav-icon">
-              <i class="fas fa-clock text-gray-500"></i>
-            </div>
-            <span class="nav-name">Recent</span>
-            <div class="nav-badge">{{ recentDemoCount }}</div>
+            <i class="fas fa-clock flex-shrink-0" :class="currentSection === 'recent' ? 'text-reprise-deep-blue' : 'text-gray-500'"></i>
+            <span class="text-xs font-medium truncate flex-1 min-w-0" :class="currentSection === 'recent' ? 'text-reprise-deep-blue' : 'text-gray-900'">Recent</span>
+            <span class="text-xs px-1.5 py-0.5 rounded-full font-medium" :class="currentSection === 'recent' ? 'text-reprise-deep-blue bg-reprise-sky' : 'text-gray-500 bg-gray-100'">{{ recentDemoCount }}</span>
           </button>
 
           <!-- Shared with me -->
           <button
             @click="$emit('navigate-section', 'shared')"
-            class="nav-item"
-            :class="{ 'nav-selected': currentSection === 'shared' }"
-            v-motion
-            :initial="{ opacity: 0, x: -10 }"
-            :enter="{
-              opacity: 1,
-              x: 0,
-              transition: { duration: 150, delay: 160, ease: 'easeOut' },
-            }"
-            :hover="{ x: 2, transition: { duration: 150 } }"
+            class="w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md transition-all duration-200 hover:bg-reprise-off-white min-w-0"
+            :class="currentSection === 'shared' ? 'bg-reprise-sky text-reprise-deep-blue' : ''"
           >
-            <div class="nav-icon">
-              <i class="fas fa-users text-gray-500"></i>
-            </div>
-            <span class="nav-name">Shared with me</span>
-            <div class="nav-badge">{{ sharedDemoCount }}</div>
+            <i class="fas fa-users flex-shrink-0" :class="currentSection === 'shared' ? 'text-reprise-deep-blue' : 'text-gray-500'"></i>
+            <span class="text-xs font-medium truncate flex-1 min-w-0" :class="currentSection === 'shared' ? 'text-reprise-deep-blue' : 'text-gray-900'">Shared with me</span>
+            <span class="text-xs px-1.5 py-0.5 rounded-full font-medium" :class="currentSection === 'shared' ? 'text-reprise-deep-blue bg-reprise-sky' : 'text-gray-500 bg-gray-100'">{{ sharedDemoCount }}</span>
           </button>
         </div>
 
         <!-- Folders Section -->
-        <div class="folders-section">
-          <div class="section-header">
-            <span class="section-title">Folders</span>
+        <div class="space-y-1">
+          <div class="px-2 py-2 flex items-center justify-between">
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Folders</span>
           </div>
           <div
-            v-for="(folder, index) in allFolders"
+            v-for="folder in allFolders"
             :key="folder.id"
-            class="folder-group"
+            class="space-y-1"
           >
             <button
               @click="$emit('select-folder', folder)"
-              class="nav-item"
-              :class="{
-                'nav-selected': currentFolder?.id === folder.id,
-                'folder-parent': folder.parent_id === null,
-                'folder-child': folder.parent_id !== null,
-              }"
-              v-motion
-              :initial="{ opacity: 0, x: -10 }"
-              :enter="{
-                opacity: 1,
-                x: 0,
-                transition: {
-                  duration: 150,
-                  delay: 300 + index * 30,
-                  ease: 'easeOut',
-                },
-              }"
-              :hover="{ x: 2, transition: { duration: 150 } }"
+              class="w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md transition-all duration-200 hover:bg-reprise-off-white min-w-0"
+              :class="[
+                currentFolder?.id === folder.id ? 'bg-reprise-sky text-reprise-deep-blue' : '',
+                folder.parent_id === null ? 'font-medium' : 'ml-4',
+              ]"
             >
-              <div class="nav-icon">
-                <i class="fas fa-folder text-gray-500"></i>
-              </div>
-              <span class="nav-name">{{ folder.title }}</span>
-              <div class="nav-badge">
-                {{ folder.total_demo_count }}
-              </div>
+              <i class="fas fa-folder flex-shrink-0" :class="currentFolder?.id === folder.id ? 'text-reprise-deep-blue' : 'text-gray-500'"></i>
+              <span class="text-xs font-medium truncate flex-1 min-w-0" :class="currentFolder?.id === folder.id ? 'text-reprise-deep-blue' : 'text-gray-900'">{{ folder.title }}</span>
+              <span class="text-xs px-1.5 py-0.5 rounded-full font-medium" :class="currentFolder?.id === folder.id ? 'text-reprise-deep-blue bg-reprise-sky' : 'text-gray-500 bg-gray-100'">{{ folder.total_demo_count }}</span>
             </button>
           </div>
         </div>
@@ -165,118 +106,18 @@ defineEmits<Emits>();
 </script>
 
 <style scoped>
-/* Navigation Sidebar */
-.navigation-sidebar {
-  @apply flex flex-col absolute top-0 left-0 h-full bg-white border-r border-gray-200 overflow-hidden transition-all duration-300 ease-in-out;
-  width: 0;
-  transform: translateX(-100%);
-  min-width: 0;
-  z-index: 30;
-}
-
-.navigation-sidebar.sidebar-open {
-  width: 190px;
-  transform: translateX(0);
-  min-width: 190px;
-}
-
-/* Navigation List */
-.navigation-list-container {
-  @apply flex-1 overflow-y-auto;
-}
-
-/* Section Headers */
-.section-header {
-  @apply px-2 py-2 flex items-center justify-between;
-}
-
-.section-title {
-  @apply text-xs font-semibold text-gray-500 uppercase tracking-wide;
-}
-
-/* Navigation Section */
-.navigation-section {
-  @apply mb-4;
-}
-
-/* Folders Section */
-.folders-section {
-  @apply space-y-1;
-}
-
-.folder-group {
-  @apply space-y-1;
-}
-
-/* Navigation Items */
-.nav-item {
-  @apply w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md transition-all duration-200 hover:bg-reprise-off-white min-w-0;
-}
-
-.nav-item.nav-selected {
-  @apply bg-reprise-sky text-reprise-deep-blue;
-}
-
-.nav-item.folder-parent {
-  @apply font-medium;
-}
-
-.nav-item.folder-child {
-  @apply ml-4;
-}
-
-.nav-icon {
-  @apply flex-shrink-0 text-gray-500;
-}
-
-.nav-item.nav-selected .nav-icon {
-  @apply text-reprise-deep-blue;
-}
-
-.nav-name {
-  @apply text-xs font-medium text-gray-900 truncate flex-1 min-w-0;
-}
-
-.nav-item.nav-selected .nav-name {
-  @apply text-reprise-deep-blue;
-}
-
-.nav-badge {
-  @apply text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full font-medium;
-}
-
-.nav-item.nav-selected .nav-badge {
-  @apply text-reprise-deep-blue bg-reprise-sky;
-}
-
-.add-folder-btn {
-  @apply w-4 h-4 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors;
-}
-
-.subfolder-container {
-  @apply space-y-1;
-}
-
-/* Folder Parent Container */
-.folder-parent-container {
-  @apply flex items-center;
-}
-
-/* Custom scrollbar for webkit browsers */
+/* Scrollbar — pseudo-elements require CSS */
 .overflow-y-auto::-webkit-scrollbar {
   width: 6px;
 }
-
 .overflow-y-auto::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 3px;
 }
-
 .overflow-y-auto::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 3px;
 }
-
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
   background: #a1a1a1;
 }

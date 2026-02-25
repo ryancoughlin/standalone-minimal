@@ -1,7 +1,11 @@
 <template>
   <!-- Unified Demo Library with Expandable Folder Sidebar -->
   <div
-    class="demo-library-container"
+    class="extension-chrome fixed top-5 flex overflow-x-hidden bg-white border-2 border-black rounded-md z-[10000] overflow-auto transition-all duration-300 ease-in-out h-[calc(100vh-40px)]"
+    :class="[
+      isOnRight ? 'right-5' : 'left-5',
+      showNavigationSidebar ? 'w-[544px]' : 'w-96',
+    ]"
     v-motion
     :initial="{ opacity: 0, scale: 0.95 }"
     :enter="{
@@ -9,29 +13,8 @@
       scale: 1,
       transition: { duration: 300, ease: 'easeOut' },
     }"
-    :class="{
-      'with-sidebar': showNavigationSidebar,
-      'on-left': !isOnRight,
-      'on-right': isOnRight,
-    }"
-    :style="{
-      position: 'fixed',
-      top: '20px',
-      [isOnRight ? 'right' : 'left']: '20px',
-      width: showNavigationSidebar ? '544px' : '384px',
-      height: 'calc(100vh - 40px)',
-      background: 'white',
-      border: '2px solid black',
-      borderRadius: '6px',
-      boxShadow:
-        '0 0 0 5px #11182729, 0 4px 24px #0000001a, 0 20px 40px -5px #00000080',
-      zIndex: '10000',
-      overflow: 'auto',
-      transition: 'all 0.3s ease-in-out',
-    }"
   >
-    <!-- Main Demo Content -->
-    <div class="demo-content">
+    <div class="flex flex-col flex-1 min-w-0 h-full">
       <!-- Global Navigation -->
       <GlobalNavigation
         v-motion
@@ -64,7 +47,7 @@
         />
 
         <!-- Content Area with Sidebar -->
-        <div class="content-area-with-sidebar flex-1 min-h-0">
+        <div class="flex flex-1 relative min-h-0">
           <!-- Navigation Sidebar - Slides out from content area -->
           <NavigationSidebar
             :show-navigation-sidebar="showNavigationSidebar"
@@ -81,8 +64,8 @@
 
           <!-- Main Content -->
           <div
-            class="main-content"
-            :class="{ 'with-sidebar': showNavigationSidebar }"
+            class="flex-1 min-h-0 transition-all duration-300 ease-in-out overflow-x-hidden flex flex-col"
+            :class="showNavigationSidebar ? 'ml-[190px]' : 'ml-0'"
           >
             <!-- Scrollable Content Area -->
             <div class="flex-1 overflow-y-auto">
@@ -467,72 +450,27 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Primary Typography Classes */
-.heading-primary {
-  @apply text-xl font-semibold text-gray-900;
+/* Extension chrome — complex shadow can't be expressed in Tailwind utilities */
+.extension-chrome {
+  box-shadow:
+    0 0 0 5px rgba(17, 24, 39, 0.16),
+    0 4px 24px rgba(0, 0, 0, 0.1),
+    0 20px 40px -5px rgba(0, 0, 0, 0.5);
 }
 
-.heading-secondary {
-  @apply text-sm font-medium text-gray-900;
-}
-
-/* Unified Container Layout */
-.demo-library-container {
-  @apply flex overflow-x-hidden;
-}
-
-.demo-library-container.with-sidebar {
-  width: 544px !important; /* 384px + 160px */
-}
-
-.demo-library-container.on-left {
-  left: 20px !important;
-  right: auto !important;
-}
-
-.demo-library-container.on-right {
-  right: 20px !important;
-  left: auto !important;
-}
-
-/* Demo Content */
-.demo-content {
-  @apply flex flex-col flex-1 min-w-0 h-full;
-}
-
-/* Content Area with Sidebar */
-.content-area-with-sidebar {
-  @apply flex flex-1 relative min-h-0;
-  position: relative;
-}
-
-/* Main Content */
-.main-content {
-  @apply flex-1 min-h-0 transition-all duration-300 ease-in-out overflow-x-hidden flex flex-col;
-  margin-left: 0;
-}
-
-.main-content.with-sidebar {
-  margin-left: 190px;
-}
-
-/* Custom scrollbar for webkit browsers */
-.demo-library-container::-webkit-scrollbar {
+/* Scrollbar — pseudo-elements require CSS */
+.extension-chrome::-webkit-scrollbar {
   width: 6px;
 }
-
-.demo-library-container::-webkit-scrollbar-track {
+.extension-chrome::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 3px;
 }
-
-.demo-library-container::-webkit-scrollbar-thumb {
+.extension-chrome::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 3px;
 }
-
-.demo-library-container::-webkit-scrollbar-thumb:hover {
+.extension-chrome::-webkit-scrollbar-thumb:hover {
   background: #a1a1a1;
 }
-
 </style>
