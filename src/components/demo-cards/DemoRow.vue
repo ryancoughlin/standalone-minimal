@@ -1,12 +1,14 @@
 <template>
   <div
-    class="relative w-full py-2 px-2 cursor-pointer border-b border-muted last:border-b-0 hover:bg-hover transition-colors duration-150 group"
+    class="relative w-full py-2 px-4 cursor-pointer border-b border-muted last:border-b-0 hover:bg-hover transition-colors duration-150 group"
     @click="$emit('play-demo', demo)"
   >
     <!-- Row content — full width -->
     <div class="flex items-start gap-2">
       <!-- Thumbnail -->
-      <div class="relative w-20 h-14 flex-shrink-0 rounded border border-default overflow-hidden bg-emphasis">
+      <div
+        class="relative w-24 h-[67px] flex-shrink-0 rounded border border-default overflow-hidden bg-emphasis"
+      >
         <img
           v-if="demo.screenshot_small && !imageError"
           :src="getScreenshotUrl(demo.screenshot_small)"
@@ -28,18 +30,23 @@
 
       <!-- Text -->
       <div class="flex-1 min-w-0">
-        <h3 class="text-xs font-medium text-emphasis truncate m-0 mb-0.5">{{ demo.title }}</h3>
-        <div class="flex items-center text-xs text-muted">
+        <h3 class="text-sm font-medium text-default truncate m-0 mb-0.5">
+          {{ demo.title }}
+        </h3>
+        <div class="flex items-center text-xs text-default">
           <template v-if="demo.dataset">
             <i class="fal fa-database icon-muted text-[10px] mr-0.5"></i>
             <span class="truncate max-w-[120px]">{{ demo.dataset.name }}</span>
-            <span class="mx-1 text-muted">&middot;</span>
+            <span class="mx-1 text-default">&middot;</span>
           </template>
           <i class="fal fa-play icon-muted text-[10px] mr-0.5"></i>
-          <span>{{ demo.views || 0 }} views</span>
+          <span class="text-default">{{ demo.views || 0 }} views</span>
         </div>
         <!-- Overlay metadata -->
-        <div v-if="demo.productType === 'overlay'" class="flex items-center gap-3 text-xs text-muted mt-0.5">
+        <div
+          v-if="demo.productType === 'overlay'"
+          class="flex items-center gap-3 text-xs text-default mt-0.5"
+        >
           <span class="flex items-center gap-0.5">
             <i class="fal fa-pen icon-muted text-[10px]"></i>
             {{ demo.textEditCount || 0 }}
@@ -49,7 +56,7 @@
             {{ demo.imageEditCount || 0 }}
           </span>
           <span class="flex items-center gap-0.5">
-            <i class="fal fa-link icon-muted text-[10px]"></i>
+            <i class="fal fa-link icon-default text-[10px]"></i>
             {{ demo.linkCount || 0 }}
           </span>
         </div>
@@ -58,7 +65,7 @@
 
     <!-- Launch button — overlays on far right, visible on hover -->
     <div
-      class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+      class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center opacity-0 group-hover:opacity-100 transition-opacity duration-150"
       :class="{ '!opacity-100': showDropdown }"
       @click.stop
     >
@@ -81,14 +88,16 @@
     <div
       v-if="showDropdown"
       ref="dropdownRef"
-      class="absolute right-2 top-full mt-0.5 w-52 bg-default border border-default rounded-lg shadow-lg z-30 py-1"
+      class="absolute right-4 top-full mt-0.5 w-52 bg-default border border-default rounded-lg shadow-lg z-30 py-1"
       @click.stop
     >
       <button
         class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-emphasis hover:bg-hover transition-colors text-left"
         @click="handleLaunchWithNotes"
       >
-        <i class="fal fa-sticky-note text-muted text-[11px] w-4 text-center"></i>
+        <i
+          class="fal fa-sticky-note text-muted text-[11px] w-4 text-center"
+        ></i>
         Launch with Presenter Notes
       </button>
       <div class="border-t border-default my-1"></div>
@@ -180,7 +189,8 @@ const typeLabel = computed(() => {
 
 const getScreenshotUrl = (screenshotSmall: string) => {
   if (!screenshotSmall) return "";
-  if (screenshotSmall.startsWith("/") || screenshotSmall.startsWith("data:")) return screenshotSmall;
+  if (screenshotSmall.startsWith("/") || screenshotSmall.startsWith("data:"))
+    return screenshotSmall;
   return `data:image/png;base64,${screenshotSmall}`;
 };
 </script>

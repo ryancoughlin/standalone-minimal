@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full w-full bg-default">
     <!-- Content Nav: Sidebar toggle + Tabs -->
-    <div class="bg-default border-b border-default px-2 flex items-center gap-1">
+    <div class="bg-default border-b border-default px-4 flex items-center gap-1">
       <!-- Sidebar Toggle -->
       <button
         @click="$emit('toggle-sidebar')"
@@ -61,7 +61,7 @@
     <!-- Content -->
     <div class="flex-1 overflow-y-auto">
       <!-- Loading -->
-      <div v-if="loading" class="p-2 space-y-2">
+      <div v-if="loading" class="p-4 space-y-2">
         <div v-for="i in 5" :key="i" class="flex items-center gap-2 py-1">
           <div class="w-8 h-6 bg-gray-200 rounded animate-pulse"></div>
           <div class="flex-1 space-y-1">
@@ -72,7 +72,7 @@
       </div>
 
       <!-- Empty -->
-      <div v-else-if="isEmpty" class="flex flex-col items-center justify-center py-8 px-2 text-center">
+      <div v-else-if="isEmpty" class="flex flex-col items-center justify-center py-8 px-4 text-center">
         <i :class="emptyIcon" class="text-4xl text-muted mb-2"></i>
         <h3 class="text-sm font-medium text-emphasis mb-1">{{ emptyTitle }}</h3>
         <p class="text-xs text-muted mb-2">{{ emptyDescription }}</p>
