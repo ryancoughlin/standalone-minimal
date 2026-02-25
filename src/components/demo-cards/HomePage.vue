@@ -56,38 +56,48 @@
       </div>
     </div>
 
-    <!-- Quick Stats Section -->
+    <!-- Type-Based Stats Cards -->
     <div v-if="!isEmpty && !loading" class="quick-stats-section">
       <div class="stats-grid">
-        <div class="stat-card">
+        <button class="stat-card stat-overlay" @click="$emit('change-demo-type', 'overlay')">
           <div class="stat-icon">
-            <i class="fal fa-clock text-blue-500"></i>
+            <i class="fas fa-layer-group text-violet-500"></i>
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ recentCount }}</div>
-            <div class="stat-label">Recent</div>
+            <div class="stat-number">{{ overlayCount }}</div>
+            <div class="stat-label">Overlay</div>
           </div>
-        </div>
+        </button>
 
-        <div class="stat-card">
+        <button class="stat-card stat-html" @click="$emit('change-demo-type', 'html_environment')">
           <div class="stat-icon">
-            <i class="fal fa-users text-green-500"></i>
+            <i class="fas fa-code text-sky-500"></i>
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ sharedCount }}</div>
-            <div class="stat-label">Shared</div>
+            <div class="stat-number">{{ htmlEnvCount }}</div>
+            <div class="stat-label">HTML Env</div>
           </div>
-        </div>
+        </button>
 
-        <div class="stat-card">
+        <button class="stat-card stat-cloned" @click="$emit('change-demo-type', 'cloned_environment')">
           <div class="stat-icon">
-            <i class="fal fa-folder text-purple-500"></i>
+            <i class="fas fa-clone text-emerald-500"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ clonedEnvCount }}</div>
+            <div class="stat-label">Cloned Env</div>
+          </div>
+        </button>
+
+        <button class="stat-card" @click="$emit('change-demo-type', '')">
+          <div class="stat-icon">
+            <i class="fal fa-folder text-gray-500"></i>
           </div>
           <div class="stat-content">
             <div class="stat-number">{{ totalCount }}</div>
             <div class="stat-label">Total</div>
           </div>
-        </div>
+        </button>
       </div>
     </div>
 
@@ -168,6 +178,17 @@ const props = defineProps<Props>();
 defineEmits<Emits>();
 
 const isEmpty = computed(() => props.totalCount === 0);
+
+// Type-based counts
+const overlayCount = computed(() =>
+  props.demos.filter((d) => d.productType === "overlay").length
+);
+const htmlEnvCount = computed(() =>
+  props.demos.filter((d) => d.productType === "html_environment").length
+);
+const clonedEnvCount = computed(() =>
+  props.demos.filter((d) => d.productType === "cloned_environment").length
+);
 
 const displayDemos = computed(() => {
   // Show recent demos first, then others
@@ -261,7 +282,19 @@ const formatTimeAgo = (timestamp: Date) => {
 }
 
 .stat-card {
-  @apply flex items-center gap-2 p-2 bg-gray-50 rounded-lg;
+  @apply flex items-center gap-2 p-2 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors text-left;
+}
+
+.stat-card.stat-overlay:hover {
+  @apply bg-violet-50;
+}
+
+.stat-card.stat-html:hover {
+  @apply bg-sky-50;
+}
+
+.stat-card.stat-cloned:hover {
+  @apply bg-emerald-50;
 }
 
 .stat-icon {

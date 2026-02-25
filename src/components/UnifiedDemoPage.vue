@@ -106,7 +106,15 @@
                 class="w-full h-full object-cover"
               />
               <div v-else class="card-placeholder">
-                <i class="fal fa-play text-gray-400 text-2xl"></i>
+                <i :class="getProductTypeIcon(demo.productType)" class="text-gray-400 text-2xl"></i>
+              </div>
+
+              <!-- Type Badge -->
+              <div class="card-type-badge" :class="getTypeBadgeClass(demo.productType)">
+                <i
+                  :class="getProductTypeIcon(demo.productType)"
+                  class="text-xs"
+                ></i>
               </div>
 
               <!-- Starred Indicator -->
@@ -121,6 +129,10 @@
               <div class="card-meta">
                 <span class="card-views">{{ demo.views || 0 }} views</span>
               </div>
+              <div v-if="demo.dataset" class="card-dataset">
+                <i class="fal fa-database text-gray-400 text-[10px] mr-0.5"></i>
+                <span>{{ demo.dataset.name }}</span>
+              </div>
             </div>
 
             <!-- Card Actions -->
@@ -128,9 +140,9 @@
               <button
                 @click.stop="$emit('play-demo', demo)"
                 class="card-action-btn primary"
-                title="Play Demo"
+                :title="demo.productType === 'overlay' ? 'Open Demo' : 'Launch Demo'"
               >
-                <i class="fal fa-play"></i>
+                <i :class="demo.productType === 'overlay' ? 'fas fa-external-link-alt' : 'fal fa-play'"></i>
               </button>
               <button
                 @click.stop="$emit('customize-demo', demo)"
@@ -274,6 +286,24 @@ const getScreenshotUrl = (screenshotSmall: string) => {
   if (screenshotSmall.startsWith("data:")) return screenshotSmall;
   return `data:image/png;base64,${screenshotSmall}`;
 };
+
+const getProductTypeIcon = (productType: string) => {
+  const icons: Record<string, string> = {
+    overlay: "fas fa-layer-group",
+    html_environment: "fas fa-code",
+    cloned_environment: "fas fa-clone",
+  };
+  return icons[productType] || "fal fa-play";
+};
+
+const getTypeBadgeClass = (productType: string) => {
+  const classes: Record<string, string> = {
+    overlay: "type-overlay",
+    html_environment: "type-html",
+    cloned_environment: "type-cloned",
+  };
+  return classes[productType] || "";
+};
 </script>
 
 <style scoped>
@@ -360,6 +390,23 @@ const getScreenshotUrl = (screenshotSmall: string) => {
   @apply w-full h-full flex items-center justify-center;
 }
 
+/* Type Badge on thumbnail */
+.card-type-badge {
+  @apply absolute top-1.5 left-1.5 w-5 h-5 rounded-full flex items-center justify-center;
+}
+
+.card-type-badge.type-overlay {
+  @apply bg-violet-500 bg-opacity-50 text-violet-900;
+}
+
+.card-type-badge.type-html {
+  @apply bg-sky-500 bg-opacity-50 text-sky-900;
+}
+
+.card-type-badge.type-cloned {
+  @apply bg-emerald-500 bg-opacity-50 text-emerald-900;
+}
+
 .card-starred {
   @apply absolute top-2 right-2;
 }
@@ -378,6 +425,10 @@ const getScreenshotUrl = (screenshotSmall: string) => {
 
 .card-views {
   @apply text-gray-500;
+}
+
+.card-dataset {
+  @apply flex items-center text-xs text-gray-400 mt-1 truncate;
 }
 
 .card-actions {

@@ -246,10 +246,13 @@ const filteredDemos = computed(() => {
     demos = allUnifiedDemos.value;
   }
 
-  // Filter by search
+  // Filter by search (title + dataset name)
   if (searchQuery.value) {
-    demos = demos.filter((demo) =>
-      demo.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+    const q = searchQuery.value.toLowerCase();
+    demos = demos.filter(
+      (demo) =>
+        demo.title.toLowerCase().includes(q) ||
+        (demo.dataset?.name && demo.dataset.name.toLowerCase().includes(q))
     );
   }
 

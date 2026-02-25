@@ -3,10 +3,16 @@
  * Only published demos, no status complexity
  */
 
+export interface DemoDataset {
+    id: string;
+    name: string;
+    fieldCount: number;
+}
+
 export interface Demo {
     id: string;
     title: string;
-    productType: 'replicate' | 'replay' | 'reveal';
+    productType: 'overlay' | 'html_environment' | 'cloned_environment';
     description: string;
     lastModified: string;
     createdBy: string;
@@ -18,6 +24,8 @@ export interface Demo {
     isRecent: boolean;
     isShared: boolean;
     screenshot_small: string;
+    dataset?: DemoDataset;
+    productionUrl?: string; // Only for overlay type
 }
 
 export interface Folder {

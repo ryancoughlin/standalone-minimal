@@ -23,12 +23,12 @@ export { default as FolderPage } from './FolderPage.vue';
  * 1. DemoRow - Use for consistent demo display across all pages
  *    - Single consistent design for all contexts
  *    - Includes hover states, actions, and metadata
- *    - Handles different demo types (replicate, replay, reveal)
+ *    - Handles different demo types (overlay, html_environment, cloned_environment)
  * 
  * 2. DemoFilters - Comprehensive filtering system
  *    - View toggle (list/grid)
  *    - Sort options (date, name, views, type)
- *    - Type filters (replicate, replay, reveal)
+ *    - Type filters (overlay, html_environment, cloned_environment)
  *    - Status filters (recent, shared, starred)
  * 
  * 3. PageTemplate - Base template for all demo pages

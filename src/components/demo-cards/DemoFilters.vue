@@ -53,9 +53,9 @@
           :value="selectedDemoType"
         >
           <option value="">All Types</option>
-          <option value="replicate">Replicate</option>
-          <option value="replay">Replay</option>
-          <option value="reveal">Reveal</option>
+          <option value="overlay">Overlay</option>
+          <option value="html_environment">HTML Environment</option>
+          <option value="cloned_environment">Cloned Environment</option>
         </select>
       </div>
 
@@ -118,9 +118,9 @@ const props = defineProps<Props>();
 defineEmits<Emits>();
 
 const demoTypes = [
-  { value: "replicate", label: "Replicate", icon: "fal fa-magic" },
-  { value: "replay", label: "Replay", icon: "fal fa-play-circle" },
-  { value: "reveal", label: "Reveal", icon: "fal fa-eye" },
+  { value: "overlay", label: "Overlay", icon: "fas fa-layer-group" },
+  { value: "html_environment", label: "HTML Env", icon: "fas fa-code" },
+  { value: "cloned_environment", label: "Cloned Env", icon: "fas fa-clone" },
 ];
 
 const hasActiveFilters = computed(() => {
@@ -131,12 +131,10 @@ const activeFilterTags = computed(() => {
   const tags: Array<{ key: string; label: string }> = [];
 
   if (props.selectedDemoType) {
+    const typeInfo = demoTypes.find((t) => t.value === props.selectedDemoType);
     tags.push({
       key: `type:${props.selectedDemoType}`,
-      label: `${
-        props.selectedDemoType.charAt(0).toUpperCase() +
-        props.selectedDemoType.slice(1)
-      }`,
+      label: typeInfo?.label || props.selectedDemoType,
     });
   }
 

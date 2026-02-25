@@ -115,7 +115,7 @@
               </div>
 
               <!-- Type Badge -->
-              <div class="card-type-badge" :class="`type-${demo.productType}`">
+              <div class="card-type-badge" :class="getTypeBadgeClass(demo.productType)">
                 <i
                   :class="getProductTypeIcon(demo.productType)"
                   class="text-xs"
@@ -136,6 +136,10 @@
                   getFolderName(demo.folder_id)
                 }}</span>
                 <span class="card-views">{{ demo.views || 0 }} views</span>
+              </div>
+              <div v-if="demo.dataset" class="card-dataset">
+                <i class="fal fa-database text-gray-400 text-[10px] mr-0.5"></i>
+                <span>{{ demo.dataset.name }}</span>
               </div>
             </div>
 
@@ -247,30 +251,31 @@ const getScreenshotUrl = (screenshotSmall: string) => {
 };
 
 const getProductTypeIcon = (productType: string) => {
-  const icons = {
-    replicate: "fal fa-magic",
-    replay: "fal fa-play",
-    reveal: "fal fa-external-link",
+  const icons: Record<string, string> = {
+    overlay: "fas fa-layer-group",
+    html_environment: "fas fa-code",
+    cloned_environment: "fas fa-clone",
   };
-  return icons[productType as keyof typeof icons] || "fal fa-play";
+  return icons[productType] || "fal fa-play";
+};
+
+const getTypeBadgeClass = (productType: string) => {
+  const classes: Record<string, string> = {
+    overlay: "type-overlay",
+    html_environment: "type-html",
+    cloned_environment: "type-cloned",
+  };
+  return classes[productType] || "";
 };
 
 const getPrimaryActionLabel = (productType: string) => {
-  const labels = {
-    replicate: "Run Demo",
-    replay: "Play Demo",
-    reveal: "Open Demo",
-  };
-  return labels[productType as keyof typeof labels] || "Play Demo";
+  return productType === "overlay" ? "Open Demo" : "Launch Demo";
 };
 
 const getPrimaryActionIcon = (productType: string) => {
-  const icons = {
-    replicate: "fal fa-magic",
-    replay: "fal fa-play",
-    reveal: "fal fa-external-link",
-  };
-  return icons[productType as keyof typeof icons] || "fal fa-play";
+  return productType === "overlay"
+    ? "fas fa-external-link-alt"
+    : "fal fa-play";
 };
 </script>
 
@@ -348,5 +353,79 @@ const getPrimaryActionIcon = (productType: string) => {
 /* Grid View - Compact */
 .grid-view {
   @apply grid grid-cols-1 gap-2;
+}
+
+/* Grid Card */
+.demo-card {
+  @apply bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer;
+}
+
+.card-thumbnail {
+  @apply relative w-full h-20 bg-gray-100;
+}
+
+.card-placeholder {
+  @apply w-full h-full flex items-center justify-center;
+}
+
+/* Type Badge on thumbnail */
+.card-type-badge {
+  @apply absolute top-1.5 left-1.5 w-5 h-5 rounded-full flex items-center justify-center;
+}
+
+.card-type-badge.type-overlay {
+  @apply bg-violet-500 bg-opacity-50 text-violet-900;
+}
+
+.card-type-badge.type-html {
+  @apply bg-sky-500 bg-opacity-50 text-sky-900;
+}
+
+.card-type-badge.type-cloned {
+  @apply bg-emerald-500 bg-opacity-50 text-emerald-900;
+}
+
+.card-starred {
+  @apply absolute top-2 right-2;
+}
+
+.card-content {
+  @apply p-3;
+}
+
+.card-title {
+  @apply text-sm font-medium text-gray-900 mb-1 m-0 truncate;
+}
+
+.card-meta {
+  @apply flex items-center justify-between text-xs text-gray-500;
+}
+
+.card-folder {
+  @apply text-gray-500 truncate;
+}
+
+.card-views {
+  @apply text-gray-500;
+}
+
+.card-dataset {
+  @apply flex items-center text-xs text-gray-400 mt-1 truncate;
+}
+
+.card-actions {
+  @apply flex items-center gap-1 p-2 border-t border-gray-100;
+}
+
+.card-action-btn {
+  @apply flex-1 flex items-center justify-center px-2 py-1 text-xs font-medium rounded transition-colors;
+}
+
+.card-action-btn.primary {
+  @apply bg-blue-600 text-white hover:bg-blue-700;
+}
+
+.card-action-btn.secondary {
+  @apply bg-gray-100 text-gray-700 hover:bg-gray-200;
 }
 </style>

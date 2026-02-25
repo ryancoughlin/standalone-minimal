@@ -18,10 +18,12 @@ export const demos: Demo[] = [
         tags: ["Enterprise", "Cloud", "API Integration"],
         folder_id: 'folder1',
         folder_title: 'Marketing Demos',
-        productType: 'reveal',
+        productType: 'overlay',
         isRecent: true,
         isShared: false,
-        screenshot_small: '/src/images/poster1.png'
+        screenshot_small: '/src/images/poster1.png',
+        dataset: { id: 'ds1', name: 'Acme Corp Q4', fieldCount: 12 },
+        productionUrl: 'app.acmecorp.com/dashboard'
     },
     {
         id: '2',
@@ -34,10 +36,11 @@ export const demos: Demo[] = [
         tags: ["Developer", "SKO", "Technical"],
         folder_id: 'folder2',
         folder_title: 'Sales Demos',
-        productType: 'replay',
+        productType: 'html_environment',
         isRecent: true,
         isShared: true,
-        screenshot_small: '/src/images/poster2.png'
+        screenshot_small: '/src/images/poster2.png',
+        dataset: { id: 'ds2', name: 'TechStart Series B', fieldCount: 8 }
     },
     {
         id: '3',
@@ -50,10 +53,11 @@ export const demos: Demo[] = [
         tags: ["AI", "BI", "Dashboard"],
         folder_id: 'folder3',
         folder_title: 'Training',
-        productType: 'replicate',
+        productType: 'cloned_environment',
         isRecent: true,
         isShared: true,
-        screenshot_small: '/src/images/poster3.png'
+        screenshot_small: '/src/images/poster3.png',
+        dataset: { id: 'ds3', name: 'DataViz Enterprise', fieldCount: 15 }
     },
     {
         id: '4',
@@ -66,10 +70,12 @@ export const demos: Demo[] = [
         tags: ["Product", "Launch", "Q4"],
         folder_id: 'folder4',
         folder_title: 'Product Demos',
-        productType: 'reveal',
+        productType: 'overlay',
         isRecent: false,
         isShared: true,
-        screenshot_small: '/src/images/poster4.png'
+        screenshot_small: '/src/images/poster4.png',
+        dataset: { id: 'ds4', name: 'Global Launch Kit', fieldCount: 20 },
+        productionUrl: 'app.globalcorp.io/products'
     },
     {
         id: '5',
@@ -82,10 +88,11 @@ export const demos: Demo[] = [
         tags: ["Security", "Enterprise", "Compliance"],
         folder_id: 'folder5',
         folder_title: 'Q1 Campaigns',
-        productType: 'replay',
+        productType: 'html_environment',
         isRecent: false,
         isShared: true,
-        screenshot_small: '/src/images/poster1.png'
+        screenshot_small: '/src/images/poster1.png',
+        dataset: { id: 'ds5', name: 'SecureNet Demo', fieldCount: 6 }
     },
     {
         id: '6',
@@ -98,10 +105,11 @@ export const demos: Demo[] = [
         tags: ["Onboarding", "Customer", "Process"],
         folder_id: 'folder6',
         folder_title: 'Q2 Campaigns',
-        productType: 'replicate',
+        productType: 'cloned_environment',
         isRecent: true,
         isShared: false,
         screenshot_small: '/src/images/poster2.png'
+        // Intentionally no dataset — tests optional state
     },
     {
         id: '7',
@@ -114,10 +122,12 @@ export const demos: Demo[] = [
         tags: ["Analytics", "Data", "Reporting"],
         folder_id: 'folder7',
         folder_title: 'Enterprise Sales',
-        productType: 'reveal',
+        productType: 'overlay',
         isRecent: false,
         isShared: false,
-        screenshot_small: '/src/images/poster3.png'
+        screenshot_small: '/src/images/poster3.png',
+        dataset: { id: 'ds7', name: 'AnalyticsPro Suite', fieldCount: 18 },
+        productionUrl: 'analytics.bigdata.com/reports'
     },
     {
         id: '8',
@@ -130,10 +140,11 @@ export const demos: Demo[] = [
         tags: ["Mobile", "API", "Integration"],
         folder_id: 'folder8',
         folder_title: 'SMB Sales',
-        productType: 'replay',
+        productType: 'html_environment',
         isRecent: true,
         isShared: true,
-        screenshot_small: '/src/images/poster4.png'
+        screenshot_small: '/src/images/poster4.png',
+        dataset: { id: 'ds8', name: 'MobileFirst Pack', fieldCount: 10 }
     },
     {
         id: '9',
@@ -146,10 +157,11 @@ export const demos: Demo[] = [
         tags: ["Workflow", "Automation", "Process"],
         folder_id: 'folder9',
         folder_title: 'Technical Training',
-        productType: 'replicate',
+        productType: 'cloned_environment',
         isRecent: false,
         isShared: false,
-        screenshot_small: '/src/images/poster1.png'
+        screenshot_small: '/src/images/poster1.png',
+        dataset: { id: 'ds9', name: 'AutoFlow Demo', fieldCount: 9 }
     },
     {
         id: '10',
@@ -162,10 +174,12 @@ export const demos: Demo[] = [
         tags: ["API", "Management", "Monitoring"],
         folder_id: 'folder10',
         folder_title: 'Product Demos',
-        productType: 'reveal',
+        productType: 'overlay',
         isRecent: true,
         isShared: false,
-        screenshot_small: '/src/images/poster2.png'
+        screenshot_small: '/src/images/poster2.png',
+        dataset: { id: 'ds10', name: 'API Gateway Pack', fieldCount: 14 },
+        productionUrl: 'manage.apihub.dev/gateway'
     }
 ];
 
@@ -214,4 +228,8 @@ export const getSharedDemoCount = () => {
 
 export const getStarredDemoCount = () => {
     return getStarredDemos().length;
+};
+
+export const getDemosByType = (type: string) => {
+    return demos.filter(demo => demo.productType === type);
 };

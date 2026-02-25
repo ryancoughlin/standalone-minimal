@@ -37,31 +37,29 @@
 
       <!-- Hover Overlay -->
       <div class="thumbnail-overlay">
-        <i class="fas fa-arrow-up-right text-white text-lg"></i>
+        <i :class="demo.productType === 'overlay' ? 'fas fa-external-link-alt' : 'fas fa-play'" class="text-white text-lg"></i>
       </div>
     </div>
 
     <!-- Demo Content -->
     <div class="demo-content">
-      <!-- Title -->
+      <!-- Title + Type Indicator -->
       <div class="demo-header">
         <h3 class="demo-title">{{ demo.title }}</h3>
+        <div class="type-indicator" :class="typeColorClass" :title="typeLabel">
+          <i :class="typeIcon" class="text-[8px]"></i>
+        </div>
       </div>
 
-      <!-- Metadata -->
+      <!-- Metadata: Dataset + Date -->
       <div class="demo-metadata">
-        <span v-if="showViews" class="demo-views"
-          >{{ demo.views || 0 }} views</span
-        >
-        <span v-else class="demo-date">{{
-          formatDate(demo.lastModified)
-        }}</span>
-      </div>
-
-      <!-- Shared Status -->
-      <div v-if="demo.isShared" class="shared-status">
-        <i class="fal fa-users text-xs"></i>
-        <span class="shared-text">Shared</span>
+        <template v-if="demo.dataset">
+          <i class="fal fa-database text-gray-400 text-[10px] mr-0.5"></i>
+          <span class="dataset-name">{{ demo.dataset.name }}</span>
+          <span class="meta-separator">&middot;</span>
+        </template>
+        <span v-if="showViews" class="demo-views">{{ demo.views || 0 }} views</span>
+        <span v-else class="demo-date">{{ formatDate(demo.lastModified) }}</span>
       </div>
     </div>
 
@@ -87,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 
 interface Props {
   demo: any;
@@ -112,6 +110,34 @@ const emit = defineEmits<Emits>();
 const imageError = ref(false);
 const isHovered = ref(false);
 const showContextMenu = ref(false);
+
+// Type identity system
+const typeIcon = computed(() => {
+  const icons: Record<string, string> = {
+    overlay: "fas fa-layer-group",
+    html_environment: "fas fa-code",
+    cloned_environment: "fas fa-clone",
+  };
+  return icons[props.demo.productType] || "fas fa-play";
+});
+
+const typeColorClass = computed(() => {
+  const classes: Record<string, string> = {
+    overlay: "type-overlay",
+    html_environment: "type-html",
+    cloned_environment: "type-cloned",
+  };
+  return classes[props.demo.productType] || "";
+});
+
+const typeLabel = computed(() => {
+  const labels: Record<string, string> = {
+    overlay: "Overlay",
+    html_environment: "HTML Environment",
+    cloned_environment: "Cloned Environment",
+  };
+  return labels[props.demo.productType] || "Demo";
+});
 
 // Helper functions
 const formatDate = (dateString: string) => {
@@ -193,24 +219,41 @@ onUnmounted(() => {
 }
 
 .demo-header {
-  @apply flex items-center justify-between mb-0.5;
+  @apply flex items-center gap-1.5 mb-0.5;
 }
 
 .demo-title {
   @apply text-xs font-medium text-gray-900 truncate flex-1;
 }
 
-.shared-status {
-  @apply flex items-center gap-1 mt-1 px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-xs w-fit;
+/* Type Indicator - Small colored circle with icon */
+.type-indicator {
+  @apply w-4 h-4 flex-shrink-0 rounded-full flex items-center justify-center;
 }
 
-.shared-text {
-  @apply text-xs font-medium;
+.type-indicator.type-overlay {
+  @apply bg-violet-500 bg-opacity-50 text-violet-900;
+}
+
+.type-indicator.type-html {
+  @apply bg-sky-500 bg-opacity-50 text-sky-900;
+}
+
+.type-indicator.type-cloned {
+  @apply bg-emerald-500 bg-opacity-50 text-emerald-900;
 }
 
 /* Metadata */
 .demo-metadata {
   @apply flex items-center text-xs text-gray-500;
+}
+
+.dataset-name {
+  @apply text-gray-500 truncate max-w-[120px];
+}
+
+.meta-separator {
+  @apply mx-1 text-gray-300;
 }
 
 .demo-date {

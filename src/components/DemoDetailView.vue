@@ -8,10 +8,12 @@
       <div class="header-content">
         <h2 class="demo-title">{{ demo.title }}</h2>
         <div class="demo-meta">
-          <span class="demo-type">{{ getDemoType(demo) }}</span>
-          <span class="demo-separator">•</span>
+          <span class="demo-type-label" :class="typeColorClass">
+            <i :class="typeIcon" class="text-xs mr-1"></i>{{ typeLabel }}
+          </span>
+          <span class="demo-separator">&bull;</span>
           <span class="demo-status">{{ getDemoStatus(demo) }}</span>
-          <span class="demo-separator">•</span>
+          <span class="demo-separator">&bull;</span>
           <span class="demo-updated">{{ formatLastUpdated(demo) }}</span>
         </div>
       </div>
@@ -39,10 +41,10 @@
       <button
         @click="$emit('launch-demo', demo)"
         class="action-btn primary"
-        title="Launch demo"
+        :title="launchLabel"
       >
-        <i class="fas fa-play"></i>
-        Launch Demo
+        <i :class="launchIcon"></i>
+        {{ launchLabel }}
       </button>
       <button
         @click="$emit('preview-demo', demo)"
@@ -52,6 +54,12 @@
         <i class="fas fa-eye"></i>
         Preview
       </button>
+    </div>
+
+    <!-- Overlay Production URL Hint -->
+    <div v-if="demo.productType === 'overlay' && demo.productionUrl" class="production-url-hint">
+      <i class="fal fa-globe text-gray-400 text-sm mr-1.5"></i>
+      <span class="url-text">{{ demo.productionUrl }}</span>
     </div>
 
     <!-- Demo Information -->
@@ -92,6 +100,13 @@
                 getFolderName(demo.folder_id || demo.replay_folder_id)
               }}</span>
             </div>
+            <div v-if="demo.dataset" class="detail-item">
+              <span class="detail-label">Dataset</span>
+              <span class="detail-value dataset-value">
+                <i class="fal fa-database text-gray-400 text-xs mr-1"></i>
+                {{ demo.dataset.name }} ({{ demo.dataset.fieldCount }} fields)
+              </span>
+            </div>
             <div class="detail-item">
               <span class="detail-label">Created</span>
               <span class="detail-value">{{ formatCreatedDate(demo) }}</span>
@@ -128,7 +143,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 interface Props {
   demo: any;
@@ -148,12 +163,44 @@ defineEmits<Emits>();
 
 const imageError = ref(false);
 
-const getDemoType = (demo: any) => {
-  if (demo.replay_type === "LEGACY") return "Legacy";
-  if (demo.replay_folder_id) return "Maestro";
-  if (demo.folder_id && !demo.replay_type) return "Live";
-  return "Demo";
-};
+// Type identity system
+const typeIcon = computed(() => {
+  const icons: Record<string, string> = {
+    overlay: "fas fa-layer-group",
+    html_environment: "fas fa-code",
+    cloned_environment: "fas fa-clone",
+  };
+  return icons[props.demo.productType] || "fas fa-play";
+});
+
+const typeLabel = computed(() => {
+  const labels: Record<string, string> = {
+    overlay: "Overlay",
+    html_environment: "HTML Environment",
+    cloned_environment: "Cloned Environment",
+  };
+  return labels[props.demo.productType] || "Demo";
+});
+
+const typeColorClass = computed(() => {
+  const classes: Record<string, string> = {
+    overlay: "type-color-overlay",
+    html_environment: "type-color-html",
+    cloned_environment: "type-color-cloned",
+  };
+  return classes[props.demo.productType] || "";
+});
+
+// Launch button — verb changes by type
+const launchLabel = computed(() => {
+  return props.demo.productType === "overlay" ? "Open Demo" : "Launch Demo";
+});
+
+const launchIcon = computed(() => {
+  return props.demo.productType === "overlay"
+    ? "fas fa-external-link-alt"
+    : "fas fa-play";
+});
 
 const getDemoStatus = (demo: any) => {
   if (demo.is_draft) return "Draft";
@@ -214,11 +261,24 @@ const formatCreatedDate = (demo: any) => {
 }
 
 .demo-meta {
-  @apply text-sm text-gray-500 mt-1;
+  @apply text-sm text-gray-500 mt-1 flex items-center flex-wrap;
 }
 
-.demo-type {
-  @apply font-medium text-blue-600;
+/* Type color labels */
+.demo-type-label {
+  @apply font-medium inline-flex items-center;
+}
+
+.demo-type-label.type-color-overlay {
+  @apply text-violet-600;
+}
+
+.demo-type-label.type-color-html {
+  @apply text-sky-600;
+}
+
+.demo-type-label.type-color-cloned {
+  @apply text-emerald-600;
 }
 
 .demo-separator {
@@ -267,6 +327,15 @@ const formatCreatedDate = (demo: any) => {
   @apply bg-gray-100 text-gray-700 hover:bg-gray-200 flex-1;
 }
 
+/* Production URL Hint — Overlay only */
+.production-url-hint {
+  @apply flex items-center px-4 py-2 bg-gray-50 border-b border-gray-200 text-xs text-gray-500;
+}
+
+.url-text {
+  @apply truncate;
+}
+
 /* Demo Information */
 .demo-info-section {
   @apply flex-1 p-4 overflow-y-auto;
@@ -305,6 +374,10 @@ const formatCreatedDate = (demo: any) => {
 .stat-value,
 .detail-value {
   @apply text-sm font-medium text-gray-900;
+}
+
+.dataset-value {
+  @apply flex items-center;
 }
 
 /* Advanced Actions */
