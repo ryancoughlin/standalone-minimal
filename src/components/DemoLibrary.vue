@@ -34,7 +34,7 @@
           class="flex-1 min-h-0 overflow-hidden flex flex-col transition-[margin] duration-300"
           :class="showNavigationSidebar ? 'ml-[190px]' : 'ml-0'"
         >
-          <UnifiedDemoPage
+          <DemoListView
             :page-type="pageType"
             :demos="demos"
             :loading="loading"
@@ -71,7 +71,7 @@ import { useDemoLibrary } from "../composables/useDemoLibrary";
 import { useFolderService } from "../services/folderService";
 import GlobalNavigation from "./GlobalNavigation.vue";
 import NavigationSidebar from "./NavigationSidebar.vue";
-import UnifiedDemoPage from "./UnifiedDemoPage.vue";
+import DemoListView from "./DemoListView.vue";
 
 // ─── Data sources ────────────────────────────────────────────
 

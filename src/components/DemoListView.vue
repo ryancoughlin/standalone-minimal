@@ -45,7 +45,7 @@
       </div>
 
       <!-- Page Header (includes sort dropdown) -->
-      <PageHeader
+      <DemoListHeader
         :title="title"
         :show-breadcrumbs="showBreadcrumbs"
         :current-folder="currentFolder"
@@ -89,7 +89,7 @@
       <!-- Demo List -->
       <div v-else>
         <DemoRow
-          v-for="demo in demos"
+          v-for="demo in paginatedDemos"
           :key="demo.id"
           :demo="demo"
           :show-views="true"
@@ -98,13 +98,39 @@
         />
       </div>
     </div>
+
+    <!-- Pagination footer -->
+    <div
+      v-if="totalPages > 1"
+      class="shrink-0 border-t border-default px-4 py-2 flex items-center justify-between text-xs text-muted"
+    >
+      <span>Showing {{ showingStart }}–{{ showingEnd }} of {{ demos.length }}</span>
+      <div class="flex items-center gap-1">
+        <button
+          @click="currentPage--"
+          :disabled="currentPage <= 1"
+          class="size-6 flex items-center justify-center rounded transition-colors"
+          :class="currentPage <= 1 ? 'text-muted/40 cursor-not-allowed' : 'text-muted hover:bg-hover hover:text-emphasis'"
+        >
+          <i class="fas fa-chevron-left text-[10px]"></i>
+        </button>
+        <button
+          @click="currentPage++"
+          :disabled="currentPage >= totalPages"
+          class="size-6 flex items-center justify-center rounded transition-colors"
+          :class="currentPage >= totalPages ? 'text-muted/40 cursor-not-allowed' : 'text-muted hover:bg-hover hover:text-emphasis'"
+        >
+          <i class="fas fa-chevron-right text-[10px]"></i>
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import PageHeader from "./PageHeader.vue";
-import DemoRow from "./demo-cards/DemoRow.vue";
+import { computed, ref, watch } from "vue";
+import DemoListHeader from "./DemoListHeader.vue";
+import DemoRow from "./DemoRow.vue";
 
 interface Props {
   pageType: "library" | "recent" | "shared" | "folder";
@@ -163,4 +189,25 @@ const showBreadcrumbs = computed(() => {
 });
 
 const isEmpty = computed(() => props.demos.length === 0);
+
+// Pagination
+const PAGE_SIZE = 10;
+const currentPage = ref(1);
+
+const totalPages = computed(() => Math.ceil(props.demos.length / PAGE_SIZE));
+
+const paginatedDemos = computed(() => {
+  const start = (currentPage.value - 1) * PAGE_SIZE;
+  return props.demos.slice(start, start + PAGE_SIZE);
+});
+
+const showingStart = computed(() => (currentPage.value - 1) * PAGE_SIZE + 1);
+const showingEnd = computed(() => Math.min(currentPage.value * PAGE_SIZE, props.demos.length));
+
+watch(
+  () => props.demos,
+  () => {
+    currentPage.value = 1;
+  },
+);
 </script>
