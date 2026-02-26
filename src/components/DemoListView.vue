@@ -5,11 +5,11 @@
       class="shrink-0 bg-default z-10 transition-shadow duration-150"
       :class="isScrolled ? 'shadow-sm' : ''"
     >
-      <!-- Content Nav: Sidebar toggle + Tabs (sprint 3+) -->
-      <div v-if="sprint >= 3" class="border-b border-default px-4 flex items-center gap-1">
-        <!-- Sidebar Toggle (sprint 4) -->
+      <!-- Content Nav: Sidebar toggle + Tabs (iteration 3+) -->
+      <div v-if="iteration >= 3" class="border-b border-default px-4 flex items-center gap-1">
+        <!-- Sidebar Toggle (iteration 4) -->
         <button
-          v-if="sprint >= 4"
+          v-if="iteration >= 4"
           @click="$emit('toggle-sidebar')"
           class="size-7 shrink-0 flex items-center justify-center rounded text-default transition-colors hover:bg-hover hover:text-emphasis"
           :class="{ 'text-reprise-blue': showNavigationSidebar }"
@@ -130,11 +130,11 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { useSprint } from "../composables/useSprint";
+import { useIteration } from "../composables/useIteration";
 import DemoListHeader from "./DemoListHeader.vue";
 import DemoRow from "./DemoRow.vue";
 
-const sprint = useSprint();
+const iteration = useIteration();
 
 interface Props {
   pageType: "library" | "recent" | "shared" | "folder";

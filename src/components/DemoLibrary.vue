@@ -3,8 +3,8 @@
   <div
     class="extension-chrome fixed top-5 right-5 flex overflow-hidden bg-default border border-default rounded-xl z-[10000] max-h-[calc(100vh-40px)]"
     :class="[
-      sprint >= 4 && showNavigationSidebar ? 'w-[580px]' : 'w-[420px]',
-      sprint >= 2 ? 'h-[600px]' : 'h-[360px]',
+      iteration >= 4 && showNavigationSidebar ? 'w-[580px]' : 'w-[420px]',
+      iteration >= 2 ? 'h-[600px]' : 'h-[360px]',
     ]"
   >
     <div class="flex flex-col flex-1 min-w-0">
@@ -15,15 +15,27 @@
         @close="handleClose"
       />
 
-      <!-- Login screen (sprint 1) -->
-      <LoginScreen v-if="sprint === 1" />
+      <!-- Login screen (iteration 1) -->
+      <LoginScreen v-if="iteration === 1" />
 
-      <!-- Body: sidebar + main content (sprint 2+) -->
-      <div v-if="sprint >= 2" class="flex flex-1 relative min-h-0">
+      <!-- Body: sidebar + main content (iteration 2+) -->
+      <div v-if="iteration >= 2" class="flex flex-1 relative min-h-0 overflow-hidden">
 
-        <!-- Sidebar (sprint 4) -->
+        <!-- Launch panel (slides in from right) -->
+        <Transition name="panel-push">
+          <DemoLaunchPanel
+            v-if="showLaunchPanel"
+            :demo="launchPanelDemo"
+            class="absolute inset-0 z-20"
+            @back="handleLaunchPanelBack"
+            @launch="handleLaunch"
+            @skip-launch="handleSkipLaunch"
+          />
+        </Transition>
+
+        <!-- Sidebar (iteration 4) -->
         <NavigationSidebar
-          v-if="sprint >= 4"
+          v-if="iteration >= 4"
           :show-navigation-sidebar="showNavigationSidebar"
           :current-folder="currentFolder"
           :all-folders="foldersWithCounts"
@@ -39,7 +51,7 @@
         <!-- Main content (shifts right when sidebar open) -->
         <div
           class="flex-1 min-h-0 overflow-hidden flex flex-col transition-[margin] duration-300"
-          :class="sprint >= 4 && showNavigationSidebar ? 'ml-[190px]' : 'ml-0'"
+          :class="iteration >= 4 && showNavigationSidebar ? 'ml-[190px]' : 'ml-0'"
         >
           <DemoListView
             :page-type="pageType"
@@ -74,15 +86,16 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
-import { useSprint } from "../composables/useSprint";
+import { useIteration } from "../composables/useIteration";
 import { useDemoLibrary } from "../composables/useDemoLibrary";
 import { useFolderService } from "../services/folderService";
 import GlobalNavigation from "./GlobalNavigation.vue";
 import LoginScreen from "./LoginScreen.vue";
 import NavigationSidebar from "./NavigationSidebar.vue";
 import DemoListView from "./DemoListView.vue";
+import DemoLaunchPanel from "./DemoLaunchPanel.vue";
 
-const sprint = useSprint();
+const iteration = useIteration();
 
 // ─── Data sources ────────────────────────────────────────────
 
@@ -219,22 +232,54 @@ const handleEmptyAction = () => {
   currentFolder.value ? console.log("Add demo to folder") : handleNavigateSection("demos");
 };
 
+// ─── Launch panel state ──────────────────────────────────────
+
+const launchPanelDemo = ref<any>(null);
+const showLaunchPanel = computed(() => !!launchPanelDemo.value);
+
 // ─── Demo actions ────────────────────────────────────────────
 
 const handleClose = () => console.log("Close");
-const handlePlayDemo = (demo: any) => console.log("Play:", demo.title);
+
+const handlePlayDemo = (demo: any) => {
+  if (iteration.value >= 5) {
+    launchPanelDemo.value = demo;
+  } else {
+    console.log("Play:", demo.title);
+  }
+};
+
 const handlePlayDemoWithNotes = (demo: any) => console.log("Play with notes:", demo.title);
 const handleCreateFolder = () => console.log("Create folder");
 
-// ─── Sprint state reset ──────────────────────────────────
+const handleLaunchPanelBack = () => {
+  launchPanelDemo.value = null;
+};
 
-watch(sprint, (s) => {
-  if (s < 4) {
+const handleLaunch = (payload: { demo: any; variables: Record<string, string> }) => {
+  console.log("Launching with edits:", payload.demo.title, payload.variables);
+  launchPanelDemo.value = null;
+  // In production: build URL with variable params and window.open()
+};
+
+const handleSkipLaunch = (demo: any) => {
+  console.log("Skip & Launch:", demo.title);
+  launchPanelDemo.value = null;
+  // In production: window.open(demo.productionUrl)
+};
+
+// ─── Iteration state reset ───────────────────────────────
+
+watch(iteration, (i) => {
+  if (i < 5) {
+    launchPanelDemo.value = null;
+  }
+  if (i < 4) {
     showNavigationSidebar.value = false;
     currentSection.value = "demos";
     searchQuery.value = "";
   }
-  if (s < 3) {
+  if (i < 3) {
     activeTab.value = "overlays";
   }
 });
@@ -249,5 +294,19 @@ onMounted(() => fetchAllDemos());
   box-shadow:
     0 4px 24px rgba(0, 0, 0, 0.08),
     0 12px 40px -8px rgba(0, 0, 0, 0.18);
+}
+
+/* Panel push transition — slides in from right */
+.panel-push-enter-active,
+.panel-push-leave-active {
+  transition: transform 0.25s ease-out, opacity 0.2s ease-out;
+}
+.panel-push-enter-from {
+  transform: translateX(100%);
+  opacity: 0;
+}
+.panel-push-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
 }
 </style>

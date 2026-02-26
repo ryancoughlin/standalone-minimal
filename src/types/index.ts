@@ -3,6 +3,13 @@
  * Only published demos, no status complexity
  */
 
+export interface DemoVariable {
+    id: string;
+    name: string;
+    type: 'text' | 'image' | 'date';
+    defaultValue: string;
+}
+
 export interface DemoDataset {
     id: string;
     name: string;
@@ -29,6 +36,7 @@ export interface Demo {
     textEditCount?: number;   // Number of text customizations
     imageEditCount?: number;  // Number of image replacements
     linkCount?: number;       // Number of configured links
+    variables?: DemoVariable[];
 }
 
 export interface Folder {

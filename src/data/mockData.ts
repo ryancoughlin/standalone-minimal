@@ -3,7 +3,51 @@
  * Clean, simple demo data for the prototype
  */
 
-import { Demo } from '../types/index';
+import { Demo, DemoVariable } from '../types/index';
+
+// Variable templates — realistic personalization fields
+const variableSets: Record<string, DemoVariable[]> = {
+    sales: [
+        { id: 'v1', name: 'companyName', type: 'text', defaultValue: 'Acme Corp' },
+        { id: 'v2', name: 'companyLogo', type: 'image', defaultValue: 'acme-logo.png' },
+        { id: 'v3', name: 'contactName', type: 'text', defaultValue: 'Jane Smith' },
+        { id: 'v4', name: 'annualRevenue', type: 'text', defaultValue: '$4.2M' },
+        { id: 'v5', name: 'closeDate', type: 'date', defaultValue: '2024-06-15' },
+    ],
+    marketing: [
+        { id: 'v1', name: 'companyName', type: 'text', defaultValue: 'Salesforce' },
+        { id: 'v2', name: 'yearOverYearGrowth', type: 'text', defaultValue: '127%' },
+        { id: 'v3', name: 'pipelineVolumeCurrent', type: 'text', defaultValue: '$2.4M' },
+        { id: 'v4', name: 'companyLogo', type: 'image', defaultValue: 'salesforce-logo.png' },
+        { id: 'v5', name: 'boardReviewDate', type: 'date', defaultValue: '2024-03-12' },
+    ],
+    technical: [
+        { id: 'v1', name: 'orgName', type: 'text', defaultValue: 'Engineering Team' },
+        { id: 'v2', name: 'apiEndpoint', type: 'text', defaultValue: 'api.example.com' },
+        { id: 'v3', name: 'teamSize', type: 'text', defaultValue: '50' },
+        { id: 'v4', name: 'deployDate', type: 'date', defaultValue: '2024-04-01' },
+    ],
+    product: [
+        { id: 'v1', name: 'companyName', type: 'text', defaultValue: 'Global Industries' },
+        { id: 'v2', name: 'heroImage', type: 'image', defaultValue: 'hero-default.png' },
+        { id: 'v3', name: 'tagline', type: 'text', defaultValue: 'Transform your workflow' },
+        { id: 'v4', name: 'ctaLabel', type: 'text', defaultValue: 'Get Started' },
+        { id: 'v5', name: 'launchDate', type: 'date', defaultValue: '2024-05-01' },
+        { id: 'v6', name: 'partnerLogo', type: 'image', defaultValue: 'partner-default.png' },
+    ],
+};
+
+// Assign variable set based on folder
+function getVariablesForDemo(demo: Demo): DemoVariable[] {
+    const folderMap: Record<string, string> = {
+        folder1: 'marketing', folder5: 'marketing', folder6: 'marketing',
+        folder2: 'sales', folder7: 'sales', folder8: 'sales',
+        folder3: 'technical', folder9: 'technical',
+        folder4: 'product', folder10: 'product',
+    };
+    const set = folderMap[demo.folder_id] || 'sales';
+    return variableSets[set].map(v => ({ ...v, id: `${demo.id}-${v.id}` }));
+}
 
 // Seed data — the duplicated set references this by index
 const demos_seed: Demo[] = [
@@ -753,15 +797,22 @@ const demos_seed: Demo[] = [
     },
 ];
 
+// Attach variables to seed demos
+const demos_with_vars = demos_seed.map(d => ({
+    ...d,
+    variables: getVariablesForDemo(d),
+}));
+
 // Double the data for stress testing pagination
 export const demos: Demo[] = [
-    ...demos_seed,
-    ...demos_seed.map((src, i) => ({
+    ...demos_with_vars,
+    ...demos_with_vars.map((src, i) => ({
         ...src,
         id: String(41 + i),
         title: src.title + ' v2',
         views: Math.round((src.views ?? 0) * 0.8),
         lastModified: src.lastModified.replace('2024-03', '2024-01').replace('2024-02', '2023-12'),
+        variables: src.variables?.map(v => ({ ...v, id: `${41 + i}-${v.id.split('-')[1]}` })),
     })),
 ];
 

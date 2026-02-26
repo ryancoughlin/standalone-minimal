@@ -1,12 +1,12 @@
 <template>
-  <SprintPicker v-model="sprint" />
+  <IterationPicker v-model="iteration" />
   <DemoLibrary />
 </template>
 
 <script setup lang="ts">
-import { provideSprint } from "./composables/useSprint";
-import SprintPicker from "./components/SprintPicker.vue";
+import { provideIteration } from "./composables/useIteration";
+import IterationPicker from "./components/IterationPicker.vue";
 import DemoLibrary from "./components/DemoLibrary.vue";
 
-const sprint = provideSprint(1);
+const iteration = provideIteration(1);
 </script>

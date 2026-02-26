@@ -9,8 +9,8 @@
       class="h-5 shrink-0 object-contain"
     />
 
-    <!-- Search (sprint 4) -->
-    <label v-if="sprint >= 4" class="flex-1 relative min-w-0">
+    <!-- Search (iteration 4) -->
+    <label v-if="iteration >= 4" class="flex-1 relative min-w-0">
       <i
         class="fas fa-search absolute left-2 top-1/2 -translate-y-1/2 text-xs icon-muted"
       ></i>
@@ -47,9 +47,9 @@
 </template>
 
 <script setup lang="ts">
-import { useSprint } from "../composables/useSprint";
+import { useIteration } from "../composables/useIteration";
 
-const sprint = useSprint();
+const iteration = useIteration();
 
 interface Props {
   searchQuery: string;
