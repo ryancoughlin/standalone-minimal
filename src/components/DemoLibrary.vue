@@ -1,8 +1,11 @@
 <template>
   <!-- Shell -->
   <div
-    class="extension-chrome fixed top-5 right-5 flex overflow-hidden bg-default border border-default rounded-xl z-[10000] h-[600px] max-h-[calc(100vh-40px)]"
-    :class="showNavigationSidebar ? 'w-[580px]' : 'w-[420px]'"
+    class="extension-chrome fixed top-5 right-5 flex overflow-hidden bg-default border border-default rounded-xl z-[10000] max-h-[calc(100vh-40px)]"
+    :class="[
+      sprint >= 4 && showNavigationSidebar ? 'w-[580px]' : 'w-[420px]',
+      sprint >= 2 ? 'h-[600px]' : 'h-auto',
+    ]"
   >
     <div class="flex flex-col flex-1 min-w-0">
 
@@ -12,11 +15,12 @@
         @close="handleClose"
       />
 
-      <!-- Body: sidebar + main content -->
-      <div class="flex flex-1 relative min-h-0">
+      <!-- Body: sidebar + main content (sprint 2+) -->
+      <div v-if="sprint >= 2" class="flex flex-1 relative min-h-0">
 
-        <!-- Sidebar -->
+        <!-- Sidebar (sprint 4) -->
         <NavigationSidebar
+          v-if="sprint >= 4"
           :show-navigation-sidebar="showNavigationSidebar"
           :current-folder="currentFolder"
           :all-folders="foldersWithCounts"
@@ -32,7 +36,7 @@
         <!-- Main content (shifts right when sidebar open) -->
         <div
           class="flex-1 min-h-0 overflow-hidden flex flex-col transition-[margin] duration-300"
-          :class="showNavigationSidebar ? 'ml-[190px]' : 'ml-0'"
+          :class="sprint >= 4 && showNavigationSidebar ? 'ml-[190px]' : 'ml-0'"
         >
           <DemoListView
             :page-type="pageType"
@@ -66,12 +70,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
+import { useSprint } from "../composables/useSprint";
 import { useDemoLibrary } from "../composables/useDemoLibrary";
 import { useFolderService } from "../services/folderService";
 import GlobalNavigation from "./GlobalNavigation.vue";
 import NavigationSidebar from "./NavigationSidebar.vue";
 import DemoListView from "./DemoListView.vue";
+
+const sprint = useSprint();
 
 // ─── Data sources ────────────────────────────────────────────
 
@@ -203,6 +210,19 @@ const handleClose = () => console.log("Close");
 const handlePlayDemo = (demo: any) => console.log("Play:", demo.title);
 const handlePlayDemoWithNotes = (demo: any) => console.log("Play with notes:", demo.title);
 const handleCreateFolder = () => console.log("Create folder");
+
+// ─── Sprint state reset ──────────────────────────────────
+
+watch(sprint, (s) => {
+  if (s < 4) {
+    showNavigationSidebar.value = false;
+    currentSection.value = "recent";
+    searchQuery.value = "";
+  }
+  if (s < 3) {
+    activeTab.value = "overlays";
+  }
+});
 
 // ─── Init ────────────────────────────────────────────────────
 

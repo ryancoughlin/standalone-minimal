@@ -1,10 +1,10 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 import { MotionPlugin } from "@vueuse/motion";
-import DemoLibrary from "./components/DemoLibrary.vue";
+import App from "./App.vue";
 import "./style.css";
 
-const app = createApp(DemoLibrary);
+const app = createApp(App);
 const pinia = createPinia();
 
 app.use(pinia);

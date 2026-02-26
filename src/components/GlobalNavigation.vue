@@ -9,8 +9,8 @@
       class="h-5 shrink-0 object-contain"
     />
 
-    <!-- Search -->
-    <label class="flex-1 relative min-w-0">
+    <!-- Search (sprint 4) -->
+    <label v-if="sprint >= 4" class="flex-1 relative min-w-0">
       <i
         class="fas fa-search absolute left-2 top-1/2 -translate-y-1/2 text-xs icon-muted"
       ></i>
@@ -24,6 +24,7 @@
         "
       />
     </label>
+    <div v-else class="flex-1"></div>
 
     <!-- Close -->
     <button
@@ -37,6 +38,10 @@
 </template>
 
 <script setup lang="ts">
+import { useSprint } from "../composables/useSprint";
+
+const sprint = useSprint();
+
 interface Props {
   searchQuery: string;
 }

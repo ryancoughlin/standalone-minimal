@@ -1,5 +1,5 @@
 <template>
-  <div v-if="showBreadcrumbs && breadcrumbs?.length" class="px-4 pt-2">
+  <div v-if="sprint >= 4 && showBreadcrumbs && breadcrumbs?.length" class="px-4 pt-2">
     <BreadcrumbNavigation
       :current-folder="currentFolder"
       :breadcrumbs="breadcrumbs"
@@ -10,7 +10,7 @@
   <div class="flex items-center justify-between px-4 py-3">
     <h2 class="text-sm font-semibold text-emphasis">{{ title }}</h2>
 
-    <div class="flex items-center gap-2 shrink-0">
+    <div v-if="sprint >= 4" class="flex items-center gap-2 shrink-0">
       <!-- Environment type filter -->
       <div v-if="activeTab === 'environments'" class="relative">
         <select
@@ -56,7 +56,10 @@
 </template>
 
 <script setup lang="ts">
+import { useSprint } from "../composables/useSprint";
 import BreadcrumbNavigation from "./BreadcrumbNavigation.vue";
+
+const sprint = useSprint();
 
 interface Props {
   title: string;
