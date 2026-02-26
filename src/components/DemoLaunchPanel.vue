@@ -18,60 +18,79 @@
     </div>
 
     <!-- Scrollable variable list -->
-    <div class="flex-1 min-h-0 overflow-y-auto px-4 py-3">
-      <div class="space-y-3">
+    <div class="flex-1 min-h-0 overflow-y-auto">
+      <!-- Column headers -->
+      <div
+        v-if="variables.length"
+        class="sticky top-0 z-10 bg-default border-b border-default px-4 py-1.5 grid grid-cols-[1fr_1fr] gap-2 ml-[26px]"
+      >
+        <span class="text-[10px] font-medium text-muted uppercase tracking-wider">Default</span>
+        <span class="text-[10px] font-medium text-muted uppercase tracking-wider">New</span>
+      </div>
+
+      <div class="px-4 py-2 space-y-1">
         <div
           v-for="(variable, index) in variables"
           :key="variable.id"
-          class="group"
+          class="group rounded-lg py-1.5 transition-colors"
         >
-          <!-- Variable label -->
-          <label class="flex items-center gap-1.5 mb-1">
+          <!-- Variable name row: icon + label -->
+          <div class="flex items-center gap-1.5 mb-1.5">
+            <span class="size-[18px] shrink-0 flex items-center justify-center rounded bg-purple-50">
+              <i class="fas fa-font text-[8px] text-purple-400"></i>
+            </span>
             <span
-              class="text-xs font-medium truncate"
-              :class="editedFields[index] ? 'text-emphasis' : 'text-default'"
+              class="text-[11px] font-medium truncate"
+              :class="editedFields[index] ? 'text-reprise-blue' : 'text-muted'"
             >
               {{ variable.name }}
             </span>
-            <!-- Edited indicator -->
             <span
               v-if="editedFields[index]"
               class="size-1.5 rounded-full bg-reprise-blue shrink-0"
-              title="Modified"
             ></span>
-          </label>
+          </div>
 
-          <!-- Input field -->
-          <div class="relative">
-            <input
-              v-model="editedValues[index]"
-              type="text"
-              class="w-full px-2.5 py-1.5 text-xs bg-default border rounded-md transition-colors outline-none"
-              :class="
-                editedFields[index]
-                  ? 'border-reprise-blue/40 bg-blue-50/30'
-                  : 'border-default hover:border-emphasis'
-              "
-              :placeholder="variable.defaultValue"
-              @input="handleInput(index)"
-            />
-            <!-- Reset button (when edited) -->
-            <button
-              v-if="editedFields[index]"
-              @click="resetField(index)"
-              class="absolute right-1.5 top-1/2 -translate-y-1/2 size-5 flex items-center justify-center rounded text-muted hover:text-emphasis hover:bg-hover transition-colors"
-              title="Reset to default"
+          <!-- Two-column: Default (read-only) + New (editable) -->
+          <div class="grid grid-cols-[1fr_1fr] gap-2 ml-[26px]">
+            <!-- Default value (read-only) -->
+            <div
+              class="px-2.5 py-1.5 text-xs text-muted bg-gray-50 border border-gray-100 rounded-md truncate select-none"
             >
-              <i class="fas fa-rotate-left text-[9px]"></i>
-            </button>
+              {{ variable.defaultValue }}
+            </div>
+
+            <!-- New value (editable) -->
+            <div class="relative">
+              <input
+                v-model="editedValues[index]"
+                type="text"
+                class="w-full px-2.5 py-1.5 text-xs bg-default border rounded-md transition-all duration-150 outline-none"
+                :class="
+                  editedFields[index]
+                    ? 'border-reprise-blue/50 ring-1 ring-reprise-blue/20 text-emphasis'
+                    : 'border-default text-default hover:border-emphasis focus:border-reprise-blue/50 focus:ring-1 focus:ring-reprise-blue/20'
+                "
+                @input="handleInput(index)"
+              />
+              <!-- Reset button -->
+              <button
+                v-if="editedFields[index]"
+                @click="resetField(index)"
+                class="absolute right-1 top-1/2 -translate-y-1/2 size-5 flex items-center justify-center rounded-sm text-muted hover:text-emphasis hover:bg-gray-100 transition-colors"
+                title="Reset to default"
+              >
+                <i class="fas fa-rotate-left text-[8px]"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Empty state if no variables -->
+      <!-- Empty state -->
       <div
         v-if="!variables.length"
-        class="flex flex-col items-center justify-center py-8 text-center"
+        class="flex flex-col items-center justify-center py-12 text-center"
       >
         <i class="fal fa-sliders-h text-2xl text-muted mb-2"></i>
         <p class="text-xs text-muted">No variables to customize</p>
@@ -79,10 +98,7 @@
     </div>
 
     <!-- Sticky footer: actions -->
-    <div
-      class="shrink-0 border-t border-default px-4 py-3 flex items-center gap-2"
-    >
-      <!-- Edit count badge -->
+    <div class="shrink-0 border-t border-default px-4 py-3 flex items-center gap-2">
       <span v-if="editCount > 0" class="text-[11px] text-reprise-blue font-medium">
         {{ editCount }} edit{{ editCount > 1 ? 's' : '' }}
       </span>
@@ -124,11 +140,9 @@ const emit = defineEmits<Emits>();
 
 const variables = computed<DemoVariable[]>(() => props.demo.variables || []);
 
-// Track edited values — initialized to defaults
 const editedValues = ref<string[]>([]);
 const editedFields = ref<boolean[]>([]);
 
-// Reset when demo changes
 watch(
   () => props.demo.id,
   () => {
