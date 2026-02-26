@@ -6,7 +6,7 @@
 export interface DemoVariable {
     id: string;
     name: string;
-    type: 'text' | 'image' | 'date';
+    type: 'text';
     defaultValue: string;
 }
 

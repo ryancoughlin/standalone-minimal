@@ -25,14 +25,8 @@
           :key="variable.id"
           class="group"
         >
-          <!-- Variable label with type icon -->
+          <!-- Variable label -->
           <label class="flex items-center gap-1.5 mb-1">
-            <span
-              class="size-5 shrink-0 flex items-center justify-center rounded"
-              :class="typeIconBg(variable.type)"
-            >
-              <i :class="typeIcon(variable.type)" class="text-[10px]"></i>
-            </span>
             <span
               class="text-xs font-medium truncate"
               :class="editedFields[index] ? 'text-emphasis' : 'text-default'"
@@ -59,7 +53,6 @@
                   : 'border-default hover:border-emphasis'
               "
               :placeholder="variable.defaultValue"
-              @focus="handleFocus(index)"
               @input="handleInput(index)"
             />
             <!-- Reset button (when edited) -->
@@ -147,10 +140,6 @@ watch(
 
 const editCount = computed(() => editedFields.value.filter(Boolean).length);
 
-const handleFocus = (_index: number) => {
-  // Could be used for analytics or scroll-into-view
-};
-
 const handleInput = (index: number) => {
   editedFields.value[index] =
     editedValues.value[index] !== variables.value[index].defaultValue;
@@ -177,24 +166,5 @@ const handleLaunch = () => {
 
 const handleSkipAndLaunch = () => {
   emit("skip-launch", props.demo);
-};
-
-// Type icon helpers
-const typeIcon = (type: string) => {
-  const icons: Record<string, string> = {
-    text: "fas fa-font",
-    image: "fas fa-image",
-    date: "fas fa-calendar",
-  };
-  return icons[type] || "fas fa-font";
-};
-
-const typeIconBg = (type: string) => {
-  const bgs: Record<string, string> = {
-    text: "bg-purple-50 text-purple-400",
-    image: "bg-pink-50 text-pink-400",
-    date: "bg-amber-50 text-amber-500",
-  };
-  return bgs[type] || "bg-gray-50 text-gray-400";
 };
 </script>

@@ -9,31 +9,30 @@ import { Demo, DemoVariable } from '../types/index';
 const variableSets: Record<string, DemoVariable[]> = {
     sales: [
         { id: 'v1', name: 'companyName', type: 'text', defaultValue: 'Acme Corp' },
-        { id: 'v2', name: 'companyLogo', type: 'image', defaultValue: 'acme-logo.png' },
-        { id: 'v3', name: 'contactName', type: 'text', defaultValue: 'Jane Smith' },
-        { id: 'v4', name: 'annualRevenue', type: 'text', defaultValue: '$4.2M' },
-        { id: 'v5', name: 'closeDate', type: 'date', defaultValue: '2024-06-15' },
+        { id: 'v2', name: 'contactName', type: 'text', defaultValue: 'Jane Smith' },
+        { id: 'v3', name: 'annualRevenue', type: 'text', defaultValue: '$4.2M' },
+        { id: 'v4', name: 'dealSize', type: 'text', defaultValue: '$120K' },
+        { id: 'v5', name: 'industry', type: 'text', defaultValue: 'Financial Services' },
     ],
     marketing: [
         { id: 'v1', name: 'companyName', type: 'text', defaultValue: 'Salesforce' },
         { id: 'v2', name: 'yearOverYearGrowth', type: 'text', defaultValue: '127%' },
         { id: 'v3', name: 'pipelineVolumeCurrent', type: 'text', defaultValue: '$2.4M' },
-        { id: 'v4', name: 'companyLogo', type: 'image', defaultValue: 'salesforce-logo.png' },
-        { id: 'v5', name: 'boardReviewDate', type: 'date', defaultValue: '2024-03-12' },
+        { id: 'v4', name: 'teamSize', type: 'text', defaultValue: '250' },
+        { id: 'v5', name: 'region', type: 'text', defaultValue: 'North America' },
     ],
     technical: [
         { id: 'v1', name: 'orgName', type: 'text', defaultValue: 'Engineering Team' },
         { id: 'v2', name: 'apiEndpoint', type: 'text', defaultValue: 'api.example.com' },
         { id: 'v3', name: 'teamSize', type: 'text', defaultValue: '50' },
-        { id: 'v4', name: 'deployDate', type: 'date', defaultValue: '2024-04-01' },
+        { id: 'v4', name: 'environment', type: 'text', defaultValue: 'Production' },
     ],
     product: [
         { id: 'v1', name: 'companyName', type: 'text', defaultValue: 'Global Industries' },
-        { id: 'v2', name: 'heroImage', type: 'image', defaultValue: 'hero-default.png' },
-        { id: 'v3', name: 'tagline', type: 'text', defaultValue: 'Transform your workflow' },
-        { id: 'v4', name: 'ctaLabel', type: 'text', defaultValue: 'Get Started' },
-        { id: 'v5', name: 'launchDate', type: 'date', defaultValue: '2024-05-01' },
-        { id: 'v6', name: 'partnerLogo', type: 'image', defaultValue: 'partner-default.png' },
+        { id: 'v2', name: 'tagline', type: 'text', defaultValue: 'Transform your workflow' },
+        { id: 'v3', name: 'ctaLabel', type: 'text', defaultValue: 'Get Started' },
+        { id: 'v4', name: 'planName', type: 'text', defaultValue: 'Enterprise' },
+        { id: 'v5', name: 'userCount', type: 'text', defaultValue: '500' },
     ],
 };
 
