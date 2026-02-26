@@ -22,6 +22,7 @@
             Sprint {{ option.value }}
           </div>
           <div class="text-[11px] text-gray-400 leading-tight">{{ option.label }}</div>
+          <div class="text-[11px] text-gray-500 leading-snug italic mt-0.5">{{ option.story }}</div>
         </div>
       </label>
     </div>
@@ -41,9 +42,9 @@ defineProps<Props>();
 defineEmits<Emits>();
 
 const options = [
-  { value: 1, label: "Shell + logo bar + close" },
-  { value: 2, label: "Demo list + pagination" },
-  { value: 3, label: "Overlays / Environments tabs" },
-  { value: 4, label: "Search, sort, sidebar, folders" },
+  { value: 1, label: "Shell + logo bar + close", story: "As a rep, I can see the extension is present and dismiss it." },
+  { value: 2, label: "Demo list + pagination", story: "As a rep, I can browse my reveal demos and page through them." },
+  { value: 3, label: "Overlays / Environments tabs", story: "As a rep, I can access all demo types in one unified view." },
+  { value: 4, label: "Search, sort, sidebar, folders", story: "As a rep, I can find, filter, and organize demos quickly." },
 ];
 </script>
