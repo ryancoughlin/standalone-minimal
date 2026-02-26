@@ -17,12 +17,21 @@
       <input
         type="text"
         placeholder="Search demos..."
-        class="w-full pl-7 pr-3 py-1.5 text-xs border border-default rounded-md bg-reprise-off-white transition-colors focus:outline-none focus:border-reprise-blue focus:ring-1 focus:ring-reprise-blue"
+        class="w-full pl-7 py-1.5 text-xs border border-default rounded-md bg-reprise-off-white transition-colors focus:outline-none focus:border-reprise-blue focus:ring-1 focus:ring-reprise-blue"
+        :class="searchQuery ? 'pr-7' : 'pr-3'"
         :value="searchQuery"
         @input="
           $emit('update:searchQuery', ($event.target as HTMLInputElement).value)
         "
       />
+      <button
+        v-if="searchQuery"
+        class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted hover:text-default transition-colors"
+        title="Clear search"
+        @click="$emit('update:searchQuery', '')"
+      >
+        <i class="fas fa-times-circle"></i>
+      </button>
     </label>
     <div v-else class="flex-1"></div>
 

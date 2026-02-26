@@ -4,7 +4,7 @@
     class="extension-chrome fixed top-5 right-5 flex overflow-hidden bg-default border border-default rounded-xl z-[10000] max-h-[calc(100vh-40px)]"
     :class="[
       sprint >= 4 && showNavigationSidebar ? 'w-[580px]' : 'w-[420px]',
-      sprint >= 2 ? 'h-[600px]' : 'h-auto',
+      sprint >= 2 ? 'h-[600px]' : 'h-[360px]',
     ]"
   >
     <div class="flex flex-col flex-1 min-w-0">
@@ -14,6 +14,9 @@
         v-model:search-query="searchQuery"
         @close="handleClose"
       />
+
+      <!-- Login screen (sprint 1) -->
+      <LoginScreen v-if="sprint === 1" />
 
       <!-- Body: sidebar + main content (sprint 2+) -->
       <div v-if="sprint >= 2" class="flex flex-1 relative min-h-0">
@@ -43,7 +46,7 @@
             :demos="demos"
             :loading="loading"
             :title="pageTitle"
-            :show-breadcrumbs="!!currentFolder"
+            :show-breadcrumbs="!!currentFolder && !isSearching"
             :current-folder="currentFolder"
             :breadcrumbs="breadcrumbs"
             :current-sort="currentSort"
@@ -75,6 +78,7 @@ import { useSprint } from "../composables/useSprint";
 import { useDemoLibrary } from "../composables/useDemoLibrary";
 import { useFolderService } from "../services/folderService";
 import GlobalNavigation from "./GlobalNavigation.vue";
+import LoginScreen from "./LoginScreen.vue";
 import NavigationSidebar from "./NavigationSidebar.vue";
 import DemoListView from "./DemoListView.vue";
 
@@ -101,7 +105,9 @@ const activeTab = ref<"overlays" | "environments">("overlays");
 const envFilter = ref<"all" | "html" | "cloned">("all");
 const currentSort = ref("lastModified");
 
-// ─── Demo pipeline (tab → section → search) ─────────────────
+// ─── Demo pipeline (search ? all : tab → section/folder) ────
+
+const isSearching = computed(() => !!searchQuery.value);
 
 const tabDemos = computed(() => {
   if (activeTab.value === "overlays") {
@@ -117,6 +123,15 @@ const tabDemos = computed(() => {
 });
 
 const demos = computed(() => {
+  if (isSearching.value) {
+    const q = searchQuery.value.toLowerCase();
+    return allDemos.value.filter(
+      (d) =>
+        d.title.toLowerCase().includes(q) ||
+        (d.dataset?.name && d.dataset.name.toLowerCase().includes(q))
+    );
+  }
+
   let result = tabDemos.value;
 
   if (currentSection.value === "recent") {
@@ -126,15 +141,6 @@ const demos = computed(() => {
   } else if (currentFolder.value) {
     const ids = new Set(getDemosInFolder(currentFolder.value.id).map((d) => d.id));
     result = result.filter((d) => ids.has(d.id));
-  }
-
-  if (searchQuery.value) {
-    const q = searchQuery.value.toLowerCase();
-    result = result.filter(
-      (d) =>
-        d.title.toLowerCase().includes(q) ||
-        (d.dataset?.name && d.dataset.name.toLowerCase().includes(q))
-    );
   }
 
   return result;
@@ -165,11 +171,20 @@ const pageType = computed(() =>
   currentFolder.value ? "folder" : (SECTIONS[currentSection.value]?.type ?? "library")
 );
 
-const pageTitle = computed(() =>
-  currentFolder.value ? currentFolder.value.title : (SECTIONS[currentSection.value]?.title ?? "All Demos")
-);
+const pageTitle = computed(() => {
+  if (isSearching.value) return `Results for "${searchQuery.value}"`;
+  return currentFolder.value ? currentFolder.value.title : (SECTIONS[currentSection.value]?.title ?? "All Demos");
+});
 
 const emptyState = computed(() => {
+  if (isSearching.value) {
+    return {
+      title: `No demos matching "${searchQuery.value}"`,
+      description: "Try a different search term.",
+      icon: "fal fa-search",
+      action: "",
+    };
+  }
   if (currentFolder.value) {
     return {
       title: `${currentFolder.value.title} is empty`,
