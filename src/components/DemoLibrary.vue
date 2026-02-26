@@ -96,7 +96,7 @@ const {
 const searchQuery = ref("");
 const showNavigationSidebar = ref(false);
 const breadcrumbs = ref<any[]>([]);
-const currentSection = ref("recent");
+const currentSection = ref("demos");
 const activeTab = ref<"overlays" | "environments">("overlays");
 const envFilter = ref<"all" | "html" | "cloned">("all");
 const currentSort = ref("lastModified");
@@ -216,7 +216,7 @@ const handleCreateFolder = () => console.log("Create folder");
 watch(sprint, (s) => {
   if (s < 4) {
     showNavigationSidebar.value = false;
-    currentSection.value = "recent";
+    currentSection.value = "demos";
     searchQuery.value = "";
   }
   if (s < 3) {
