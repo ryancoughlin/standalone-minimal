@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky top-0 z-10 flex items-center gap-4 px-4 py-3 bg-default border-b border-default"
+    class="sticky top-0 z-10 flex items-center gap-4 px-4 py-3 bg-surface-sunken"
   >
     <!-- Logo -->
     <img
@@ -17,7 +17,7 @@
       <input
         type="text"
         placeholder="Search demos..."
-        class="w-full pl-7 py-1.5 text-xs border border-default rounded-md bg-reprise-off-white transition-colors focus:outline-none focus:border-reprise-blue focus:ring-1 focus:ring-reprise-blue"
+        class="w-full pl-7 py-1.5 text-xs border border-default rounded-md bg-surface-default transition-colors focus:outline-none focus:border-reprise-blue focus:ring-1 focus:ring-reprise-blue"
         :class="searchQuery ? 'pr-7' : 'pr-3'"
         :value="searchQuery"
         @input="

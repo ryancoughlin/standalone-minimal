@@ -38,6 +38,10 @@
   --bg-primary-muted: var(--color-blue-50);
   --bg-hover: rgba(0, 0, 0, 0.04);
 
+  /* Surface elevation */
+  --surface-sunken: #f5f5f2;
+  --surface-default: #ffffff;
+
   /* Borders */
   --border-default: var(--color-gray-200);
   --border-muted: var(--color-gray-100);
@@ -91,6 +95,12 @@
 }
 @utility bg-hover {
   background-color: var(--bg-hover);
+}
+@utility bg-surface-sunken {
+  background-color: var(--surface-sunken);
+}
+@utility bg-surface-default {
+  background-color: var(--surface-default);
 }
 
 /* ──────────────────────────────────────────────

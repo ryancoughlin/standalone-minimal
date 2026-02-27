@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative w-full py-2 px-4 cursor-pointer border-b border-muted last:border-b-0 hover:bg-hover transition-colors duration-150 group"
+    class="relative w-full py-2 px-4 cursor-pointer border-b border-muted last:border-b-0 first:rounded-t-lg last:rounded-b-lg hover:bg-hover transition-colors duration-150 group"
     @click="$emit('play-demo', demo)"
   >
     <div class="flex items-start gap-2">

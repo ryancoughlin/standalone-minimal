@@ -1,12 +1,12 @@
 <template>
-  <div class="flex flex-col h-full min-h-0 w-full bg-default">
+  <div class="flex flex-col h-full min-h-0 w-full bg-surface-sunken">
     <!-- Sticky header zone: tabs + page header -->
     <div
-      class="shrink-0 bg-default z-10 transition-shadow duration-150"
+      class="shrink-0 bg-surface-sunken z-10 transition-shadow duration-150"
       :class="isScrolled ? 'shadow-sm' : ''"
     >
       <!-- Content Nav: Sidebar toggle + Tabs (iteration 3+) -->
-      <div v-if="iteration >= 3" class="border-b border-default px-4 flex items-center gap-1">
+      <div v-if="iteration >= 3" class="px-4 flex items-center gap-1">
         <!-- Sidebar Toggle (iteration 4) -->
         <button
           v-if="iteration >= 4"
@@ -18,29 +18,25 @@
           <i class="fas fa-bars text-sm"></i>
         </button>
 
-        <!-- Tab Buttons -->
-        <div class="flex gap-4">
+        <!-- Tab Buttons (ghost button style) -->
+        <div class="flex gap-1 py-1.5">
           <button
             @click="$emit('change-tab', 'overlays')"
-            class="relative py-2 text-xs font-medium transition-colors"
-            :class="activeTab === 'overlays' ? 'text-reprise-deep-blue' : 'text-muted hover:text-emphasis'"
+            class="px-3 py-1 rounded-md text-xs font-medium transition-all duration-150"
+            :class="activeTab === 'overlays'
+              ? 'bg-primary text-white'
+              : 'text-muted hover:text-default hover:bg-black/[0.04]'"
           >
             Overlays
-            <span
-              v-if="activeTab === 'overlays'"
-              class="absolute bottom-0 left-0 right-0 h-0.5 bg-reprise-blue rounded-full"
-            ></span>
           </button>
           <button
             @click="$emit('change-tab', 'environments')"
-            class="relative py-2 text-xs font-medium transition-colors"
-            :class="activeTab === 'environments' ? 'text-reprise-deep-blue' : 'text-muted hover:text-emphasis'"
+            class="px-3 py-1 rounded-md text-xs font-medium transition-all duration-150"
+            :class="activeTab === 'environments'
+              ? 'bg-primary text-white'
+              : 'text-muted hover:text-default hover:bg-black/[0.04]'"
           >
             Environments
-            <span
-              v-if="activeTab === 'environments'"
-              class="absolute bottom-0 left-0 right-0 h-0.5 bg-reprise-blue rounded-full"
-            ></span>
           </button>
         </div>
       </div>
@@ -63,12 +59,14 @@
     <!-- Scrollable content -->
     <div ref="scrollContainer" class="flex-1 min-h-0 overflow-y-auto" @scroll="onScroll">
       <!-- Loading -->
-      <div v-if="loading" class="p-4 space-y-2">
-        <div v-for="i in 8" :key="i" class="flex items-center gap-2 py-1">
-          <div class="w-24 h-[67px] bg-gray-200 rounded animate-pulse"></div>
-          <div class="flex-1 space-y-1">
-            <div class="h-3 bg-gray-200 rounded animate-pulse w-3/4"></div>
-            <div class="h-2 bg-gray-200 rounded animate-pulse w-1/2"></div>
+      <div v-if="loading" class="px-3 pb-3">
+        <div class="bg-surface-default rounded-lg p-4 space-y-2">
+          <div v-for="i in 8" :key="i" class="flex items-center gap-2 py-1">
+            <div class="w-24 h-[67px] bg-gray-200 rounded animate-pulse"></div>
+            <div class="flex-1 space-y-1">
+              <div class="h-3 bg-gray-200 rounded animate-pulse w-3/4"></div>
+              <div class="h-2 bg-gray-200 rounded animate-pulse w-1/2"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -87,16 +85,18 @@
         </button>
       </div>
 
-      <!-- Demo List -->
-      <div v-else>
-        <DemoRow
-          v-for="demo in paginatedDemos"
-          :key="demo.id"
-          :demo="demo"
-          :show-views="true"
-          @play-demo="$emit('play-demo', $event)"
-          @play-demo-with-notes="$emit('play-demo-with-notes', $event)"
-        />
+      <!-- Demo List (white card surface) -->
+      <div v-else class="px-3 pb-3">
+        <div class="bg-surface-default rounded-lg border border-default">
+          <DemoRow
+            v-for="demo in paginatedDemos"
+            :key="demo.id"
+            :demo="demo"
+            :show-views="true"
+            @play-demo="$emit('play-demo', $event)"
+            @play-demo-with-notes="$emit('play-demo-with-notes', $event)"
+          />
+        </div>
       </div>
     </div>
 
