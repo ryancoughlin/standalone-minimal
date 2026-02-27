@@ -41,13 +41,13 @@
             </span>
             <span
               class="text-[11px] font-medium truncate"
-              :class="editedFields[index] ? 'text-reprise-blue' : 'text-muted'"
+              :class="editedFields[index] ? 'text-blue-600' : 'text-muted'"
             >
               {{ variable.name }}
             </span>
             <span
               v-if="editedFields[index]"
-              class="size-1.5 rounded-full bg-reprise-blue shrink-0"
+              class="size-1.5 rounded-full bg-blue-600 shrink-0"
             ></span>
           </div>
 
@@ -68,8 +68,8 @@
                 class="w-full px-2.5 py-1.5 text-xs bg-default border rounded-md transition-all duration-150 outline-none"
                 :class="
                   editedFields[index]
-                    ? 'border-reprise-blue/50 ring-1 ring-reprise-blue/20 text-emphasis'
-                    : 'border-default text-default hover:border-emphasis focus:border-reprise-blue/50 focus:ring-1 focus:ring-reprise-blue/20'
+                    ? 'border-blue-600/50 ring-1 ring-blue-600/20 text-emphasis'
+                    : 'border-default text-default hover:border-emphasis focus:border-blue-600/50 focus:ring-1 focus:ring-blue-600/20'
                 "
                 @input="handleInput(index)"
               />
@@ -99,7 +99,7 @@
 
     <!-- Sticky footer: actions -->
     <div class="shrink-0 border-t border-default px-4 py-3 flex items-center gap-2">
-      <span v-if="editCount > 0" class="text-[11px] text-reprise-blue font-medium">
+      <span v-if="editCount > 0" class="text-[11px] text-blue-600 font-medium">
         {{ editCount }} edit{{ editCount > 1 ? 's' : '' }}
       </span>
       <div class="flex-1"></div>

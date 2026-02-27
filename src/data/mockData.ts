@@ -52,7 +52,7 @@ function getVariablesForDemo(demo: Demo): DemoVariable[] {
 const demos_seed: Demo[] = [
     {
         id: '1',
-        title: 'Enterprise Cloud Integration',
+        title: 'Enterprise Cloud Integration Platform — Full Technical Walkthrough for Solutions Engineers',
         description: 'Complete walkthrough of enterprise cloud integration features',
         lastModified: '2024-03-20',
         createdBy: 'Ryan Howard',
@@ -107,7 +107,7 @@ const demos_seed: Demo[] = [
     },
     {
         id: '4',
-        title: 'Q4 Product Launch',
+        title: 'Q4 Product Launch — Global Go-to-Market Strategy & Competitive Positioning Demo',
         description: 'Product launch demonstration for Q4 initiatives',
         lastModified: '2024-03-17',
         createdBy: 'Michael Scott',
@@ -238,7 +238,7 @@ const demos_seed: Demo[] = [
     },
     {
         id: '11',
-        title: 'Revenue Dashboard Walkthrough',
+        title: 'Revenue Dashboard Walkthrough with Drill-Down Analytics & Executive Summary View',
         description: 'Interactive revenue dashboard with drill-down analytics',
         lastModified: '2024-03-10',
         createdBy: 'Ryan Howard',
@@ -348,7 +348,7 @@ const demos_seed: Demo[] = [
     },
     {
         id: '17',
-        title: 'Homepage Hero Swap',
+        title: 'Homepage Hero Swap with Dynamic Personalization & Industry-Specific Messaging',
         description: 'Quick homepage overlay swapping hero image and CTA for prospect',
         lastModified: '2024-03-04',
         createdBy: 'Michael Scott',
@@ -403,7 +403,7 @@ const demos_seed: Demo[] = [
     },
     {
         id: '20',
-        title: 'Feature Comparison Overlay',
+        title: 'Feature Comparison Overlay — Side-by-Side Competitive Analysis for Enterprise Buyers',
         description: 'Side-by-side feature comparison overlay for competitive deals',
         lastModified: '2024-03-01',
         createdBy: 'Phyllis Vance',

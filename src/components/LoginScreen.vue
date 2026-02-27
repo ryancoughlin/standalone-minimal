@@ -6,7 +6,7 @@
       <p class="body-md text-muted">Sign in to access your demo library</p>
     </div>
     <button
-      class="w-full max-w-[240px] rounded-lg bg-reprise-blue text-white font-medium py-2.5 px-4 cursor-default"
+      class="w-full max-w-[240px] rounded-lg bg-blue-600 text-white font-medium py-2.5 px-4 cursor-default"
     >
       Sign in
     </button>

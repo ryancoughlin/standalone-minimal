@@ -14,22 +14,22 @@
           <button
             @click="$emit('navigate-section', 'demos')"
             class="w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md transition-all duration-200 hover:bg-reprise-off-white min-w-0"
-            :class="currentSection === 'demos' ? 'bg-reprise-sky text-reprise-deep-blue' : ''"
+            :class="currentSection === 'demos' ? 'bg-blue-100 text-blue-1000' : ''"
           >
-            <i class="fas fa-folder flex-shrink-0" :class="currentSection === 'demos' ? 'text-reprise-deep-blue' : 'icon-default'"></i>
-            <span class="text-xs font-medium truncate flex-1 min-w-0" :class="currentSection === 'demos' ? 'text-reprise-deep-blue' : 'text-emphasis'">Library</span>
-            <span class="text-xs px-1.5 py-0.5 rounded-full font-medium" :class="currentSection === 'demos' ? 'text-reprise-deep-blue bg-reprise-sky' : 'text-muted bg-emphasis'">{{ totalDemoCount }}</span>
+            <i class="fas fa-folder flex-shrink-0" :class="currentSection === 'demos' ? 'text-blue-1000' : 'icon-default'"></i>
+            <span class="text-xs font-medium truncate flex-1 min-w-0" :class="currentSection === 'demos' ? 'text-blue-1000' : 'text-emphasis'">Library</span>
+            <span class="text-xs px-1.5 py-0.5 rounded-full font-medium" :class="currentSection === 'demos' ? 'text-blue-1000 bg-blue-100' : 'text-muted bg-emphasis'">{{ totalDemoCount }}</span>
           </button>
 
           <!-- Recent Demos -->
           <button
             @click="$emit('navigate-section', 'recent')"
             class="w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md transition-all duration-200 hover:bg-reprise-off-white min-w-0"
-            :class="currentSection === 'recent' ? 'bg-reprise-sky text-reprise-deep-blue' : ''"
+            :class="currentSection === 'recent' ? 'bg-blue-100 text-blue-1000' : ''"
           >
-            <i class="fas fa-clock flex-shrink-0" :class="currentSection === 'recent' ? 'text-reprise-deep-blue' : 'icon-default'"></i>
-            <span class="text-xs font-medium truncate flex-1 min-w-0" :class="currentSection === 'recent' ? 'text-reprise-deep-blue' : 'text-emphasis'">Recent</span>
-            <span class="text-xs px-1.5 py-0.5 rounded-full font-medium" :class="currentSection === 'recent' ? 'text-reprise-deep-blue bg-reprise-sky' : 'text-muted bg-emphasis'">{{ recentDemoCount }}</span>
+            <i class="fas fa-clock flex-shrink-0" :class="currentSection === 'recent' ? 'text-blue-1000' : 'icon-default'"></i>
+            <span class="text-xs font-medium truncate flex-1 min-w-0" :class="currentSection === 'recent' ? 'text-blue-1000' : 'text-emphasis'">Recent</span>
+            <span class="text-xs px-1.5 py-0.5 rounded-full font-medium" :class="currentSection === 'recent' ? 'text-blue-1000 bg-blue-100' : 'text-muted bg-emphasis'">{{ recentDemoCount }}</span>
           </button>
 
         </div>
@@ -48,13 +48,13 @@
               @click="$emit('select-folder', folder)"
               class="w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md transition-all duration-200 hover:bg-reprise-off-white min-w-0"
               :class="[
-                currentFolder?.id === folder.id ? 'bg-reprise-sky text-reprise-deep-blue' : '',
+                currentFolder?.id === folder.id ? 'bg-blue-100 text-blue-1000' : '',
                 folder.parent_id === null ? 'font-medium' : 'ml-4',
               ]"
             >
-              <i class="fas fa-folder flex-shrink-0" :class="currentFolder?.id === folder.id ? 'text-reprise-deep-blue' : 'icon-default'"></i>
-              <span class="text-xs font-medium truncate flex-1 min-w-0" :class="currentFolder?.id === folder.id ? 'text-reprise-deep-blue' : 'text-emphasis'">{{ folder.title }}</span>
-              <span class="text-xs px-1.5 py-0.5 rounded-full font-medium" :class="currentFolder?.id === folder.id ? 'text-reprise-deep-blue bg-reprise-sky' : 'text-muted bg-emphasis'">{{ folder.total_demo_count }}</span>
+              <i class="fas fa-folder flex-shrink-0" :class="currentFolder?.id === folder.id ? 'text-blue-1000' : 'icon-default'"></i>
+              <span class="text-xs font-medium truncate flex-1 min-w-0" :class="currentFolder?.id === folder.id ? 'text-blue-1000' : 'text-emphasis'">{{ folder.title }}</span>
+              <span class="text-xs px-1.5 py-0.5 rounded-full font-medium" :class="currentFolder?.id === folder.id ? 'text-blue-1000 bg-blue-100' : 'text-muted bg-emphasis'">{{ folder.total_demo_count }}</span>
             </button>
           </div>
         </div>

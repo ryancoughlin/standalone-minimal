@@ -29,18 +29,12 @@
 
       <!-- Info -->
       <div class="flex-1 min-w-0">
-        <!-- Row 1: Title + views -->
-        <div class="flex items-start justify-between gap-2">
-          <h3 class="text-sm font-medium text-default truncate m-0">
-            {{ demo.title }}
-          </h3>
-          <span class="shrink-0 flex items-center gap-0.5 text-[11px] text-muted">
-            <i class="fal fa-play text-[9px]"></i>
-            {{ demo.views || 0 }}
-          </span>
-        </div>
+        <!-- Row 1: Title -->
+        <h3 class="text-sm font-medium text-default truncate m-0">
+          {{ demo.title }}
+        </h3>
 
-        <!-- Row 2: Dataset + edit count -->
+        <!-- Row 2: Dataset + edit count + views -->
         <div class="flex items-center gap-2 mt-1">
           <span v-if="demo.dataset" class="flex items-center gap-0.5 text-xs text-default truncate min-w-0">
             <i class="fal fa-database icon-muted text-[10px]"></i>
@@ -49,6 +43,10 @@
           <span v-if="totalEdits > 0" class="flex items-center gap-0.5 text-xs text-default shrink-0">
             <i class="fal fa-pen icon-muted text-[10px]"></i>
             {{ totalEdits }} edit{{ totalEdits > 1 ? 's' : '' }}
+          </span>
+          <span class="shrink-0 flex items-center gap-0.5 text-[11px] text-muted ml-auto">
+            <i class="fal fa-play text-[9px]"></i>
+            {{ demo.views || 0 }}
           </span>
         </div>
       </div>

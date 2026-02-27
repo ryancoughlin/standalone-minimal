@@ -21,7 +21,7 @@
               ($event.target as HTMLSelectElement).value,
             )
           "
-          class="appearance-none bg-default border border-default rounded-md px-2 py-1 pr-5 text-xs text-default transition-colors focus:outline-none focus:ring-1 focus:ring-reprise-blue focus:border-reprise-blue"
+          class="appearance-none bg-default border border-default rounded-md px-2 py-1 pr-5 text-xs text-default transition-colors focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
         >
           <option value="all">All Types</option>
           <option value="html">HTML</option>
@@ -39,7 +39,7 @@
           @change="
             $emit('change-sort', ($event.target as HTMLSelectElement).value)
           "
-          class="appearance-none bg-default border border-default rounded-md px-2 py-1 pr-6 text-xs text-default transition-colors focus:outline-none focus:ring-1 focus:ring-reprise-blue focus:border-reprise-blue"
+          class="appearance-none bg-default border border-default rounded-md px-2 py-1 pr-6 text-xs text-default transition-colors focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600"
         >
           <option value="lastModified">Last Modified</option>
           <option value="title">Name A-Z</option>

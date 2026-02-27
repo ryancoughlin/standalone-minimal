@@ -7,12 +7,24 @@
    Theme — brand colors & fonts
    ────────────────────────────────────────────── */
 @theme {
+  /* Brand neutrals */
   --color-reprise-off-white: #FCFBF7;
   --color-reprise-base-surface: #FEFEF6;
   --color-reprise-light-tan: #F7F5F0;
-  --color-reprise-sky: #BCE8F8;
-  --color-reprise-blue: #3A8DDB;
-  --color-reprise-deep-blue: #0D0D41;
+
+  /* Brand blue scale */
+  --color-blue-25: #F8FAFD;
+  --color-blue-50: #F2F7FD;
+  --color-blue-100: #E4EDFA;
+  --color-blue-200: #C3DAF4;
+  --color-blue-300: #8DBCEC;
+  --color-blue-400: #519DE3;
+  --color-blue-500: #2A7DCD;
+  --color-blue-600: #2364AD;
+  --color-blue-700: #1D4B8E;
+  --color-blue-800: #16326F;
+  --color-blue-900: #101950;
+  --color-blue-1000: #0D0D41;
 
   --font-sans: "Geist", system-ui, sans-serif;
   --font-mono: "Geist Mono", monospace;
@@ -46,7 +58,7 @@
   --border-default: var(--color-gray-200);
   --border-muted: var(--color-gray-100);
   --border-emphasis: var(--color-gray-300);
-  --border-primary: var(--color-blue-500);
+  --border-primary: var(--color-blue-600);
   --border-destructive: var(--color-red-300);
 
   /* Icons */

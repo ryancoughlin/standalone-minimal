@@ -12,7 +12,7 @@
           v-if="iteration >= 4"
           @click="$emit('toggle-sidebar')"
           class="size-7 shrink-0 flex items-center justify-center rounded text-default transition-colors hover:bg-hover hover:text-emphasis"
-          :class="{ 'text-reprise-blue': showNavigationSidebar }"
+          :class="{ 'text-blue-600': showNavigationSidebar }"
           :title="showNavigationSidebar ? 'Close sidebar' : 'Open sidebar'"
         >
           <i class="fas fa-bars text-sm"></i>

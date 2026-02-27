@@ -6,7 +6,8 @@
     <img
       src="/src/reprise-logo.png"
       alt="Reprise"
-      class="h-5 shrink-0 object-contain"
+      class="h-5 shrink-0 object-contain cursor-pointer"
+      @click="handleLogoClick"
     />
 
     <!-- Search (iteration 4) -->
@@ -17,7 +18,7 @@
       <input
         type="text"
         placeholder="Search demos..."
-        class="w-full pl-7 py-1.5 text-xs border border-default rounded-md bg-surface-default transition-colors focus:outline-none focus:border-reprise-blue focus:ring-1 focus:ring-reprise-blue"
+        class="w-full pl-7 py-1.5 text-xs border border-default rounded-md bg-surface-default transition-colors focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
         :class="searchQuery ? 'pr-7' : 'pr-3'"
         :value="searchQuery"
         @input="
@@ -62,4 +63,8 @@ interface Emits {
 
 defineProps<Props>();
 defineEmits<Emits>();
+
+const handleLogoClick = () => {
+  alert("This will navigate to your organization's demo library in Reprise.");
+};
 </script>
