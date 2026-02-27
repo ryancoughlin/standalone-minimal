@@ -6,7 +6,7 @@
         @click="$emit('navigate-breadcrumb', crumb)"
         class="flex items-center gap-1 px-2 py-1 text-xs rounded transition-colors whitespace-nowrap hover:bg-hover"
         :class="index === breadcrumbs.length - 1
-          ? 'text-reprise-deep-blue font-semibold'
+          ? 'text-blue-1000 font-semibold'
           : 'text-default hover:text-emphasis'"
       >
         <svg class="w-3 h-3" viewBox="0 0 16 16" fill="currentColor">

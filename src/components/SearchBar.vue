@@ -5,7 +5,7 @@
       <button
         @click="$emit('toggle-sidebar')"
         class="flex-shrink-0 px-2 py-2 text-default hover:text-emphasis hover:bg-hover rounded transition-colors"
-        :class="{ 'text-reprise-blue': showNavigationSidebar }"
+        :class="{ 'text-blue-600': showNavigationSidebar }"
         :title="
           showNavigationSidebar
             ? 'Close navigation sidebar'
@@ -22,7 +22,7 @@
         <input
           type="text"
           placeholder="Search Demos"
-          class="w-full pl-8 pr-8 py-2 border border-default rounded-md text-sm bg-reprise-off-white transition-all duration-200 focus:outline-none focus:border-reprise-blue focus:ring-1 focus:ring-reprise-blue"
+          class="w-full pl-8 pr-8 py-2 border border-default rounded-md text-sm bg-reprise-off-white transition-all duration-200 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
           :value="searchQuery"
           @input="
             $emit(

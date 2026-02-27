@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="px-4 pt-3.5 pb-2 border-b border-gray-100">
       <div class="flex items-center gap-2">
-        <div class="size-6 rounded-md bg-reprise-deep-blue flex items-center justify-center">
+        <div class="size-6 rounded-md bg-blue-1000 flex items-center justify-center">
           <i class="fas fa-layer-group text-white text-[10px]"></i>
         </div>
         <div>
@@ -24,7 +24,7 @@
         <div class="mt-0.5 shrink-0">
           <div
             class="size-4 rounded-full border-2 flex items-center justify-center transition-colors"
-            :class="modelValue === option.value ? 'border-reprise-blue bg-reprise-blue' : 'border-gray-300 group-hover:border-gray-400'"
+            :class="modelValue === option.value ? 'border-blue-600 bg-blue-600' : 'border-gray-300 group-hover:border-gray-400'"
           >
             <div v-if="modelValue === option.value" class="size-1.5 rounded-full bg-white"></div>
           </div>
@@ -40,7 +40,7 @@
           <div class="flex items-center gap-1.5">
             <span
               class="text-xs font-semibold transition-colors"
-              :class="modelValue === option.value ? 'text-reprise-blue' : 'text-gray-700 group-hover:text-gray-900'"
+              :class="modelValue === option.value ? 'text-blue-600' : 'text-gray-700 group-hover:text-gray-900'"
             >
               {{ option.value }}
             </span>
