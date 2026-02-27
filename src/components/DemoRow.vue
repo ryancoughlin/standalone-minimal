@@ -20,10 +20,10 @@
         </div>
         <!-- Type badge -->
         <div
-          class="absolute bottom-0 right-0 px-0.5 py-px bg-black/50 text-white/80 rounded-tl-sm"
-          :title="typeLabel"
+          class="absolute bottom-0 right-0 flex items-center gap-0.5 px-1 py-px bg-black/60 text-white rounded-tl-sm"
         >
           <i :class="typeIcon" class="text-[6px]"></i>
+          <span class="text-[7px] font-medium leading-none tracking-wide uppercase">{{ typeBadge }}</span>
         </div>
       </div>
 
@@ -169,6 +169,15 @@ const typeLabel = computed(() => {
     cloned_environment: "Cloned Environment",
   };
   return labels[props.demo.productType] || "Demo";
+});
+
+const typeBadge = computed(() => {
+  const badges: Record<string, string> = {
+    overlay: "Overlay",
+    html_environment: "HTML",
+    cloned_environment: "Cloned",
+  };
+  return badges[props.demo.productType] || "Demo";
 });
 
 const getScreenshotUrl = (screenshotSmall: string) => {
