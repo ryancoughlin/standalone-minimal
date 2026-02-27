@@ -20,10 +20,10 @@
         </div>
         <!-- Type badge -->
         <div
-          class="absolute bottom-0 right-0 flex items-center gap-0.5 px-1 py-px bg-black/60 text-white rounded-tl-sm"
+          class="absolute bottom-0 right-0 flex items-center gap-0.5 px-1.5 py-0.5 bg-black/60 text-white rounded-tl-sm"
         >
-          <i :class="typeIcon" class="text-[6px]"></i>
-          <span class="text-[7px] font-medium leading-none tracking-wide uppercase">{{ typeBadge }}</span>
+          <i :class="typeIcon" class="text-[7px]"></i>
+          <span class="text-[8px] font-medium leading-none tracking-wide uppercase">{{ typeBadge }}</span>
         </div>
       </div>
 
