@@ -32,16 +32,6 @@
             <span class="text-xs px-1.5 py-0.5 rounded-full font-medium" :class="currentSection === 'recent' ? 'text-reprise-deep-blue bg-reprise-sky' : 'text-muted bg-emphasis'">{{ recentDemoCount }}</span>
           </button>
 
-          <!-- Shared with me -->
-          <button
-            @click="$emit('navigate-section', 'shared')"
-            class="w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md transition-all duration-200 hover:bg-reprise-off-white min-w-0"
-            :class="currentSection === 'shared' ? 'bg-reprise-sky text-reprise-deep-blue' : ''"
-          >
-            <i class="fas fa-users flex-shrink-0" :class="currentSection === 'shared' ? 'text-reprise-deep-blue' : 'icon-default'"></i>
-            <span class="text-xs font-medium truncate flex-1 min-w-0" :class="currentSection === 'shared' ? 'text-reprise-deep-blue' : 'text-emphasis'">Shared with me</span>
-            <span class="text-xs px-1.5 py-0.5 rounded-full font-medium" :class="currentSection === 'shared' ? 'text-reprise-deep-blue bg-reprise-sky' : 'text-muted bg-emphasis'">{{ sharedDemoCount }}</span>
-          </button>
         </div>
 
         <!-- Folders Section -->
@@ -80,7 +70,6 @@ interface Props {
   allFolders: any[];
   totalDemoCount: number;
   recentDemoCount: number;
-  sharedDemoCount: number;
   currentSection: string;
 }
 

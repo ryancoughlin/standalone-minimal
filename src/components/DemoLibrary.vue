@@ -41,7 +41,6 @@
           :all-folders="foldersWithCounts"
           :total-demo-count="tabDemoCount"
           :recent-demo-count="recentDemoCount"
-          :shared-demo-count="sharedDemoCount"
           :current-section="currentSection"
           @select-folder="handleSelectFolder"
           @navigate-section="handleNavigateSection"
@@ -149,8 +148,6 @@ const demos = computed(() => {
 
   if (currentSection.value === "recent") {
     result = result.filter((d) => d.isRecent);
-  } else if (currentSection.value === "shared") {
-    result = result.filter((d) => d.isShared);
   } else if (currentFolder.value) {
     const ids = new Set(getDemosInFolder(currentFolder.value.id).map((d) => d.id));
     result = result.filter((d) => ids.has(d.id));
@@ -163,19 +160,16 @@ const demos = computed(() => {
 
 const tabDemoCount = computed(() => tabDemos.value.length);
 const recentDemoCount = computed(() => tabDemos.value.filter((d) => d.isRecent).length);
-const sharedDemoCount = computed(() => tabDemos.value.filter((d) => d.isShared).length);
 
 // ─── Page chrome (titles, empty states) ──────────────────────
 
 const SECTIONS: Record<string, { type: string; title: string }> = {
   demos:  { type: "library", title: "All Demos" },
   recent: { type: "recent",  title: "Recent Demos" },
-  shared: { type: "shared",  title: "Shared with me" },
 };
 
 const EMPTY: Record<string, { title: string; description: string; icon: string }> = {
   recent: { title: "No recent demos",  description: "Demos you access will appear here for quick reference.", icon: "fal fa-clock" },
-  shared: { title: "No shared demos",  description: "Demos shared with you by teammates will appear here.", icon: "fal fa-users" },
 };
 
 const EMPTY_DEFAULT = { title: "No demos found", description: "Create your first demo to get started.", icon: "fal fa-folder" };

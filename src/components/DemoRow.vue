@@ -3,7 +3,6 @@
     class="relative w-full py-2 px-4 cursor-pointer border-b border-muted last:border-b-0 hover:bg-hover transition-colors duration-150 group"
     @click="$emit('play-demo', demo)"
   >
-    <!-- Row content — full width -->
     <div class="flex items-start gap-2">
       <!-- Thumbnail -->
       <div
@@ -28,42 +27,34 @@
         </div>
       </div>
 
-      <!-- Text -->
+      <!-- Info -->
       <div class="flex-1 min-w-0">
-        <h3 class="text-sm font-medium text-default truncate m-0 mb-0.5">
-          {{ demo.title }}
-        </h3>
-        <div class="flex items-center text-xs text-default">
-          <template v-if="demo.dataset">
-            <i class="fal fa-database icon-muted text-[10px] mr-0.5"></i>
-            <span class="truncate max-w-[120px]">{{ demo.dataset.name }}</span>
-            <span class="mx-1 text-default">&middot;</span>
-          </template>
-          <i class="fal fa-play icon-muted text-[10px] mr-0.5"></i>
-          <span class="text-default">{{ demo.views || 0 }} views</span>
+        <!-- Row 1: Title + views -->
+        <div class="flex items-start justify-between gap-2">
+          <h3 class="text-sm font-medium text-default truncate m-0">
+            {{ demo.title }}
+          </h3>
+          <span class="shrink-0 flex items-center gap-0.5 text-[11px] text-muted">
+            <i class="fal fa-play text-[9px]"></i>
+            {{ demo.views || 0 }}
+          </span>
         </div>
-        <!-- Overlay metadata -->
-        <div
-          v-if="demo.productType === 'overlay'"
-          class="flex items-center gap-3 text-xs text-default mt-0.5"
-        >
-          <span class="flex items-center gap-0.5">
+
+        <!-- Row 2: Dataset + edit count -->
+        <div class="flex items-center gap-2 mt-1">
+          <span v-if="demo.dataset" class="flex items-center gap-0.5 text-xs text-default truncate min-w-0">
+            <i class="fal fa-database icon-muted text-[10px]"></i>
+            <span class="truncate">{{ demo.dataset.name }}</span>
+          </span>
+          <span v-if="totalEdits > 0" class="flex items-center gap-0.5 text-xs text-default shrink-0">
             <i class="fal fa-pen icon-muted text-[10px]"></i>
-            {{ demo.textEditCount || 0 }}
-          </span>
-          <span class="flex items-center gap-0.5">
-            <i class="fal fa-image icon-muted text-[10px]"></i>
-            {{ demo.imageEditCount || 0 }}
-          </span>
-          <span class="flex items-center gap-0.5">
-            <i class="fal fa-link icon-default text-[10px]"></i>
-            {{ demo.linkCount || 0 }}
+            {{ totalEdits }} edit{{ totalEdits > 1 ? 's' : '' }}
           </span>
         </div>
       </div>
     </div>
 
-    <!-- Launch button — overlays on far right, visible on hover -->
+    <!-- Launch button — far right, visible on hover -->
     <div
       class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center opacity-0 group-hover:opacity-100 transition-opacity duration-150"
       :class="{ '!opacity-100': showDropdown }"
@@ -137,6 +128,10 @@ const imageError = ref(false);
 const showDropdown = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
 
+const totalEdits = computed(() => {
+  return (props.demo.textEditCount || 0) + (props.demo.imageEditCount || 0) + (props.demo.linkCount || 0);
+});
+
 const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value;
 };
@@ -167,15 +162,6 @@ const typeIcon = computed(() => {
     cloned_environment: "fas fa-clone",
   };
   return icons[props.demo.productType] || "fas fa-play";
-});
-
-const typeShort = computed(() => {
-  const labels: Record<string, string> = {
-    overlay: "OVR",
-    html_environment: "HTML",
-    cloned_environment: "CLN",
-  };
-  return labels[props.demo.productType] || "";
 });
 
 const typeLabel = computed(() => {
